@@ -199,7 +199,7 @@ const Header = () => {
         </div>
 
         {/* --- Main Navigation --- */}
-        <nav className='hidden items-center gap-4 lg:flex'>
+        <nav className='hidden items-center gap-4 lg:flex dark:text-slate-400'>
           <Link
             href='/products'
             className='text-sm font-medium hover:text-slate-900 dark:hover:text-white'
@@ -221,7 +221,7 @@ const Header = () => {
         </nav>
 
         {/* --- Actions --- */}
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-2 dark:text-slate-400'>
           <Button
             variant='ghost'
             size='icon'
