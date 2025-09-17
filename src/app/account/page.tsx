@@ -50,7 +50,7 @@ const AccountPage = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className='bg-white rounded-lg overflow-hidden shadow-sm dark:bg-slate-800'>
+                  <div className='bg-white rounded-lg overflow-hidden shadow-sm dark:bg-slate-800 border'>
                     <div className='border-b dark:border-slate-700'>
                       <div className='grid grid-cols-12 px-6 py-3 text-sm font-medium text-slate-500 dark:text-slate-400'>
                         <div className='col-span-4'>Order</div>
@@ -60,11 +60,11 @@ const AccountPage = () => {
                       </div>
                     </div>
 
-                    <div className='divide-y dark:divide-slate-700'>
+                    <div className='divide-y dark:divide-slate-700 group'>
                       {orders.map((order: Order) => (
                         <div
                           key={order.id}
-                          className='group grid grid-cols-12 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors'
+                          className=' grid grid-cols-12 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer transition-colors '
                           onClick={() => viewOrder(order.id)}
                         >
                           <div className='col-span-4 font-medium text-slate-800 group-hover:text-slate-900 dark:text-white dark:group-hover:text-slate-100'>
