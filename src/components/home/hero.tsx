@@ -1,17 +1,20 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useProducts } from '@/lib/hooks/useProducts';
 import { getProductImage } from '@/lib/utils/product-images';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { Product } from '@/lib/types';
 
-const Hero = () => {
+interface HeroProps {
+  products: Product[];
+}
+
+const Hero = ({ products }: HeroProps) => {
   const router = useRouter();
-  const { products } = useProducts();
   const testimonials = useMemo(
     () => [
       {
@@ -84,16 +87,14 @@ const Hero = () => {
       x: '0%',
       transition: {
         duration: 0.8,
-        // @ts-ignore
-        ease: 'easeInOut',
+        ease: 'easeInOut' as any,
       },
     },
     exit: (direction: number) => ({
-      x: direction > 0 ? '100%' : '-100%',
+      x: direction > 0 ? '-100%' : '-100%',
       transition: {
         duration: 0.8,
-        // @ts-ignore
-        ease: 'easeInOut',
+        ease: 'easeInOut' as any,
       },
     }),
   };
@@ -228,7 +229,7 @@ const Hero = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.5 }}
             >
-              <p className='text-slate-600 italic dark:text-slate-400'>
+              <p className='text-slate-600 italic dark:text-slate-300'>
                 {testimonials[currentTestimonial].quote}
               </p>
               <p className='text-sm font-semibold text-slate-500 mt-1 dark:text-slate-500'>

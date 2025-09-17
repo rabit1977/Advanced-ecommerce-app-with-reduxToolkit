@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import AuthGuard from '@/components/auth/auth-guard';
+import { Product } from '@/lib/types';
 
 const WishlistPage = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ const WishlistPage = () => {
   const { products } = useAppSelector((state: any) => state.products);
 
   const wishlistedProducts = useMemo(
-    () => products.filter((p: any) => (wishlist || []).includes(p.id)),
+    () => products.filter((p: Product) => (wishlist || []).includes(p.id)),
     [wishlist, products]
   );
   const viewProduct = (productId: string) => {
@@ -27,7 +28,7 @@ const WishlistPage = () => {
   };
 
   const handleAddToCart = (productId: string) => {
-    const product = products.find((p: any) => p.id === productId);
+    const product = products.find((p: Product) => p.id === productId);
     if (product) {
       dispatch(addToCart({
         id: product.id,
@@ -49,7 +50,7 @@ const WishlistPage = () => {
         <div className='container mx-auto px-4 py-16 text-center'>
           <Heart className='mx-auto h-24 w-24 text-slate-300 dark:text-slate-700' />
           <h2 className='mt-6 text-2xl font-bold dark:text-white'>
-            Your wishlist is empty
+            Your Wishlist is empty
           </h2>
           <p className='mt-2 text-slate-500 dark:text-slate-400'>
             Browse products and save your favorites for later.
@@ -78,7 +79,7 @@ const WishlistPage = () => {
             </div>
 
             <div className='grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-              {wishlistedProducts.map((product) => (
+              {wishlistedProducts.map((product: Product) => (
                 <div
                   key={product.id}
                   className='border rounded-2xl bg-white shadow-sm overflow-hidden flex flex-col dark:bg-slate-950 dark:border-slate-800'

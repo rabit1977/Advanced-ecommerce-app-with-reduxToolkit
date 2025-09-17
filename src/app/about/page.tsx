@@ -17,7 +17,7 @@ const AboutPage = () => {
             <h1 className='text-4xl font-bold tracking-tight text-slate-900 dark:text-white'>
               Our Story
             </h1>
-            <p className='mt-4 text-lg text-slate-600 dark:text-slate-300'>
+            <p className='mt-4 text-lg leading-relaxed text-slate-700 dark:text-slate-400'>
               Founded in 2023, Electro was born from a simple idea: to make the
               latest technology accessible to everyone. We&apos;re a team of
               tech enthusiasts who believe that innovation should be effortless
@@ -25,7 +25,7 @@ const AboutPage = () => {
               selection of products that are not only high-performing but also
               beautifully designed.
             </p>
-            <p className='mt-4 text-lg text-slate-600 dark:text-slate-300'>
+            <p className='mt-4 text-lg leading-relaxed text-slate-700 dark:text-slate-400'>
               From the smallest smart gadget to the most powerful computing
               device, every product on our platform is hand-picked and
               rigorously tested. We stand behind our products with a commitment
@@ -53,7 +53,7 @@ const AboutPage = () => {
               <h3 className='mt-4 text-xl font-semibold dark:text-white'>
                 Innovation
               </h3>
-              <p className='mt-2 text-slate-600 dark:text-slate-300'>
+              <p className='mt-2 leading-normal text-slate-700 dark:text-slate-400'>
                 We constantly seek out the latest and greatest in technology to
                 bring you products that shape the future.
               </p>
@@ -63,7 +63,7 @@ const AboutPage = () => {
               <h3 className='mt-4 text-xl font-semibold dark:text-white'>
                 Quality
               </h3>
-              <p className='mt-2 text-slate-600 dark:text-slate-300'>
+              <p className='mt-2 leading-normal text-slate-700 dark:text-slate-400'>
                 Our products are chosen for their reliability and performance,
                 ensuring you get the best value for your money.
               </p>
@@ -73,7 +73,7 @@ const AboutPage = () => {
               <h3 className='mt-4 text-xl font-semibold dark:text-white'>
                 Customer First
               </h3>
-              <p className='mt-2 text-slate-600 dark:text-slate-300'>
+              <p className='mt-2 leading-normal text-slate-700 dark:text-slate-400'>
                 Your satisfaction is our priority. We&apos;re here to help you
                 every step of the way.
               </p>
@@ -100,7 +100,7 @@ const AboutPage = () => {
                 <h3 className='mt-4 text-lg font-semibold dark:text-white'>
                   {member.name}
                 </h3>
-                <p className='text-slate-600 text-sm dark:text-slate-300'>
+                <p className='text-slate-700 text-sm dark:text-slate-400'>
                   {member.role}
                 </p>
               </div>

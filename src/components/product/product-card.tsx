@@ -84,19 +84,19 @@ const ProductCard = React.memo(({ product }: ProductCardProps) => {
         </div>
 
         <Link href={`/products/${product.id}`} className='block p-4'>
-          <div className='text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400'>
+          <div className='text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400'>
             {product.brand}
           </div>
-          <h3 className='truncate text-lg font-semibold leading-tight text-slate-900 dark:text-white'>
+          <h3 className='truncate text-lg font-semibold leading-tight text-slate-800 dark:text-white'>
             {product.title}
           </h3>
           <div className='mt-2 flex items-center justify-between'>
-            <span className='text-xl font-bold text-slate-900 dark:text-white'>
+            <span className='text-sm font-bold text-slate-800 dark:text-slate-400'>
               {priceFmt(product.price)}
             </span>
             <div className='flex items-center gap-1'>
               <Stars value={product.rating} />
-              <span className='text-xs text-slate-500 dark:text-slate-400'>
+              <span className='text-xs text-slate-600 dark:text-slate-400'>
                 ({product.reviewCount})
               </span>
             </div>

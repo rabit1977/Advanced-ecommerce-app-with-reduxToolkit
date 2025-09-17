@@ -1,7 +1,6 @@
 // components/product/product-grid.tsx
 'use client';
 
-import { useProducts } from '@/lib/hooks/useProducts';
 import { Product } from '@/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useRef } from 'react';
@@ -26,21 +25,19 @@ export type SortKey = keyof typeof sortOptions;
 interface ProductGridProps {
   title?: string;
   subtitle?: string;
-  products?: Product[];
+  products: Product[]; // Now required
 }
 
 const ProductGrid = ({
   title = 'All Products',
   subtitle = 'Find the perfect tech for you',
-  products: customProducts,
+  products, // Use products directly from props
 }: ProductGridProps) => {
-  const { products: contextProducts } = useProducts();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const gridRef = useRef<HTMLDivElement>(null); // Create the ref
 
-  const products = customProducts || contextProducts;
   const searchQuery = searchParams.get('search') || '';
   const currentCategory = searchParams.get('category') || 'all';
   const currentSort = (searchParams.get('sort') as SortKey) || 'featured';
@@ -93,11 +90,11 @@ const ProductGrid = ({
   };
 
   const categories = useMemo(() => {
-    return ['all', ...new Set(products.map((p) => p.category))];
+    return ['all', ...new Set((products || []).map((p) => p.category))];
   }, [products]);
 
   const filteredAndSortedProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...(products || [])];
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
       result = result.filter(

@@ -49,7 +49,7 @@ const ProductGridControls = ({
           <select
             value={currentCategory}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className='w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm focus:border-slate-500 focus:outline-none focus:ring-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto'
+            className='w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm focus:border-slate-500 focus:outline-none focus:ring-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:w-auto'
           >
             {categories.map((c) => (
               <option key={c} value={c}>
@@ -64,7 +64,7 @@ const ProductGridControls = ({
           <select
             value={currentSort}
             onChange={(e) => onSortChange(e.target.value)}
-            className='w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm focus:border-slate-500 focus:outline-none focus:ring-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:w-auto'
+            className='w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm focus:border-slate-500 focus:outline-none focus:ring-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:w-auto'
           >
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>

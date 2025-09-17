@@ -36,7 +36,7 @@ const ContactPage = () => {
         <h1 className='text-4xl font-bold tracking-tight text-slate-900 dark:text-white text-center'>
           Get in Touch
         </h1>
-        <p className='mt-4 text-lg text-slate-600 dark:text-slate-300 text-center'>
+        <p className='mt-4 text-lg leading-relaxed text-slate-700 dark:text-slate-400 text-center'>
           We&apos;re here to help you. Fill out the form below or find us at our
           office.
         </p>
@@ -94,8 +94,8 @@ const ContactPage = () => {
                 <div className='flex items-center gap-3'>
                   <MapPin className='h-5 w-5 text-slate-600 dark:text-slate-400' />
                   <div>
-                    <p className='font-medium dark:text-white'>Address</p>
-                    <p className='text-slate-600 dark:text-slate-300'>
+                    <p className='font-medium text-lg dark:text-white'>Address</p>
+                    <p className='text-slate-700 dark:text-slate-400'>
                       123 Tech Avenue, Suite 100
                       <br />
                       Innovation City, CA 90210
@@ -105,8 +105,8 @@ const ContactPage = () => {
                 <div className='flex items-center gap-3'>
                   <Phone className='h-5 w-5 text-slate-600 dark:text-slate-400' />
                   <div>
-                    <p className='font-medium dark:text-white'>Phone</p>
-                    <p className='text-slate-600 dark:text-slate-300'>
+                    <p className='font-medium text-lg dark:text-white'>Phone</p>
+                    <p className='text-slate-700 dark:text-slate-400'>
                       +1 (555) 123-4567
                     </p>
                   </div>
@@ -114,8 +114,8 @@ const ContactPage = () => {
                 <div className='flex items-center gap-3'>
                   <Mail className='h-5 w-5 text-slate-600 dark:text-slate-400' />
                   <div>
-                    <p className='font-medium dark:text-white'>Email</p>
-                    <p className='text-slate-600 dark:text-slate-300'>
+                    <p className='font-medium text-lg dark:text-white'>Email</p>
+                    <p className='text-slate-700 dark:text-slate-400'>
                       support@electro.com
                     </p>
                   </div>
@@ -127,7 +127,7 @@ const ContactPage = () => {
               <h2 className='text-2xl font-semibold dark:text-white'>
                 Business Hours
               </h2>
-              <div className='mt-4 space-y-2 text-slate-600 dark:text-slate-300'>
+              <div className='mt-4 space-y-2 text-slate-700 dark:text-slate-400'>
                 <div className='flex justify-between'>
                   <span>Monday - Friday</span>
                   <span>9:00 AM - 6:00 PM</span>
