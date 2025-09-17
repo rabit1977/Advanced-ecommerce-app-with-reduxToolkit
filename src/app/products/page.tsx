@@ -1,21 +1,11 @@
-'use client';
-
 import { ProductGrid } from '@/components/product/product-grid';
-import { useUI } from '@/lib/hooks/useUI';
-import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 
-const ProductsPage = () => {
-  const { setSearchQuery } = useUI();
-  const searchParams = useSearchParams();
+interface ProductsPageProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
 
-  // Get search query from URL on component mount
-  useEffect(() => {
-    const search = searchParams.get('search');
-    if (search) {
-      setSearchQuery(search);
-    }
-  }, []); // Empty dependency array since searchParams and setSearchQuery are stable
+const ProductsPage = ({ searchParams }: ProductsPageProps) => {
+  // Product fetching logic will go here later
 
   return (
     <ProductGrid

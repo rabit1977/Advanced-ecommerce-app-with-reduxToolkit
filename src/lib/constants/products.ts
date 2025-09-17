@@ -119,7 +119,7 @@ export const initialProducts: Product[] = [
     category: "Smart Home",
     stock: 8,
     images: [
-      "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?q=80&w=800&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1596733353266-83a81d834246?q=80&w=800&auto=format&fit=crop"
     ],
     description: "The central nervous system for your smart home. Control lights, thermostats, and security with your voice.",
@@ -302,7 +302,7 @@ export const initialProducts: Product[] = [
     reviewCount: 0,
     category: "Smart Home",
     stock: 18,
-    images: ["https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=800&auto=format&fit=crop"]
+    images: ["https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?q=80&w=800&auto=format&fit=crop"]
     ,
     description: "Learn your schedule and preferences to automatically optimize your home's temperature and save energy.",
     reviews: []
@@ -470,7 +470,7 @@ export const initialProducts: Product[] = [
     reviewCount: 0,
     category: "Smart Home",
     stock: 12,
-    images: ["https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=800&auto=format&fit=crop"]
+    images: ["https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?q=80&w=800&auto=format&fit=crop"]
     ,
     description: "4K security camera with night vision, motion detection, and cloud storage for complete home security.",
     reviews: []
