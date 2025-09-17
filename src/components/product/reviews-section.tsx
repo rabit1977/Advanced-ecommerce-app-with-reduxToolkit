@@ -3,31 +3,47 @@
 import { Button } from '@/components/ui/button';
 import { Stars } from '@/components/ui/stars';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { Review } from '@/lib/types';
+import { Product, Review } from '@/lib/types';
 import { Pencil, ThumbsUp, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { AddReviewForm } from './add-review-form';
-import { useAppDispatch } from '@/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { toggleHelpfulReview, deleteReview } from '@/lib/store/thunks/managementThunks';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface ReviewsSectionProps {
   productId: string;
-  reviews: Review[];
 }
 
-const ReviewsSection = ({ productId, reviews }: ReviewsSectionProps) => {
+const ReviewsSection = ({ productId }: ReviewsSectionProps) => {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
+  const { products } = useAppSelector((state) => state.products);
+  const product = products.find((p) => p.id === productId);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [showConfirmDeleteDialog, setShowConfirmDeleteDialog] = useState(false);
+  const [reviewIdToDelete, setReviewIdToDelete] = useState<string | null>(null);
+
+  if (!product) return null; // Handle case where product is not found
+
+  const reviews = product.reviews || []; // Use reviews from the product in Redux store
 
   const userReview = useMemo(() => {
     if (!user) return null;
-    return reviews.find(review => review.author === user.name);
+    return reviews.find(review => review.author === user.name) || null;
   }, [reviews, user]);
 
-  const handleEditClick = () => {
-    setEditingReview(userReview);
+  const handleEditClick = (review: Review) => {
+    setEditingReview(review);
   };
 
   const handleCancelEdit = () => {
@@ -38,9 +54,16 @@ const ReviewsSection = ({ productId, reviews }: ReviewsSectionProps) => {
     dispatch(toggleHelpfulReview(productId, reviewId));
   };
 
-  const handleDeleteReview = (reviewId: string) => {
-    if (window.confirm('Are you sure you want to delete your review?')) {
-      dispatch(deleteReview(productId, reviewId));
+  const handleDeleteReviewClick = (reviewId: string) => {
+    setReviewIdToDelete(reviewId);
+    setShowConfirmDeleteDialog(true);
+  };
+
+  const confirmDeleteReview = () => {
+    if (reviewIdToDelete) {
+      dispatch(deleteReview(productId, reviewIdToDelete));
+      setReviewIdToDelete(null);
+      setShowConfirmDeleteDialog(false);
     }
   };
 
@@ -55,7 +78,7 @@ const ReviewsSection = ({ productId, reviews }: ReviewsSectionProps) => {
         {user && userReview && !editingReview && (
             <div className="flex items-center gap-2">
                 <p className="text-sm text-slate-500 dark:text-slate-400">You have already reviewed this product.</p>
-                <Button variant="outline" size="sm" onClick={handleEditClick}><Pencil className="mr-2 h-4 w-4"/>Edit Your Review</Button>
+                <Button variant="outline" size="sm" onClick={() => handleEditClick(userReview)}><Pencil className="mr-2 h-4 w-4"/>Edit Your Review</Button>
             </div>
         )}
       </div>
@@ -103,7 +126,7 @@ const ReviewsSection = ({ productId, reviews }: ReviewsSectionProps) => {
                             <Button
                                 variant='ghost'
                                 size='sm'
-                                onClick={() => handleDeleteReview(review.id)}
+                                onClick={() => handleDeleteReviewClick(review.id)}
                                 className='flex items-center gap-1 text-sm text-red-500 hover:text-red-600'
                             >
                                 <Trash2 className='h-4 w-4' />
@@ -128,7 +151,7 @@ const ReviewsSection = ({ productId, reviews }: ReviewsSectionProps) => {
                   <div className='flex items-center mt-2 text-sm text-slate-500 dark:text-slate-400'>
                     <button
                       onClick={() => handleToggleHelpful(review.id)}
-                      disabled={isUserReview} // Disable helpful button on user's own review
+                      disabled={isUserReview as boolean | undefined} // Disable helpful button on user's own review
                       className={cn(
                         'flex items-center gap-1 transition-colors',
                         !isUserReview && 'hover:text-slate-900 dark:hover:text-white',
@@ -146,6 +169,25 @@ const ReviewsSection = ({ productId, reviews }: ReviewsSectionProps) => {
           })
         )}
       </div>
+
+      <Dialog open={showConfirmDeleteDialog} onOpenChange={setShowConfirmDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this review? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteReview}>
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

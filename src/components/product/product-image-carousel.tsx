@@ -1,14 +1,15 @@
 'use client';
 
-import { Product, ProductImageCarouselProps } from '@/lib/types';
-import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
+import { Product } from '@/lib/types';
 
-
+interface ProductImageCarouselProps {
+  product: Product;
+}
 
 export function ProductImageCarousel({ product }: ProductImageCarouselProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);

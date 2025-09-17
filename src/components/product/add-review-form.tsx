@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useProducts } from '@/lib/hooks/useProducts';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { addReview } from '@/lib/store/thunks/managementThunks';
 import { Review } from '@/lib/types';
 import { Star } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -21,7 +22,7 @@ const AddReviewForm = ({
   onCancelEdit,
 }: AddReviewFormProps) => {
   const { user } = useAuth();
-  const { addReview } = useProducts();
+  const dispatch = useAppDispatch();
   const [rating, setRating] = useState(reviewToEdit?.rating || 0);
   const [title, setTitle] = useState(reviewToEdit?.title || '');
   const [comment, setComment] = useState(reviewToEdit?.comment || '');
@@ -48,13 +49,13 @@ const AddReviewForm = ({
       return;
     }
 
-    addReview(productId, {
+    dispatch(addReview(productId, {
       id: reviewToEdit?.id,
       author: user.name,
       rating,
       title,
       comment,
-    });
+    }));
 
     setRating(0);
     setTitle('');

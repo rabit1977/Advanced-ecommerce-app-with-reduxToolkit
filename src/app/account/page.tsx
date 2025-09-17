@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { priceFmt } from '@/lib/utils/formatters';
 import { Heart, Package, ShoppingCart, User } from 'lucide-react';
 import AuthGuard from '@/components/auth/auth-guard';
+import { Order } from '@/lib/types';
 
 const AccountPage = () => {
   const router = useRouter();
@@ -60,7 +61,7 @@ const AccountPage = () => {
                     </div>
 
                     <div className='divide-y dark:divide-slate-700'>
-                      {orders.map((order) => (
+                      {orders.map((order: Order) => (
                         <div
                           key={order.id}
                           className='group grid grid-cols-12 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors'

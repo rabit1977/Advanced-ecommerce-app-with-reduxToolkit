@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,14 @@ import Image from 'next/image';
 import { placeOrder } from '@/lib/store/thunks/orderThunks';
 import AuthGuard from '@/components/auth/auth-guard';
 import { useRouter } from 'next/navigation';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const CheckoutPage = () => {
   const dispatch = useAppDispatch();
@@ -32,6 +40,8 @@ const CheckoutPage = () => {
     cvc: ''
   });
   const [shippingMethod, setShippingMethod] = useState('standard');
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
 
   const subtotal = useMemo(() => 
     cart.reduce((sum, item) => sum + item.price * item.quantity, 0), 
@@ -74,13 +84,31 @@ const CheckoutPage = () => {
         country: 'USA'
       },
       paymentMethod: 'Credit Card',
-      status: 'Pending'
+      status: 'Pending' as 'Pending' // Explicitly cast to the literal type
     };
     
     const newOrderId = dispatch(placeOrder(orderDetails));
     if (newOrderId) {
       router.push('/order-confirmation');
     }
+  };
+
+  const handleLeaveCheckout = useCallback((url: string) => {
+    setNextUrl(url);
+    setShowLeaveConfirm(true);
+  }, []);
+
+  const handleConfirmLeave = () => {
+    if (nextUrl) {
+      window.location.href = nextUrl;
+    }
+    setShowLeaveConfirm(false);
+    setNextUrl(null);
+  };
+
+  const handleCancelLeave = () => {
+    setShowLeaveConfirm(false);
+    setNextUrl(null);
   };
 
   return (
@@ -129,7 +157,7 @@ const CheckoutPage = () => {
                     />
                     <Input 
                       name="zip" 
-                      placeholder="Zip Code" 
+                      placeholder="CVC" 
                       value={shippingInfo.zip} 
                       onChange={handleShippingChange} 
                     />
@@ -213,7 +241,7 @@ const CheckoutPage = () => {
                   </div>
                   
                   <div className="flex gap-4">
-                    <Button variant="outline" size="lg" className="mt-6" onClick={() => setStep(1)}>
+                    <Button variant="outline" size="lg" className="mt-6" onClick={() => handleLeaveCheckout('/cart')}>
                       Back to Shipping
                     </Button>
                     <Button 
@@ -274,7 +302,7 @@ const CheckoutPage = () => {
                   </div>
                   
                   <div className="flex gap-4 mt-6">
-                    <Button variant="outline" size="lg" onClick={() => setStep(2)}>
+                    <Button variant="outline" size="lg" onClick={() => handleLeaveCheckout('/checkout?step=2')}>
                       Back to Payment
                     </Button>
                     <Button 
@@ -300,6 +328,25 @@ const CheckoutPage = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Leave Checkout?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to leave the checkout process? Your progress will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelLeave}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmLeave}>
+              Leave
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AuthGuard>
   );
 };

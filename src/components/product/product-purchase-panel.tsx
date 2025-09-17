@@ -32,7 +32,7 @@ export function ProductPurchasePanel({
   const dispatch = useAppDispatch();
   const { itemIds: wishlistItems } = useAppSelector((state: any) => state.wishlist);
   const [isPending, startTransition] = useTransition();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
   const [addedToCart, setAddedToCart] = useState(false);
 
   const isWished = useMemo(
@@ -114,7 +114,7 @@ export function ProductPurchasePanel({
                         : 'ring-transparent',
                       option.type === 'color'
                         ? 'h-8 w-8'
-                        : 'h-10 border border-slate-200 px-4 text-sm font-medium dark:border-slate-700'
+                        : 'h-10 px-4 text-sm font-medium border border-slate-200 dark:border-slate-700'
                     )}
                   >
                     {option.type === 'color' && (

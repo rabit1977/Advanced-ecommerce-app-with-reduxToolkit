@@ -25,11 +25,11 @@ const QuickViewModal = () => {
   const dispatch = useAppDispatch();
   const { quickViewProductId } = useAppSelector((state) => state.ui);
   const { products } = useAppSelector((state) => state.products);
-  const { ids: wishlist } = useAppSelector((state) => state.wishlist);
+  const { itemIds: wishlist } = useAppSelector((state) => state.wishlist);
 
   const product = products.find((p) => p.id === quickViewProductId);
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(product?.stock > 0 ? 1 : 0);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<
@@ -47,7 +47,7 @@ const QuickViewModal = () => {
 
   useEffect(() => {
     if (product) {
-      setQuantity(1);
+      setQuantity(product.stock > 0 ? 1 : 0);
       setAdding(false);
       setAdded(false);
       const initialOptions = product.options?.reduce(

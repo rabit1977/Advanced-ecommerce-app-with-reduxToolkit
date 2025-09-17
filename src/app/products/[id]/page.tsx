@@ -85,7 +85,6 @@ const ProductDetailPage = () => {
 
         <ReviewsSection
           productId={product.id}
-          reviews={product.reviews || []}
         />
         <RelatedProducts currentProduct={product} />
       </div>

@@ -8,6 +8,7 @@ import { useAppSelector } from '@/lib/store/hooks';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { priceFmt } from '@/lib/utils/formatters';
+import { CartItem, Order } from '@/lib/types';
 
 const OrderDetailPage = () => {
   const params = useParams();
@@ -95,7 +96,7 @@ const OrderDetailPage = () => {
             <div className="bg-white rounded-lg p-6 shadow-sm dark:bg-slate-800">
               <h2 className="text-xl font-semibold dark:text-white mb-4">Items in this Order</h2>
               <div className="divide-y dark:divide-slate-700">
-                {order.items.map(item => (
+                {order.items.map((item: CartItem) => (
                   <div key={item.cartItemId} className="flex py-4">
                     <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border dark:border-slate-700">
                       <Image
@@ -119,7 +120,7 @@ const OrderDetailPage = () => {
                       <p className="text-sm text-slate-500 dark:text-slate-400">Quantity: {item.quantity}</p>
                       {item.options && (
                         <div className="mt-1 flex flex-wrap gap-x-3 text-sm text-slate-500 dark:text-slate-400">
-                          {Object.entries(item.options).map(([name, value]) => (
+                          {Object.entries(item.options).map(([name, value]: [string, string]) => (
                             <span key={name}>{name}: {value}</span>
                           ))}
                         </div>

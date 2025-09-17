@@ -84,6 +84,7 @@ const Hero = () => {
       x: '0%',
       transition: {
         duration: 0.8,
+        // @ts-ignore
         ease: 'easeInOut',
       },
     },
@@ -91,6 +92,7 @@ const Hero = () => {
       x: direction > 0 ? '100%' : '-100%',
       transition: {
         duration: 0.8,
+        // @ts-ignore
         ease: 'easeInOut',
       },
     }),

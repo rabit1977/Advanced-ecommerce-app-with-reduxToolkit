@@ -1,12 +1,16 @@
 'use client';
 
-import { Product, ProductImageGalleryProps } from '@/lib/types';
+import { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useMemo } from 'react';
 
-
+interface ProductImageGalleryProps {
+  product: Product;
+  selectedOptions: Record<string, string>;
+  onOptionChange: (optionName: string, value: string) => void;
+}
 
 export function ProductImageGallery({
   product,

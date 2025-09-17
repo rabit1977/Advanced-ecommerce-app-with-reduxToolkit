@@ -2,7 +2,11 @@
 
 import { ProductCard } from '@/components/product/product-card';
 import { useProducts } from '@/lib/hooks/useProducts';
-import { RelatedProductsProps } from '@/lib/types';
+import { Product } from '@/lib/types';
+
+interface RelatedProductsProps {
+  currentProduct: Product;
+}
 import { useMemo } from 'react';
 
 const RelatedProducts = ({ currentProduct }: RelatedProductsProps) => {
