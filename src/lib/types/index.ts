@@ -119,6 +119,8 @@ export interface Order {
   shippingAddress: Address;
   billingAddress: Address;
   paymentMethod: string;
+  createdAt: string;
+  selectedId: string | null;
 }
 
 export interface Address {
