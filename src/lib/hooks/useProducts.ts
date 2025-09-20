@@ -1,7 +1,6 @@
-import { addReview, placeOrder } from '@/lib/store/thunks/managementThunks';
+import { addReview, placeOrder, toggleHelpfulReview } from '@/lib/store/thunks/managementThunks';
 import { Order, ReviewPayload } from '@/lib/types';
 import { useCallback } from 'react';
-import { updateReviewHelpfulCount } from '../store/slices/productSlice';
 import { useAppDispatch } from './useAppDispatch';
 import { useAppSelector } from './useAppSelector';
 
@@ -26,7 +25,7 @@ export const useProducts = () => {
 
   const handleUpdateReviewHelpfulCount = useCallback(
     (productId: string, reviewId: string) => {
-      dispatch(updateReviewHelpfulCount(productId, reviewId));
+     dispatch(toggleHelpfulReview(productId, reviewId)); 
     },
     [dispatch]
   );

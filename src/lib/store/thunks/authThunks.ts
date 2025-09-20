@@ -57,7 +57,7 @@ export const logout = () => (dispatch: AppDispatch, getState: () => RootState) =
 
   // Save the current cart/wishlist state back to the user object before logging out
   if (user) {
-    dispatch(saveDataToUser({ userId: user.id, cart, savedForLater, wishlist }));
+    dispatch(saveDataToUser({ userId: user.id, cart, savedForLater, wishlist, helpfulReviews: user.helpfulReviews || [] }));
   }
 
   // Clear the active state

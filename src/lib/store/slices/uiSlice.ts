@@ -35,8 +35,10 @@ const uiSlice = createSlice({
     setToast: (state, action: PayloadAction<{ message: string; type: 'success' | 'error' | 'info' } | null>) => {
       state.toast = action.payload;
     },
-    setUiState: (state, action: PayloadAction<UIState>) => {
-        return action.payload;
+     // NEW: A more flexible way to update multiple UI state properties
+    setUiState: (state, action: PayloadAction<Partial<UIState>>) => {
+        // Object.assign merges the new partial state into the existing state
+        Object.assign(state, action.payload);
     }
   },
 });
