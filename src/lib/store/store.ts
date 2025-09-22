@@ -37,7 +37,7 @@ import wishlistReducer from './slices/wishlistSlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['cart', 'wishlist', 'orders', 'user', 'ui', 'products'],
+  whitelist: ['cart', 'wishlist', 'orders', 'user', 'ui'],
 };
 
 // Combine all slice reducers into a single root reducer. The keys here

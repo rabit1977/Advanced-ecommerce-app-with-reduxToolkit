@@ -59,33 +59,36 @@ const CartPage = () => {
                 <CartItem key={item.cartItemId} item={item} />
               ))}
             </ul>
-
-            <div className='w-full lg:w-1/3'>
-              <CartSummary
-                subtotal={subtotal}
-                shipping={shipping}
-                total={total}
-              />
-            </div>
           </div>
-          {savedForLater.length > 0 && (
-            <div className='mt-12'>
-              <h2 className='text-2xl font-bold tracking-tight dark:text-white'>
-                Saved for Later
-              </h2>
-              <ul
-                role='list'
-                className='divide-y divide-slate-200 border-y border-slate-200 dark:divide-slate-800 dark:border-slate-800 mt-4'
-              >
-                {savedForLater.map((item) => (
-                  <SavedItem key={item.cartItemId} item={item} />
-                ))}
-              </ul>
-            </div>
-          )}
+
+          {/* Sidebar: Cart summary */}
+          <div className='w-full lg:w-1/3'>
+            <CartSummary
+              subtotal={subtotal}
+              shipping={shipping}
+              total={total}
+            />
+          </div>
         </div>
+
+        {/* Saved for later section */}
+        {savedForLater.length > 0 && (
+          <div className='mt-12'>
+            <h2 className='text-2xl font-bold tracking-tight dark:text-white'>
+              Saved for Later
+            </h2>
+            <ul
+              role='list'
+              className='divide-y divide-slate-200 border-y border-slate-200 dark:divide-slate-800 dark:border-slate-800 mt-4'
+            >
+              {savedForLater.map((item) => (
+                <SavedItem key={item.cartItemId} item={item} />
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-    </div>
+      </div>
   );
 };
 

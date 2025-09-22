@@ -39,14 +39,19 @@ export const signup = (name: string, email: string, password: string) => (dispat
     id: String(Date.now()),
     name,
     email,
-    password,
+    role: email === 'admin@example.com' ? 'admin' : 'customer',
     cart: [],
     savedForLater: [],
     wishlist: [],
   };
   
   dispatch(addUser(newUser));
-  dispatch(showToast(`Account created for ${name}! Please log in.`, 'success'));
+  dispatch(showToast(`Account created for ${name}!`, 'success'));
+  
+  // Automatically log in the user after successful signup
+  dispatch(setUser(newUser));
+  dispatch(showToast(`Welcome, ${newUser.name.split(' ')[0]}!`, 'success'));
+
   return { success: true };
 };
 

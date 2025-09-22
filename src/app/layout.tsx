@@ -2,6 +2,7 @@ import { CartDebug } from '@/components/debug/cart-debug';
 import ErrorBoundary from '@/components/error-boundary';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
+import { PageTransition } from '@/components/layout/page-transition';
 import { MobileSidebar } from '@/components/layout/mobile-sidebar';
 import { QuickViewModal } from '@/components/product/quick-view-modal';
 import { Toast } from '@/components/toast';
@@ -10,6 +11,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeManager } from '@/components/layout/theme-manager';
+import { CommandPalette } from '@/components/ui/command-palette';
+import { UserDebug } from '@/components/debug/user-debug';
 // import { ProductsLoader } from '@/components/products/products-loader';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -34,15 +37,19 @@ export default function RootLayout({
         <ErrorBoundary>
           <ReduxProvider>
             <ThemeManager />
+            <CommandPalette />
             {/* <ProductsLoader /> */}
             <div className='min-h-screen bg-white font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-200'>
               <Header />
               <MobileSidebar />
-              <main className='min-h-[calc(100vh-4rem)]'>{children}</main>
+              <main className='min-h-[calc(100vh-4rem)]'>
+                <PageTransition>{children}</PageTransition>
+              </main>
               <Footer />
               <QuickViewModal />
               <Toast />
             </div>
+            {process.env.NODE_ENV === 'development' && <UserDebug />}
             {/* {process.env.NODE_ENV === 'development' && <CartDebug />} */}
           </ReduxProvider>
         </ErrorBoundary>

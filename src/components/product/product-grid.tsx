@@ -1,53 +1,53 @@
-// components/product/product-grid.tsx
 'use client';
 
 import { Product } from '@/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ProductGridControls } from './ProductGridControls';
 import { ProductGridPagination } from './ProductGridPagination';
 import { ProductList } from './ProductList';
+import { FilterSidebar } from './filter-sidebar';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
-// --- Configuration ---
-const PRODUCTS_PER_PAGE = 8;
-
-// --- Sorting Logic Map (Declarative and Extensible) ---
-const sortOptions = {
-  featured: (a: Product, b: Product) => 0,
-  'price-asc': (a: Product, b: Product) => a.price - b.price,
-  'price-desc': (a: Product, b: Product) => b.price - a.price,
-  rating: (a: Product, b: Product) => (b.rating || 0) - (a.rating || 0),
-  newest: (a: Product, b: Product) => b.id.localeCompare(a.id),
-};
-
-export type SortKey = keyof typeof sortOptions;
+export type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest';
 
 interface ProductGridProps {
   title?: string;
   subtitle?: string;
-  products: Product[]; // Now required
+  products: Product[];
+  totalCount: number;
+  currentPage: number;
+  currentCategory: string;
+  currentBrands: string;
+  currentMinPrice?: number;
+  currentMaxPrice?: number;
+  currentSort: SortKey;
 }
 
 const ProductGrid = ({
   title = 'All Products',
   subtitle = 'Find the perfect tech for you',
-  products, // Use products directly from props
+  products,
+  totalCount,
+  currentPage,
+  currentCategory,
+  currentBrands,
+  currentMinPrice,
+  currentMaxPrice,
+  currentSort,
 }: ProductGridProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const gridRef = useRef<HTMLDivElement>(null); // Create the ref
-
-  const searchQuery = searchParams.get('search') || '';
-  const currentCategory = searchParams.get('category') || 'all';
-  const currentSort = (searchParams.get('sort') as SortKey) || 'featured';
-  const currentPage = Number(searchParams.get('page')) || 1;
+  const gridRef = useRef<HTMLDivElement>(null);
+  const priceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const createQueryString = useCallback(
     (params: Record<string, string | number | null>) => {
       const newSearchParams = new URLSearchParams(searchParams.toString());
       for (const [key, value] of Object.entries(params)) {
-        if (value === null) {
+        if (value === null || value === '') {
           newSearchParams.delete(key);
         } else {
           newSearchParams.set(key, String(value));
@@ -58,11 +58,37 @@ const ProductGrid = ({
     [searchParams]
   );
 
-  const handleFilterChange = (newCategory: string) => {
+  const handleCategoryChange = (newCategory: string) => {
+    setIsSheetOpen(false);
     router.push(
       `${pathname}?${createQueryString({ category: newCategory, page: 1 })}`,
       { scroll: false }
     );
+  };
+
+  const handleBrandsChange = (newBrands: string[]) => {
+    const brandsStr = newBrands.length > 0 ? newBrands.join(',') : null;
+    // No need to close sheet here, user might want to select more
+    router.push(
+      `${pathname}?${createQueryString({ brands: brandsStr, page: 1 })}`,
+      { scroll: false }
+    );
+  };
+
+  const handlePriceChange = (newPriceRange: [number, number]) => {
+    if (priceTimeoutRef.current) {
+      clearTimeout(priceTimeoutRef.current);
+    }
+    priceTimeoutRef.current = setTimeout(() => {
+      router.push(
+        `${pathname}?${createQueryString({
+          minPrice: newPriceRange[0],
+          maxPrice: newPriceRange[1],
+          page: 1,
+        })}`,
+        { scroll: false }
+      );
+    }, 500); // 500ms debounce
   };
 
   const handleSortChange = (newSort: string) => {
@@ -74,56 +100,42 @@ const ProductGrid = ({
 
   const handlePageChange = (newPage: number | string) => {
     if (typeof newPage === 'number') {
-      // 1. Push the new URL with scroll: false
       router.push(`${pathname}?${createQueryString({ page: newPage })}`, {
         scroll: false,
       });
-
-      // 2. Wait for a short time to allow the page content to update,
-      //    then scroll to the grid
       setTimeout(() => {
-        if (gridRef.current) {
-          gridRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 50); // A small delay is often necessary
+        gridRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
     }
   };
 
-  const categories = useMemo(() => {
-    return ['all', ...new Set((products || []).map((p) => p.category))];
-  }, [products]);
+  const allCategories = useMemo(() => {
+    return ['all', 'smartphones', 'laptops', 'audio', 'accessories', 'wearables'];
+  }, []);
 
-  const filteredAndSortedProducts = useMemo(() => {
-    let result = [...(products || [])];
-    if (searchQuery) {
-      const lowercasedQuery = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(lowercasedQuery) ||
-          p.brand.toLowerCase().includes(lowercasedQuery) ||
-          p.category.toLowerCase().includes(lowercasedQuery)
-      );
-    }
-    if (currentCategory !== 'all') {
-      result = result.filter((p) => p.category === currentCategory);
-    }
-    result.sort(sortOptions[currentSort]);
-    return result;
-  }, [products, searchQuery, currentCategory, currentSort]);
+  const allBrands = useMemo(() => {
+    return ['Apple', 'Samsung', 'Sony', 'Bose', 'Google', 'Anker'];
+  }, []);
 
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-    return filteredAndSortedProducts.slice(
-      startIndex,
-      startIndex + PRODUCTS_PER_PAGE
-    );
-  }, [filteredAndSortedProducts, currentPage]);
-
-  const totalProductsCount = filteredAndSortedProducts.length;
+  const searchQuery = searchParams.get('search') || '';
   const currentTitle = searchQuery ? `Results for "${searchQuery}"` : title;
   const currentSubtitle = searchQuery
-    ? `${totalProductsCount} product(s) found`
+    ? `${totalCount} product(s) found`
     : subtitle;
+
+  const filters = (
+    <FilterSidebar
+      categories={allCategories}
+      brands={allBrands}
+      currentCategory={currentCategory}
+      currentBrands={currentBrands}
+      currentMinPrice={currentMinPrice}
+      currentMaxPrice={currentMaxPrice}
+      onCategoryChange={handleCategoryChange}
+      onBrandsChange={handleBrandsChange}
+      onPriceChange={handlePriceChange}
+    />
+  );
 
   return (
     <div className='bg-slate-50 dark:bg-slate-900'>
@@ -131,20 +143,40 @@ const ProductGrid = ({
         <ProductGridControls
           title={currentTitle}
           subtitle={currentSubtitle}
-          categories={categories}
-          currentCategory={currentCategory}
           currentSort={currentSort}
-          onCategoryChange={handleFilterChange}
           onSortChange={handleSortChange}
+          onFilterToggle={() => setIsSheetOpen(true)}
         />
-        <ProductList products={paginatedProducts} />
-        <ProductGridPagination
-          currentPage={currentPage}
-          totalCount={totalProductsCount}
-          pageSize={PRODUCTS_PER_PAGE}
-          onPageChange={handlePageChange}
-        />
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+          <div className="hidden lg:block lg:col-span-1">
+            {filters}
+          </div>
+          <div className="lg:col-span-3">
+            <ProductList products={products} />
+            <ProductGridPagination
+              currentPage={currentPage}
+              totalCount={totalCount}
+              pageSize={8}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Filter Sheet */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent side="left" className="w-4/5 p-0">
+          <SheetHeader className="p-4 border-b dark:border-slate-800">
+            <SheetTitle>Filters</SheetTitle>
+            <SheetDescription>
+              Refine your product search.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="p-4 overflow-y-auto">
+            {filters}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

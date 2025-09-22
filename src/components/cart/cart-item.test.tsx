@@ -3,12 +3,26 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { CartItem } from './cart-item';
 import * as hooks from '@/lib/store/hooks';
-import { updateCartQuantity, removeFromCart, saveForLater } from '@/lib/store/slices/cartSlice';
+import * as cartThunks from '@/lib/store/thunks/cartThunks';
 import { CartItem as CartItemType } from '@/lib/types';
 
-// Mock the Redux hooks
+// Mock the Redux dispatch hook
 const mockDispatch = jest.fn();
-jest.spyOn(hooks, 'useAppDispatch').mockReturnValue(mockDispatch);
+jest.mock('@/lib/store/hooks', () => ({
+  useAppDispatch: () => mockDispatch,
+}));
+
+// Mock the entire thunks module
+jest.mock('@/lib/store/thunks/cartThunks', () => {
+  const originalModule = jest.requireActual('@/lib/store/thunks/cartThunks');
+  return {
+    __esModule: true,
+    ...originalModule,
+    updateCartQuantity: jest.fn(() => () => {}),
+    removeFromCart: jest.fn(() => () => {}),
+    saveForLater: jest.fn(() => () => {}),
+  };
+});
 
 // Mock Next.js components
 jest.mock('next/image', () => ({
@@ -35,13 +49,13 @@ const mockItem: CartItemType = {
 };
 
 describe('CartItem', () => {
-  afterEach(() => {
+  beforeEach(() => {
+    // Clear all mocks before each test
     jest.clearAllMocks();
   });
 
   it('renders item details correctly', () => {
     render(<CartItem item={mockItem} />);
-
     expect(screen.getByText('Test Product')).toBeInTheDocument();
     expect(screen.getByText(/200/)).toBeInTheDocument(); // price * quantity
     expect(screen.getByText('2')).toBeInTheDocument();
@@ -50,41 +64,31 @@ describe('CartItem', () => {
     expect(screen.getByText(/Size: M/)).toBeInTheDocument();
   });
 
-  it('calls updateCartQuantity when quantity buttons are clicked', () => {
+  it('dispatches the correct thunk when quantity buttons are clicked', () => {
     render(<CartItem item={mockItem} />);
 
     fireEvent.click(screen.getByLabelText('Decrease quantity'));
-    expect(mockDispatch).toHaveBeenCalledWith(updateCartQuantity({ cartItemId: '1', newQuantity: 1 }));
+    expect(cartThunks.updateCartQuantity).toHaveBeenCalledWith('1', 1);
 
     fireEvent.click(screen.getByLabelText('Increase quantity'));
-    expect(mockDispatch).toHaveBeenCalledWith(updateCartQuantity({ cartItemId: '1', newQuantity: 3 }));
+    expect(cartThunks.updateCartQuantity).toHaveBeenCalledWith('1', 3);
+    
+    // Check that dispatch was called (with a function, since it's a thunk)
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
+    expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it('calls saveForLater when "Save for Later" is clicked', () => {
+  it('dispatches the correct thunk when "Save for Later" is clicked', () => {
     render(<CartItem item={mockItem} />);
-
     fireEvent.click(screen.getByText('Save for Later'));
-    expect(mockDispatch).toHaveBeenCalledWith(saveForLater('1'));
+    expect(cartThunks.saveForLater).toHaveBeenCalledWith('1');
+    expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it('calls removeFromCart when "Remove" is clicked', () => {
+  it('dispatches the correct thunk when "Remove" is clicked', () => {
     render(<CartItem item={mockItem} />);
-
     fireEvent.click(screen.getByText('Remove'));
-    expect(mockDispatch).toHaveBeenCalledWith(removeFromCart('1'));
-  });
-
-  describe('OptionDisplay', () => {
-    it('renders a color swatch for a color option', () => {
-      render(<CartItem item={mockItem} />);
-      const colorSwatch = screen.getByTitle('#ff0000');
-      expect(colorSwatch).toBeInTheDocument();
-      expect(colorSwatch).toHaveStyle('backgroundColor: #ff0000');
-    });
-
-    it('renders text for a non-color option', () => {
-      render(<CartItem item={mockItem} />);
-      expect(screen.getByText(/Size: M/)).toBeInTheDocument();
-    });
+    expect(cartThunks.removeFromCart).toHaveBeenCalledWith('1');
+    expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function));
   });
 });

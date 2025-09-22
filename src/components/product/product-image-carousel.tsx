@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface ProductImageCarouselProps {
   product: Product;
@@ -35,7 +36,7 @@ export function ProductImageCarousel({ product }: ProductImageCarouselProps) {
 
   return (
     <div className='relative h-48 w-full overflow-hidden'>
-      <Link href={`/products/${product.id}`} className='block h-full w-full'>
+      <Link href={`/products/${product.id}`} className='relative block h-full w-full'>
         <Image src={displayImage} alt={product.title} fill className='object-cover transition-transform duration-300 hover:scale-110' sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' />
       </Link>
       {imageCount > 1 && (
@@ -50,7 +51,15 @@ export function ProductImageCarousel({ product }: ProductImageCarouselProps) {
           </div>
           <div className='absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5'>
             {displayImages.map((_, index) => (
-              <button key={index} onClick={() => setActiveImageIndex(index)} aria-label={`Go to image ${index + 1}`} className={`h-1.5 w-1.5 rounded-full transition-all duration-300', ${activeImageIndex === index ? 'scale-125 bg-white ring-1 ring-slate-500' : 'bg-white/60'}`} />
+              <button 
+                key={index} 
+                onClick={() => setActiveImageIndex(index)} 
+                aria-label={`Go to image ${index + 1}`} 
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full transition-all duration-300',
+                  activeImageIndex === index ? 'scale-125 bg-white ring-1 ring-slate-500' : 'bg-white/60'
+                )} 
+              />
             ))}
           </div>
         </>

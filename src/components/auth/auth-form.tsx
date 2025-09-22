@@ -64,8 +64,7 @@ const AuthForm = () => {
         if (!result.success) {
           setServerError(result.message || 'Signup failed');
         } else {
-          setMode('login');
-          setFormData(prev => ({ ...prev, name: '', password: '', confirmPassword: '' }));
+          router.push('/'); // Redirect to home page after successful signup and auto-login
         }
       } else {
         dispatch(showToast(`If an account exists for ${formData.email}, a reset link has been sent.`, 'info'));

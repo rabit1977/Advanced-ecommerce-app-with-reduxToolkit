@@ -93,7 +93,7 @@ const CartItem = React.memo(({ item }: CartItemProps) => {
             </div>
           )}
         </div>
-        <div className="flex flex-1 items-end justify-between text-sm">
+        <div className="flex flex-1 flex-col items-start gap-4 pt-4 text-sm sm:flex-row sm:items-end sm:justify-between sm:pt-0">
           <div className="flex items-center rounded-md border dark:border-slate-700">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleQuantityDecrease} aria-label="Decrease quantity">
               <Minus className="h-4 w-4" />

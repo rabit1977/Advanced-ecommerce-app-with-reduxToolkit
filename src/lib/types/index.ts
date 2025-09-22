@@ -45,6 +45,7 @@ export interface User {
   name: string;
   email: string;
   password?: string; // Should not be stored in client-side state long-term
+  role?: 'admin' | 'customer'; // New property for user role
   cart: CartItem[];
   savedForLater: CartItem[];
   wishlist: string[];

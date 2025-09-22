@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { priceFmt } from '@/lib/utils/formatters';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface CartSummaryProps {
   subtotal: number;
@@ -10,6 +11,7 @@ interface CartSummaryProps {
   taxes?: number;
   discount?: number;
   total: number;
+  isCollapsible?: boolean; // New prop
 }
 
 const CartSummary = ({
@@ -18,6 +20,7 @@ const CartSummary = ({
   taxes = 0,
   discount = 0,
   total,
+  isCollapsible = false, // Default to false
 }: CartSummaryProps) => {
   const router = useRouter();
 
@@ -26,9 +29,17 @@ const CartSummary = ({
   };
 
   return (
-    <div className='rounded-lg border bg-white p-6 shadow-sm h-fit lg:sticky top-24 dark:bg-slate-950 dark:border-slate-800'>
-      <h2 className='text-lg font-medium dark:text-white'>Order summary</h2>
-      <div className='mt-6 space-y-4'>
+    <div
+      className={cn(
+        'h-fit',
+        !isCollapsible &&
+          'rounded-lg border bg-white p-6 shadow-sm lg:sticky top-24 dark:bg-slate-950 dark:border-slate-800'
+      )}
+    >
+      {!isCollapsible && (
+        <h2 className='text-lg font-medium dark:text-white'>Order summary</h2>
+      )}
+      <div className={cn('space-y-4', !isCollapsible && 'mt-6')}>
         <div className='flex items-center justify-between'>
           <p className='text-sm text-slate-600 dark:text-slate-300'>Subtotal</p>
           <p className='text-sm font-medium dark:text-white'>
@@ -60,9 +71,11 @@ const CartSummary = ({
           </p>
         </div>
       </div>
-      <Button size='lg' className='w-full mt-6' onClick={navigateToCheckout}>
-        Checkout
-      </Button>
+      {!isCollapsible && (
+        <Button size='lg' className='w-full mt-6' onClick={navigateToCheckout}>
+          Checkout
+        </Button>
+      )}
     </div>
   );
 };

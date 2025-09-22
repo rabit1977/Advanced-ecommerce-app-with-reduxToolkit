@@ -63,7 +63,7 @@ const ProductCard = React.memo(({ product }: ProductCardProps) => {
           <Button
             size='icon'
             variant='secondary'
-            className='h-8 w-8 rounded-full shadow-md opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+            className='h-8 w-8 rounded-full shadow-md opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100'
             onClick={handleQuickViewClick}
             aria-label='Quick view'
           >
