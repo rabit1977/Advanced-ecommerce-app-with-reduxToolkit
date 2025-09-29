@@ -89,9 +89,10 @@ export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
                   <Image
                     alt={product.title}
                     className='aspect-square rounded-md object-cover'
-                    height='64'
+                    width={64}
+                    height={64}
+                    priority
                     src={product.images?.[0] || '/images/placeholder.jpg'}
-                    width='64'
                   />
                 </TableCell>
                 <TableCell className='font-medium'>{product.title}</TableCell>

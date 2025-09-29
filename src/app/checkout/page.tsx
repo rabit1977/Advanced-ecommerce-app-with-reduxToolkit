@@ -65,6 +65,8 @@ const MobileOrderSummary = ({
                     <Image
                       src={item.image}
                       alt={item.title}
+                      width={64}
+                      height={64}
                       fill
                       className='object-cover'
                     />
@@ -405,7 +407,8 @@ const CheckoutPage = () => {
                               <Image
                                 src={item.image}
                                 alt={item.title}
-                                fill
+                                width={64}
+                                height={64}
                                 className='object-cover'
                               />
                             </div>

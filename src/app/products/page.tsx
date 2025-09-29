@@ -39,13 +39,10 @@ const ProductsPage = async (props: ProductsPageProps) => {
       products={products}
       totalCount={totalCount}
       // Pass down current params so the client component knows its state
-      currentPage={page}
-      currentCategory={category}
       currentBrands={brands}
       currentMinPrice={minPrice}
       currentMaxPrice={maxPrice}
-      currentSort={sort}
-    />
+      currentSort={sort} currentPage={0} currentCategory={''}    />
   );
 };
 

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Product } from '@/lib/types';
-import { Search, X, Loader2 } from 'lucide-react';
+import { Loader2, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -42,7 +42,9 @@ export const SearchBar = () => {
       }
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/products/search?query=${deferredQuery}`);
+        const response = await fetch(
+          `/api/products/search?query=${deferredQuery}`
+        );
         if (!response.ok) {
           throw new Error('Search failed');
         }
@@ -119,8 +121,8 @@ export const SearchBar = () => {
       {showResults && (
         <div className='absolute left-0 right-0 top-full z-20 mt-2 rounded-md border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-800 dark:bg-slate-900'>
           {isLoading ? (
-            <div className="flex items-center justify-center p-4">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+            <div className='flex items-center justify-center p-4'>
+              <Loader2 className='h-6 w-6 animate-spin text-slate-500' />
             </div>
           ) : searchResults.length > 0 ? (
             <>
@@ -136,7 +138,8 @@ export const SearchBar = () => {
                         <Image
                           src={product.images?.[0] || '/images/placeholder.jpg'}
                           alt={product.title}
-                          fill
+                          width={40}
+                          height={40}
                           className='rounded-md object-cover'
                           sizes='40px'
                         />
@@ -165,7 +168,9 @@ export const SearchBar = () => {
               </div>
             </>
           ) : (
-            <p className="p-4 text-center text-sm text-slate-500">No results found.</p>
+            <p className='p-4 text-center text-sm text-slate-500'>
+              No results found.
+            </p>
           )}
         </div>
       )}

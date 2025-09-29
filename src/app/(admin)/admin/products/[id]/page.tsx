@@ -40,6 +40,7 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
               height="200"
               src={product.images?.[0] || '/images/placeholder.jpg'}
               width="200"
+              priority
             />
             <div className="space-y-2">
               <p><span className="font-semibold">ID:</span> {product.id}</p>

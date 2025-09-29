@@ -37,7 +37,7 @@ export function ProductImageCarousel({ product }: ProductImageCarouselProps) {
   return (
     <div className='relative h-48 w-full overflow-hidden'>
       <Link href={`/products/${product.id}`} className='relative block h-full w-full'>
-        <Image src={displayImage} alt={product.title} fill className='object-cover transition-transform duration-300 hover:scale-110' sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' />
+        <Image src={displayImage} alt={product.title} width={1920} height={1080} className='object-cover transition-transform duration-300 hover:scale-110' sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' />
       </Link>
       {imageCount > 1 && (
         <>

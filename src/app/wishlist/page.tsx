@@ -88,7 +88,8 @@ const WishlistPage = () => {
                     <Image
                       src={getProductImage(product)}
                       alt={product.title}
-                      fill
+                      width={300}
+                      height={300}
                       className='object-cover hover:scale-110 transition-transform duration-300'
                       sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     />

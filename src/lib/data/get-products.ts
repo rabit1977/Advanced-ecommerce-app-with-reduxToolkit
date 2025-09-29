@@ -23,7 +23,7 @@ const sortOptions: Record<SortKey, (a: Product, b: Product) => number> = {
 interface GetProductsOptions {
   query?: string;
   category?: string;
-  brands?: string; // Comma-separated string of brands
+  brands?: string;
   minPrice?: number;
   maxPrice?: number;
   sort?: SortKey;
@@ -38,7 +38,7 @@ interface GetProductsResult {
 
 export async function getProducts(
   options: GetProductsOptions = {},
-  productSource: Product[] = initialProducts // Allow injecting data for tests
+  productSource: Product[] = initialProducts 
 ): Promise<GetProductsResult> {
   const { query, category, brands, minPrice, maxPrice, sort = 'featured', page = 1, limit = 8 } = options;
 
