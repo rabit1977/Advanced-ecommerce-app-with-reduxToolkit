@@ -1,6 +1,15 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,50 +26,39 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { deleteProduct } from '@/lib/actions/product-actions';
-import { Product } from '@/lib/types';
-import { priceFmt } from '@/lib/utils/formatters';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@radix-ui/react-alert-dialog';
+import { useAppDispatch } from '@/lib/hooks/useAppDispatch';
+import { deleteUserFromAdmin } from '@/lib/store/thunks/authThunks';
+import { User } from '@/lib/types';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useTransition } from 'react';
-import { toast } from 'sonner';
-import { AlertDialogHeader, AlertDialogFooter } from '../ui/alert-dialog';
 
-interface ProductsDataTableProps {
-  products: Product[];
+import { toast } from 'sonner';
+
+interface UsersDataTableProps {
+  users: User[];
 }
 
-export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
+export const UsersDataTable = ({ users }: UsersDataTableProps) => {
   const [isPending, startTransition] = useTransition();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
-  const handleDeleteClick = (product: Product) => {
-    setProductToDelete(product);
+  const dispatch = useAppDispatch();
+
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user);
     setShowDeleteDialog(true);
   };
 
   const handleConfirmDelete = () => {
-    if (!productToDelete) return;
+    if (!userToDelete) return;
 
-    startTransition(async () => {
-      const result = await deleteProduct(productToDelete.id);
-      if (result?.error) {
-        toast.error(result.error);
-      } else {
-        toast.success(`Product "${productToDelete.title}" deleted.`);
-      }
+    startTransition(() => {
+      dispatch(deleteUserFromAdmin(userToDelete.id));
+      toast.success(`User "${userToDelete.name}" deleted.`);
       setShowDeleteDialog(false);
-      setProductToDelete(null);
+      setUserToDelete(null);
     });
   };
 
@@ -70,44 +68,20 @@ export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='hidden w-[100px] sm:table-cell'>
-                <span className='sr-only'>Image</span>
-              </TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className='hidden md:table-cell'>Price</TableHead>
-              <TableHead className='hidden md:table-cell'>Stock</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
               <TableHead>
                 <span className='sr-only'>Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell className='hidden sm:table-cell'>
-                  <Image
-                    alt={product.title}
-                    className='aspect-square rounded-md object-cover'
-                    height='64'
-                    src={product.images?.[0] || '/images/placeholder.jpg'}
-                    width='64'
-                  />
-                </TableCell>
-                <TableCell className='font-medium'>{product.title}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={product.stock > 0 ? 'outline' : 'destructive'}
-                  >
-                    {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-                  </Badge>
-                </TableCell>
-                <TableCell className='hidden md:table-cell'>
-                  {priceFmt(product.price)}
-                </TableCell>
-                <TableCell className='hidden md:table-cell'>
-                  {product.stock}
-                </TableCell>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className='font-medium'>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.role || 'customer'}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -118,18 +92,16 @@ export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                       <DropdownMenuItem asChild>
-                        <Link href={`/admin/products/${product.id}`}>
+                        <Link href={`/admin/users/${user.id}`}>
                           View Details
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/admin/products/${product.id}/edit`}>
-                          Edit
-                        </Link>
+                        <Link href={`/admin/users/${user.id}/edit`}>Edit</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className='text-red-500'
-                        onSelect={() => handleDeleteClick(product)}
+                        onSelect={() => handleDeleteClick(user)}
                       >
                         Delete
                       </DropdownMenuItem>
@@ -148,8 +120,8 @@ export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              product
-              <span className='font-semibold'> {productToDelete?.title}</span>.
+              user
+              <span className='font-semibold text-red-300'> {userToDelete?.name.toUpperCase()}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

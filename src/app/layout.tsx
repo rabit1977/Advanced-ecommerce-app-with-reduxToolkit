@@ -43,13 +43,13 @@ export default function RootLayout({
               <Header />
               <MobileSidebar />
               <main className='min-h-[calc(100vh-4rem)]'>
-                <PageTransition>{children}</PageTransition>
+                {children}
               </main>
               <Footer />
               <QuickViewModal />
               <Toast />
             </div>
-            {process.env.NODE_ENV === 'development' && <UserDebug />}
+            {/* {process.env.NODE_ENV === 'development' && <UserDebug />} */}
             {/* {process.env.NODE_ENV === 'development' && <CartDebug />} */}
           </ReduxProvider>
         </ErrorBoundary>

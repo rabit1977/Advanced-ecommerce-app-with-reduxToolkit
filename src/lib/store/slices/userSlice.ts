@@ -1,5 +1,6 @@
+import { initialUsers } from '@/lib/constants/users';
+import { CartItem, User } from '@/lib/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, CartItem } from '@/lib/types';
 
 interface UserState {
   user: User | null;
@@ -8,7 +9,7 @@ interface UserState {
 
 const initialState: UserState = {
   user: null,
-  users: [],
+  users: [], // Initialize with an empty array
 };
 
 const userSlice = createSlice({
@@ -20,13 +21,34 @@ const userSlice = createSlice({
     },
     addUser: (state, action: PayloadAction<User>) => {
       state.users.push(action.payload);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('users', JSON.stringify(state.users));
+      }
     },
     setUsers: (state, action: PayloadAction<User[]>) => {
-        state.users = action.payload;
+      state.users = action.payload;
     },
-    saveDataToUser: (state, action: PayloadAction<{ userId: string; cart: CartItem[]; savedForLater: CartItem[]; wishlist: string[]; helpfulReviews: string[] }>) => {
-      const { userId, cart, savedForLater, wishlist, helpfulReviews } = action.payload;
-      const userIndex = state.users.findIndex(u => u.id === userId);
+    loadUsers: (state) => {
+      if (typeof window !== 'undefined') {
+        const savedUsers = localStorage.getItem('users');
+        if (savedUsers) {
+          state.users = JSON.parse(savedUsers);
+        }
+      }
+    },
+    saveDataToUser: (
+      state,
+      action: PayloadAction<{
+        userId: string;
+        cart: CartItem[];
+        savedForLater: CartItem[];
+        wishlist: string[];
+        helpfulReviews: string[];
+      }>
+    ) => {
+      const { userId, cart, savedForLater, wishlist, helpfulReviews } =
+        action.payload;
+      const userIndex = state.users.findIndex((u) => u.id === userId);
       if (userIndex !== -1) {
         state.users[userIndex].cart = cart;
         state.users[userIndex].savedForLater = savedForLater;
@@ -38,10 +60,12 @@ const userSlice = createSlice({
       if (state.user) {
         const reviewId = action.payload;
         const helpfulReviews = state.user.helpfulReviews || [];
-        const existingIndex = helpfulReviews.findIndex(id => id === reviewId);
+        const existingIndex = helpfulReviews.findIndex((id) => id === reviewId);
 
         if (existingIndex >= 0) {
-          state.user.helpfulReviews = helpfulReviews.filter(id => id !== reviewId);
+          state.user.helpfulReviews = helpfulReviews.filter(
+            (id) => id !== reviewId
+          );
         } else {
           state.user.helpfulReviews = [...helpfulReviews, reviewId];
         }
@@ -50,5 +74,11 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, addUser, setUsers, saveDataToUser, toggleHelpfulReview } = userSlice.actions;
+export const {
+  setUser,
+  addUser,
+  setUsers,
+  saveDataToUser,
+  toggleHelpfulReview,
+} = userSlice.actions;
 export default userSlice.reducer;

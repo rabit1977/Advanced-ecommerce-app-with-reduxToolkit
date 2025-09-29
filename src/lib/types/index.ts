@@ -50,6 +50,8 @@ export interface User {
   savedForLater: CartItem[];
   wishlist: string[];
   helpfulReviews?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Product {

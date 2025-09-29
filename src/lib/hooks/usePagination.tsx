@@ -1,7 +1,14 @@
 import { useMemo } from 'react';
-import { UsePaginationProps } from '../types';
 
 export const DOTS = '...';
+
+interface UsePaginationProps {
+  totalCount: number;
+  pageSize: number;
+  siblingCount?: number;
+  currentPage: number;
+}
+
 
 export const usePagination = ({
   totalCount,

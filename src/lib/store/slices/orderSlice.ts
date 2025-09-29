@@ -1,29 +1,43 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Order } from '@/lib/types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface OrdersState {
+interface OrderState {
   orders: Order[];
+  selectedOrder: Order | null;
+  loading: boolean;
+  error: string | null;
 }
 
-const initialState: OrdersState = {
+const initialState: OrderState = {
   orders: [],
+  selectedOrder: null,
+  loading: false,
+  error: null,
 };
 
-const ordersSlice = createSlice({
-  name: 'orders',
+const orderSlice = createSlice({
+  name: 'order',
   initialState,
   reducers: {
     addOrder: (state, action: PayloadAction<Order>) => {
-      state.orders.unshift(action.payload);
-    },
-    setOrders: (state, action: PayloadAction<Order[]>) => {
-        state.orders = action.payload;
+      state.orders.push(action.payload);
     },
     clearOrders: (state) => {
       state.orders = [];
     },
+    setSelectedOrder: (state, action: PayloadAction<Order | null>) => {
+      state.selectedOrder = action.payload;
+    },
+    updateOrder: (state, action: PayloadAction<Order>) => {
+      const updated = action.payload;
+      const idx = state.orders.findIndex(o => o.id === updated.id);
+      if (idx >= 0) {
+        state.orders[idx] = updated;
+      }
+    },
   },
 });
 
-export const { addOrder, setOrders, clearOrders } = ordersSlice.actions;
-export default ordersSlice.reducer;
+
+export const { addOrder, clearOrders, setSelectedOrder, updateOrder } = orderSlice.actions;
+export default orderSlice.reducer;

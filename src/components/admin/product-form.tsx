@@ -21,8 +21,8 @@ import { Product } from '@/lib/types';
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  price: z.coerce.number().min(0, { message: 'Price must be a positive number.' }),
-  stock: z.coerce.number().int().min(0, { message: 'Stock must be a positive integer.' }),
+  price: z.number().min(0, { message: 'Price must be a positive number.' }),
+  stock: z.number().int().min(0, { message: 'Stock must be a positive integer.' }),
   brand: z.string().min(2, { message: 'Brand is required.' }),
   category: z.string().min(2, { message: 'Category is required.' }),
 });
@@ -56,7 +56,7 @@ export const ProductForm = ({ product, onSubmit, isSubmitting }: ProductFormProp
             <FormItem>
               <FormLabel>Product Title</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Quantum QLED 65\" TV" {...field} />
+                <Input placeholder='e.g. Quantum QLED 65" TV' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -83,7 +83,7 @@ export const ProductForm = ({ product, onSubmit, isSubmitting }: ProductFormProp
               <FormItem>
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g. 1299.99" {...field} />
+                  <Input type="number" placeholder="e.g. 1299.99" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -96,7 +96,7 @@ export const ProductForm = ({ product, onSubmit, isSubmitting }: ProductFormProp
               <FormItem>
                 <FormLabel>Stock</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g. 25" {...field} />
+                  <Input type="number" placeholder="e.g. 25" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

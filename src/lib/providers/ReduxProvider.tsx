@@ -1,9 +1,10 @@
 'use client';
 
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { store, persistor } from '@/lib/store/store';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { loadUsers } from '@/lib/store/slices/userSlice';
 
 export function ReduxProvider({ children }: { children: ReactNode }) {
   return (

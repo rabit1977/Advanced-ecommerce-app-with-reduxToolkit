@@ -4,29 +4,33 @@ import { useTransition } from 'react';
 import { ProductForm } from '@/components/admin/product-form';
 import { addProduct } from '@/lib/actions/product-actions';
 import { toast } from 'sonner';
+import * as z from 'zod';
+
+// This schema should match the one in ProductForm
+const formSchema = z.object({
+  title: z.string().min(2, { message: 'Title must be at least 2 characters.' }),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
+  price: z.number().min(0, { message: 'Price must be a positive number.' }),
+  stock: z.number().int().min(0, { message: 'Stock must be a positive integer.' }),
+  brand: z.string().min(2, { message: 'Brand is required.' }),
+  category: z.string().min(2, { message: 'Category is required.' }),
+});
 
 export default function NewProductPage() {
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
       const result = await addProduct(values);
       if (result?.error) {
         toast.error(result.error);
-      } else {
-        toast.success('Product created successfully!');
       }
     });
   };
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Add New Product</h1>
-        <p className="mt-2 text-slate-600 dark:text-slate-400">
-          Fill out the form below to create a new product.
-        </p>
-      </div>
+      <h1 className="text-2xl font-bold mb-8">Add New Product</h1>
       <ProductForm onSubmit={handleSubmit} isSubmitting={isPending} />
     </div>
   );

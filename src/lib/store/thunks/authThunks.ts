@@ -1,5 +1,5 @@
 import { AppDispatch, RootState } from '../store';
-import { setUser, addUser, saveDataToUser } from '../slices/userSlice';
+import { setUser, addUser, saveDataToUser, setUsers } from '../slices/userSlice';
 import { showToast } from './uiThunks';
 import { User } from '@/lib/types';
 import { setCartState, clearCart } from '../slices/cartSlice';
@@ -36,9 +36,10 @@ export const signup = (name: string, email: string, password: string) => (dispat
   }
 
   const newUser: User = {
-    id: String(Date.now()),
+    id: `user-${Date.now()}`,
     name,
     email,
+    password,
     role: email === 'admin@example.com' ? 'admin' : 'customer',
     cart: [],
     savedForLater: [],
@@ -51,6 +52,73 @@ export const signup = (name: string, email: string, password: string) => (dispat
   // Automatically log in the user after successful signup
   dispatch(setUser(newUser));
   dispatch(showToast(`Welcome, ${newUser.name.split(' ')[0]}!`, 'success'));
+
+  return { success: true };
+};
+
+export const updateUserFromAdmin = (userId: string, values: { name: string; email: string; role: 'admin' | 'customer'; password?: string }) => (dispatch: AppDispatch, getState: () => RootState) => {
+  const { users } = getState().user;
+  const userIndex = users.findIndex(u => u.id === userId);
+
+  if (userIndex === -1) {
+    dispatch(showToast('User not found.', 'error'));
+    return { success: false, message: 'User not found.' };
+  }
+
+  // Check if email is already taken by another user
+  const existingUser = users.find(u => u.email === values.email && u.id !== userId);
+  if (existingUser) {
+    dispatch(showToast('An account with this email already exists.', 'error'));
+    return { success: false, message: 'An account with this email already exists.' };
+  }
+
+  const updatedUser = {
+    ...users[userIndex],
+    name: values.name,
+    email: values.email,
+    role: values.role,
+    // Only update password if a new one is provided and not empty
+    ...(values.password && { password: values.password }),
+  };
+
+  const updatedUsers = [...users];
+  updatedUsers[userIndex] = updatedUser;
+
+  dispatch(setUsers(updatedUsers));
+  dispatch(showToast(`User ${values.name} updated!`, 'success'));
+
+  return { success: true };
+};
+
+export const deleteUserFromAdmin = (userId: string) => (dispatch: AppDispatch, getState: () => RootState) => {
+  const { users } = getState().user;
+  const updatedUsers = users.filter(u => u.id !== userId);
+
+  dispatch(setUsers(updatedUsers));
+  dispatch(showToast(`User deleted!`, 'success'));
+};
+
+export const createUserFromAdmin = (name: string, email: string, password: string, role: 'admin' | 'customer') => (dispatch: AppDispatch, getState: () => RootState) => {
+  const { users } = getState().user;
+  if (users.find(u => u.email === email)) {
+    dispatch(showToast('An account with this email already exists.', 'error'));
+    return { success: false, message: 'An account with this email already exists.' };
+  }
+
+  const newUser: User = {
+    id: `user-${Date.now()}`,
+    name,
+    email,
+    password,
+    role,
+    cart: [],
+    savedForLater: [],
+    wishlist: [],
+    createdAt: new Date().toISOString(),
+  };
+  
+  dispatch(addUser(newUser));
+  dispatch(showToast(`User created for ${name}!`, 'success'));
 
   return { success: true };
 };
@@ -68,7 +136,6 @@ export const logout = () => (dispatch: AppDispatch, getState: () => RootState) =
   // Clear the active state
   dispatch(setUser(null));
   dispatch(clearCart());
-  dispatch(clearOrders());
   dispatch(setWishlist([]));
   dispatch(showToast("You've been logged out.", 'info'));
 };
