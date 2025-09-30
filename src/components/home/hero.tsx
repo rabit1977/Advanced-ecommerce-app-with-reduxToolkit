@@ -1,15 +1,15 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Product } from '@/lib/types';
+import { priceFmt } from '@/lib/utils/formatters';
 import { getProductImage } from '@/lib/utils/product-images';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ShoppingBag, Star } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Product } from '@/lib/types';
-import { priceFmt } from '@/lib/utils/formatters';
 
 interface HeroProps {
   /** Products to display in carousel */
@@ -30,7 +30,7 @@ interface Testimonial {
 
 /**
  * Professional hero component with animated product carousel and testimonials
- * 
+ *
  * Features:
  * - Auto-playing carousel with manual controls
  * - Smooth animations with Framer Motion
@@ -52,17 +52,20 @@ const Hero = ({
   const testimonials = useMemo<Testimonial[]>(
     () => [
       {
-        quote: "The Quantum TV has the best picture I've ever seen. Absolutely stunning quality!",
+        quote:
+          "The Quantum TV has the best picture I've ever seen. Absolutely stunning quality!",
         name: 'Sarah J.',
         rating: 5,
       },
       {
-        quote: 'My new AeroBook is unbelievably fast and light. Perfect for my daily work.',
+        quote:
+          'My new AeroBook is unbelievably fast and light. Perfect for my daily work.',
         name: 'Mike R.',
         rating: 5,
       },
       {
-        quote: 'Fast shipping and excellent customer service! Highly recommend this store.',
+        quote:
+          'Fast shipping and excellent customer service! Highly recommend this store.',
         name: 'Emily W.',
         rating: 5,
       },
@@ -71,8 +74,8 @@ const Hero = ({
   );
 
   // Carousel state
-  const carouselProducts = useMemo(() => 
-    products.slice(0, carouselLimit),
+  const carouselProducts = useMemo(
+    () => products.slice(0, carouselLimit),
     [products, carouselLimit]
   );
 
@@ -97,19 +100,25 @@ const Hero = ({
     );
   }, [carouselProducts.length]);
 
-  const goToSlide = useCallback((index: number) => {
-    setDirection(index > currentProductIndex ? 1 : -1);
-    setCurrentProductIndex(index);
-  }, [currentProductIndex]);
+  const goToSlide = useCallback(
+    (index: number) => {
+      setDirection(index > currentProductIndex ? 1 : -1);
+      setCurrentProductIndex(index);
+    },
+    [currentProductIndex]
+  );
 
   // Navigation to pages
   const navigateToProducts = useCallback(() => {
     router.push('/products');
   }, [router]);
 
-  const navigateToProduct = useCallback((productId: string) => {
-    router.push(`/products/${productId}`);
-  }, [router]);
+  const navigateToProduct = useCallback(
+    (productId: string) => {
+      router.push(`/products/${productId}`);
+    },
+    [router]
+  );
 
   const navigateToAbout = useCallback(() => {
     router.push('/about');
@@ -153,7 +162,7 @@ const Hero = ({
   }, [nextSlide, prevSlide]);
 
   // Animation variants
-  const slideVariants = {
+  const slideVariants: Variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? '100%' : '-100%',
       opacity: 0,
@@ -176,12 +185,12 @@ const Hero = ({
     }),
   };
 
-  const fadeInUpVariants = {
+  const fadeInUpVariants: Variants  = {
     hidden: { opacity: 0, y: 20 },
     visible: (delay: number = 0) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, delay, ease: 'easeOut' },
+      transition: { duration: 0, delay, ease: 'easeOut' },
     }),
   };
 
@@ -205,8 +214,7 @@ const Hero = ({
           </Badge>
 
           <h1 className='text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl lg:text-7xl dark:text-white'>
-            The Future of Tech,{' '}
-            <span className='text-primary'>Today</span>
+            The Future of Tech, <span className='text-primary'>Today</span>
           </h1>
 
           <motion.p
@@ -216,8 +224,8 @@ const Hero = ({
             custom={0.2}
             className='mx-auto max-w-3xl text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed'
           >
-            Discover cutting-edge electronics and gadgets designed to elevate your
-            everyday life. Unbeatable prices, unmatched quality.
+            Discover cutting-edge electronics and gadgets designed to elevate
+            your everyday life. Unbeatable prices, unmatched quality.
           </motion.p>
 
           <motion.div
@@ -227,8 +235,8 @@ const Hero = ({
             custom={0.4}
             className='flex flex-col sm:flex-row items-center justify-center gap-4 pt-4'
           >
-            <Button 
-              size='lg' 
+            <Button
+              size='lg'
               onClick={navigateToProducts}
               className='gap-2 text-base px-8'
             >
@@ -249,7 +257,7 @@ const Hero = ({
 
       {/* Product Carousel Section */}
       {carouselProducts.length > 0 && (
-        <div 
+        <div
           ref={carouselRef}
           className='relative w-full aspect-[16/9] sm:aspect-[21/9] max-h-[600px] overflow-hidden bg-slate-900'
           onMouseEnter={() => setIsPaused(true)}
@@ -287,7 +295,10 @@ const Hero = ({
                   <div className='max-w-4xl space-y-4'>
                     {/* Category Badge */}
                     {currentProduct.category && (
-                      <Badge variant='secondary' className='w-fit backdrop-blur-sm'>
+                      <Badge
+                        variant='secondary'
+                        className='w-fit backdrop-blur-sm'
+                      >
                         {currentProduct.category}
                       </Badge>
                     )}
@@ -374,7 +385,9 @@ const Hero = ({
                         : 'w-2 bg-white/50 hover:bg-white/75'
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
-                    aria-current={index === currentProductIndex ? 'true' : 'false'}
+                    aria-current={
+                      index === currentProductIndex ? 'true' : 'false'
+                    }
                   />
                 ))}
               </div>
@@ -417,8 +430,13 @@ const Hero = ({
                     {/* Rating Stars */}
                     {testimonials[currentTestimonial].rating && (
                       <div className='flex gap-1'>
-                        {Array.from({ length: testimonials[currentTestimonial].rating! }).map((_, i) => (
-                          <Star key={i} className='h-5 w-5 fill-yellow-400 text-yellow-400' />
+                        {Array.from({
+                          length: testimonials[currentTestimonial].rating!,
+                        }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className='h-5 w-5 fill-yellow-400 text-yellow-400'
+                          />
                         ))}
                       </div>
                     )}

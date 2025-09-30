@@ -1,24 +1,24 @@
 import { AppDispatch, RootState } from '../store';
-import { setUser, addUser, saveDataToUser, setUsers } from '../slices/userSlice';
+import { setUser, addUser, setUsers, logout as logoutAction } from '../slices/userSlice';
 import { showToast } from './uiThunks';
 import { User } from '@/lib/types';
-import { setCartState, clearCart } from '../slices/cartSlice';
+import { clearCart } from '../slices/cartSlice';
 import { clearOrders } from '../slices/orderSlice';
-import { setWishlist } from '../slices/wishlistSlice';
+import { clearWishlist } from '../slices/wishlistSlice';
 
-// NOTE: This is for demonstration purposes only. In a real-world application,
-// never handle authentication or sensitive data on the client-side.
-
-export const login = (email: string, password: string) => (dispatch: AppDispatch, getState: () => RootState) => {
+/**
+ * Login user with email and password
+ * NOTE: This is for demonstration only. Never handle authentication client-side in production.
+ */
+export const login = (email: string, password: string) => (
+  dispatch: AppDispatch, 
+  getState: () => RootState
+) => {
   const { users } = getState().user;
   const user = users.find(u => u.email === email && u.password === password);
 
   if (user) {
-    // Load user's data into the active state
-    dispatch(setCartState({ cart: user.cart || [], savedForLater: user.savedForLater || [] }));
-    dispatch(setWishlist(user.wishlist || []));
-    
-    // Set current user
+    // Set current user (cart/wishlist load from their own localStorage)
     dispatch(setUser(user));
     dispatch(showToast(`Welcome back, ${user.name.split(' ')[0]}!`, 'success'));
     return { success: true };
@@ -28,15 +28,24 @@ export const login = (email: string, password: string) => (dispatch: AppDispatch
   }
 };
 
-export const signup = (name: string, email: string, password: string) => (dispatch: AppDispatch, getState: () => RootState) => {
+/**
+ * Sign up new user
+ */
+export const signup = (name: string, email: string, password: string) => (
+  dispatch: AppDispatch, 
+  getState: () => RootState
+) => {
   const { users } = getState().user;
+  
+  // Check if email already exists
   if (users.find(u => u.email === email)) {
     dispatch(showToast('An account with this email already exists.', 'error'));
     return { success: false, message: 'An account with this email already exists.' };
   }
 
+  // Create new user
   const newUser: User = {
-    id: `user-${Date.now()}`,
+    id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name,
     email,
     password,
@@ -44,20 +53,33 @@ export const signup = (name: string, email: string, password: string) => (dispat
     cart: [],
     savedForLater: [],
     wishlist: [],
+    helpfulReviews: [],
+    createdAt: new Date().toISOString(),
   };
   
   dispatch(addUser(newUser));
-  dispatch(showToast(`Account created for ${name}!`, 'success'));
-  
-  // Automatically log in the user after successful signup
   dispatch(setUser(newUser));
-  dispatch(showToast(`Welcome, ${newUser.name.split(' ')[0]}!`, 'success'));
+  dispatch(showToast(`Welcome, ${name}!`, 'success'));
 
   return { success: true };
 };
 
-export const updateUserFromAdmin = (userId: string, values: { name: string; email: string; role: 'admin' | 'customer'; password?: string }) => (dispatch: AppDispatch, getState: () => RootState) => {
-  const { users } = getState().user;
+/**
+ * Update user from admin panel
+ */
+export const updateUserFromAdmin = (
+  userId: string, 
+  values: { 
+    name: string; 
+    email: string; 
+    role: 'admin' | 'customer'; 
+    password?: string;
+  }
+) => (
+  dispatch: AppDispatch, 
+  getState: () => RootState
+) => {
+  const { users, user: currentUser } = getState().user;
   const userIndex = users.findIndex(u => u.id === userId);
 
   if (userIndex === -1) {
@@ -72,12 +94,12 @@ export const updateUserFromAdmin = (userId: string, values: { name: string; emai
     return { success: false, message: 'An account with this email already exists.' };
   }
 
-  const updatedUser = {
+  // Update user
+  const updatedUser: User = {
     ...users[userIndex],
     name: values.name,
     email: values.email,
     role: values.role,
-    // Only update password if a new one is provided and not empty
     ...(values.password && { password: values.password }),
   };
 
@@ -85,28 +107,62 @@ export const updateUserFromAdmin = (userId: string, values: { name: string; emai
   updatedUsers[userIndex] = updatedUser;
 
   dispatch(setUsers(updatedUsers));
+  
+  // If updating current logged-in user, update them too
+  if (currentUser?.id === userId) {
+    dispatch(setUser(updatedUser));
+  }
+  
   dispatch(showToast(`User ${values.name} updated!`, 'success'));
 
   return { success: true };
 };
 
-export const deleteUserFromAdmin = (userId: string) => (dispatch: AppDispatch, getState: () => RootState) => {
-  const { users } = getState().user;
+/**
+ * Delete user from admin panel
+ */
+export const deleteUserFromAdmin = (userId: string) => (
+  dispatch: AppDispatch, 
+  getState: () => RootState
+) => {
+  const { users, user: currentUser } = getState().user;
+  
+  // Prevent deleting yourself
+  if (currentUser?.id === userId) {
+    dispatch(showToast('You cannot delete your own account.', 'error'));
+    return { success: false, message: 'Cannot delete your own account.' };
+  }
+  
   const updatedUsers = users.filter(u => u.id !== userId);
-
   dispatch(setUsers(updatedUsers));
-  dispatch(showToast(`User deleted!`, 'success'));
+  dispatch(showToast('User deleted!', 'success'));
+  
+  return { success: true };
 };
 
-export const createUserFromAdmin = (name: string, email: string, password: string, role: 'admin' | 'customer') => (dispatch: AppDispatch, getState: () => RootState) => {
+/**
+ * Create user from admin panel
+ */
+export const createUserFromAdmin = (
+  name: string, 
+  email: string, 
+  password: string, 
+  role: 'admin' | 'customer'
+) => (
+  dispatch: AppDispatch, 
+  getState: () => RootState
+) => {
   const { users } = getState().user;
+  
+  // Check if email already exists
   if (users.find(u => u.email === email)) {
     dispatch(showToast('An account with this email already exists.', 'error'));
     return { success: false, message: 'An account with this email already exists.' };
   }
 
+  // Create new user
   const newUser: User = {
-    id: `user-${Date.now()}`,
+    id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name,
     email,
     password,
@@ -114,6 +170,7 @@ export const createUserFromAdmin = (name: string, email: string, password: strin
     cart: [],
     savedForLater: [],
     wishlist: [],
+    helpfulReviews: [],
     createdAt: new Date().toISOString(),
   };
   
@@ -123,19 +180,20 @@ export const createUserFromAdmin = (name: string, email: string, password: strin
   return { success: true };
 };
 
-export const logout = () => (dispatch: AppDispatch, getState: () => RootState) => {
-  const { user } = getState().user;
-  const { cart, savedForLater } = getState().cart;
-  const { itemIds: wishlist } = getState().wishlist;
-
-  // Save the current cart/wishlist state back to the user object before logging out
-  if (user) {
-    dispatch(saveDataToUser({ userId: user.id, cart, savedForLater, wishlist, helpfulReviews: user.helpfulReviews || [] }));
-  }
-
-  // Clear the active state
-  dispatch(setUser(null));
+/**
+ * Logout current user
+ * Note: Cart/wishlist persist in their own localStorage, not tied to user
+ */
+export const logout = () => (dispatch: AppDispatch) => {
+  // Clear user session
+  dispatch(logoutAction());
+  
+  // Clear cart and wishlist (or keep them - your choice)
   dispatch(clearCart());
-  dispatch(setWishlist([]));
+  dispatch(clearWishlist());
+  dispatch(clearOrders());
+  
   dispatch(showToast("You've been logged out.", 'info'));
+  
+  return { success: true };
 };

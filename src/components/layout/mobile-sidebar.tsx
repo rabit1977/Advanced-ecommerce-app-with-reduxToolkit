@@ -1,140 +1,252 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { setIsMenuOpen } from '@/lib/store/slices/uiSlice';
-import { setUser } from '@/lib/store/slices/userSlice';
+import { logout } from '@/lib/store/thunks/authThunks';
 import { useOnClickOutside } from '@/lib/hooks/useOnClickOutside';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LogOut, User, X } from 'lucide-react';
+import { 
+  LogOut, 
+  User, 
+  X, 
+  Home, 
+  Package, 
+  Info, 
+  Mail,
+  UserCircle,
+  ShoppingBag
+} from 'lucide-react';
 import Link from 'next/link';
-import React, { useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { useCallback, useMemo, useRef } from 'react';
 
-// NavLink Sub-component (as created before)
 interface NavLinkProps {
   href: string;
+  icon: React.ComponentType<{ className?: string }>;
   children: React.ReactNode;
-  className?: string;
   onClick: () => void;
+  isActive?: boolean;
 }
-const NavLink = ({ href, children, className, onClick }: NavLinkProps) => (
+
+/**
+ * Navigation link component with icon and active state
+ */
+const NavLink = ({ href, icon: Icon, children, onClick, isActive }: NavLinkProps) => (
   <Link
     href={href}
     onClick={onClick}
     className={cn(
-      'text-base font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white',
-      className
+      'flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium transition-colors',
+      isActive
+        ? 'bg-primary text-primary-foreground'
+        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
     )}
   >
-    {children}
+    <Icon className='h-5 w-5 flex-shrink-0' />
+    <span>{children}</span>
   </Link>
 );
 
+/**
+ * Mobile sidebar component with slide-in animation
+ * 
+ * Features:
+ * - Smooth slide-in animation with Framer Motion
+ * - Click outside to close
+ * - Active link highlighting
+ * - User profile section
+ * - Proper logout handling
+ * - Accessibility attributes
+ */
 const MobileSidebar = () => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.user);
-  const { isMenuOpen } = useAppSelector((state) => state.ui);
+  const pathname = usePathname();
+  const user = useAppSelector((state) => state.user.user);
+  const isMenuOpen = useAppSelector((state) => state.ui.isMenuOpen);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const closeMenu = () => dispatch(setIsMenuOpen(false));
+  /**
+   * Close menu handler
+   */
+  const closeMenu = useCallback(() => {
+    dispatch(setIsMenuOpen(false));
+  }, [dispatch]);
 
-  // 2. Use the hook to handle clicks outside the menuRef
+  /**
+   * Handle logout with proper cleanup
+   */
+  const handleLogout = useCallback(() => {
+    dispatch(logout());
+    closeMenu();
+  }, [dispatch, closeMenu]);
+
+  /**
+   * Click outside handler
+   */
   useOnClickOutside(menuRef, closeMenu);
 
-  const handleLogout = () => {
-    dispatch(setUser(null));
-    closeMenu();
-  };
+  /**
+   * Navigation links configuration
+   */
+  const navLinks = useMemo(() => [
+    { href: '/', icon: Home, label: 'Home' },
+    { href: '/products', icon: Package, label: 'All Products' },
+    { href: '/about', icon: Info, label: 'About Us' },
+    { href: '/contact', icon: Mail, label: 'Contact Us' },
+  ], []);
+
+  /**
+   * Check if link is active
+   */
+  const isActiveLink = useCallback((href: string): boolean => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  }, [pathname]);
+
+  /**
+   * Get user initials for avatar
+   */
+  const userInitials = useMemo(() => {
+    if (!user?.name) return '';
+    return user.name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }, [user]);
 
   return (
     <AnimatePresence>
       {isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className='fixed inset-0 z-50 bg-black/60 lg:hidden'
-        >
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className='fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden'
+            onClick={closeMenu}
+            aria-hidden='true'
+          />
+
+          {/* Sidebar */}
           <motion.div
             ref={menuRef}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className='fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white dark:bg-slate-950'
-            onClick={(e) => e.stopPropagation()}
+            className='fixed top-0 right-0 z-50 h-full w-[85%] max-w-sm bg-background shadow-2xl lg:hidden'
+            role='dialog'
+            aria-modal='true'
+            aria-label='Mobile navigation menu'
           >
-            <div className='flex flex-col h-full p-6 overflow-y-auto'>
-              <button
-                onClick={closeMenu}
-                className='self-end p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800'
-                aria-label='Close menu'
-              >
-                <X className='h-5 w-5' />
-              </button>
+            <div className='flex h-full flex-col'>
+              {/* Header */}
+              <div className='flex items-center justify-between border-b px-6 py-4'>
+                <h2 className='text-lg font-semibold'>Menu</h2>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={closeMenu}
+                  aria-label='Close menu'
+                >
+                  <X className='h-5 w-5' />
+                </Button>
+              </div>
 
-              {user ? (
-                <div className='flex items-center gap-3 border-b pb-4 dark:border-slate-800 flex-shrink-0'>
-                  <div className='w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-200'>
-                    <User className='h-6 w-6' />
-                  </div>
-                  <div>
-                    <p className='font-semibold dark:text-white'>{user.name}</p>
-                    <p className='text-sm text-slate-500 dark:text-slate-400'>
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className='flex-shrink-0'>
-                  <Link href='/auth' onClick={closeMenu} className='w-full'>
-                    <Button size='lg' className='w-full'>
-                      Login / Sign Up
+              {/* Scrollable Content */}
+              <div className='flex-1 overflow-y-auto'>
+                <div className='flex flex-col gap-6 p-6'>
+                  {/* User Section */}
+                  {user ? (
+                    <div className='rounded-lg border bg-card p-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold'>
+                          {userInitials || <User className='h-6 w-6' />}
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <p className='truncate font-semibold'>{user.name}</p>
+                          <p className='truncate text-sm text-muted-foreground'>
+                            {user.email || user.role || 'Customer'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button asChild size='lg' className='w-full gap-2'>
+                      <Link href='/auth' onClick={closeMenu}>
+                        <User className='h-4 w-4' />
+                        Login / Sign Up
+                      </Link>
                     </Button>
-                  </Link>
+                  )}
+
+                  <Separator />
+
+                  {/* Navigation Links */}
+                  <nav className='flex flex-col gap-1' aria-label='Main navigation'>
+                    {navLinks.map((link) => (
+                      <NavLink
+                        key={link.href}
+                        href={link.href}
+                        icon={link.icon}
+                        onClick={closeMenu}
+                        isActive={isActiveLink(link.href)}
+                      >
+                        {link.label}
+                      </NavLink>
+                    ))}
+                  </nav>
+
+                  {/* User Links */}
+                  {user && (
+                    <>
+                      <Separator />
+                      <nav className='flex flex-col gap-1' aria-label='User menu'>
+                        <NavLink
+                          href='/account'
+                          icon={UserCircle}
+                          onClick={closeMenu}
+                          isActive={isActiveLink('/account')}
+                        >
+                          My Account
+                        </NavLink>
+                        <NavLink
+                          href='/orders'
+                          icon={ShoppingBag}
+                          onClick={closeMenu}
+                          isActive={isActiveLink('/orders')}
+                        >
+                          My Orders
+                        </NavLink>
+                      </nav>
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
 
-              <nav className='mt-8 flex flex-col gap-6 flex-grow'>
-                <NavLink href='/' onClick={closeMenu}>
-                  Home
-                </NavLink>
-                <NavLink href='/products' onClick={closeMenu}>
-                  All Products
-                </NavLink>
-                <NavLink href='/about' onClick={closeMenu}>
-                  About Us
-                </NavLink>
-                <NavLink href='/contact' onClick={closeMenu}>
-                  Contact Us
-                </NavLink>
-                {user && (
-                  <NavLink
-                    href='/account'
-                    onClick={closeMenu}
-                    className='font-bold text-indigo-600 dark:text-indigo-400'
-                  >
-                    My Account
-                  </NavLink>
-                )}
-              </nav>
-
+              {/* Footer (Logout) */}
               {user && (
-                <div className='mt-auto border-t pt-4 flex-shrink-0 dark:border-slate-800'>
+                <div className='border-t p-6'>
                   <Button
                     variant='outline'
-                    className='w-full'
+                    className='w-full gap-2 text-destructive hover:bg-destructive hover:text-destructive-foreground'
                     onClick={handleLogout}
                   >
-                    <LogOut className='h-4 w-4 mr-2' />
+                    <LogOut className='h-4 w-4' />
                     Logout
                   </Button>
                 </div>
               )}
             </div>
           </motion.div>
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

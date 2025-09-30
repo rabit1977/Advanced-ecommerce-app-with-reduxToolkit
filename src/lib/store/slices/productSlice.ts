@@ -8,8 +8,65 @@ interface ProductsState {
   error: string | null;
 }
 
+const PRODUCTS_STORAGE_KEY = 'products';
+
+/**
+ * Load products from localStorage, merging with initial products
+ */
+const loadProductsFromStorage = (): Product[] => {
+  if (typeof window === 'undefined') return initialProducts;
+  
+  try {
+    const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+    if (!stored) return initialProducts;
+    
+    const storedProducts: Product[] = JSON.parse(stored);
+    
+    // Merge stored products with initial products
+    // Keep user-generated reviews and stock updates
+    return initialProducts.map(initialProduct => {
+      const storedProduct = storedProducts.find(p => p.id === initialProduct.id);
+      if (storedProduct) {
+        return {
+          ...initialProduct,
+          reviews: storedProduct.reviews || initialProduct.reviews,
+          reviewCount: storedProduct.reviewCount || initialProduct.reviewCount,
+          rating: storedProduct.rating || initialProduct.rating,
+          stock: storedProduct.stock !== undefined ? storedProduct.stock : initialProduct.stock,
+        };
+      }
+      return initialProduct;
+    });
+  } catch (error) {
+    console.error('Error loading products from storage:', error);
+    return initialProducts;
+  }
+};
+
+/**
+ * Save products to localStorage (only save reviews and stock changes)
+ */
+const saveProductsToStorage = (products: Product[]): void => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    // Only save essential data to reduce storage size
+    const productsToSave = products.map(p => ({
+      id: p.id,
+      reviews: p.reviews,
+      reviewCount: p.reviewCount,
+      rating: p.rating,
+      stock: p.stock,
+    }));
+    
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(productsToSave));
+  } catch (error) {
+    console.error('Error saving products to storage:', error);
+  }
+};
+
 const initialState: ProductsState = {
-  products: initialProducts,
+  products: loadProductsFromStorage(),
   isLoading: false,
   error: null,
 };
@@ -18,27 +75,45 @@ const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    // Loading state management
+    /**
+     * Set loading state
+     */
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
+
+    /**
+     * Set error message
+     */
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
       state.isLoading = false;
     },
+
+    /**
+     * Clear error message
+     */
     clearError: (state) => {
       state.error = null;
     },
 
-    // Product operations
+    /**
+     * Replace all products
+     */
     setProducts: (state, action: PayloadAction<Product[]>) => {
       state.products = action.payload;
       state.isLoading = false;
       state.error = null;
+      saveProductsToStorage(state.products);
     },
 
-    // Review operations
-    addReview: (state, action: PayloadAction<{ productId: string; reviewData: ReviewPayload }>) => {
+    /**
+     * Add or update a review
+     */
+    addReview: (
+      state,
+      action: PayloadAction<{ productId: string; reviewData: ReviewPayload }>
+    ) => {
       const { productId, reviewData } = action.payload;
       const product = state.products.find((p) => p.id === productId);
       
@@ -52,13 +127,19 @@ const productsSlice = createSlice({
 
       if (reviewData.id) {
         // Update existing review
-        newReviews = existingReviews.map(r => 
-          r.id === reviewData.id ? { ...r, ...reviewData } as Review : r
-        );
+        const reviewExists = existingReviews.some(r => r.id === reviewData.id);
+        if (reviewExists) {
+          newReviews = existingReviews.map(r => 
+            r.id === reviewData.id ? { ...r, ...reviewData } as Review : r
+          );
+        } else {
+          state.error = `Review with ID ${reviewData.id} not found`;
+          return;
+        }
       } else {
         // Add new review
         const newReview: Review = {
-          id: Date.now().toString(),
+          id: `review_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           author: reviewData.author,
           rating: reviewData.rating,
           title: reviewData.title,
@@ -78,9 +159,16 @@ const productsSlice = createSlice({
         : 0;
       
       state.error = null;
+      saveProductsToStorage(state.products);
     },
 
-    deleteReview: (state, action: PayloadAction<{ productId: string; reviewId: string }>) => {
+    /**
+     * Delete a review
+     */
+    deleteReview: (
+      state,
+      action: PayloadAction<{ productId: string; reviewId: string }>
+    ) => {
       const { productId, reviewId } = action.payload;
       const product = state.products.find((p) => p.id === productId);
       
@@ -91,6 +179,12 @@ const productsSlice = createSlice({
 
       if (!product.reviews) {
         state.error = 'No reviews found for this product';
+        return;
+      }
+
+      const reviewExists = product.reviews.some(r => r.id === reviewId);
+      if (!reviewExists) {
+        state.error = `Review with ID ${reviewId} not found`;
         return;
       }
 
@@ -107,13 +201,20 @@ const productsSlice = createSlice({
       }
       
       state.error = null;
+      saveProductsToStorage(state.products);
     },
 
-    updateReviewHelpfulCount: (state, action: PayloadAction<{ 
-      productId: string; 
-      reviewId: string; 
-      direction: 'increment' | 'decrement' 
-    }>) => {
+    /**
+     * Update review helpful count
+     */
+    updateReviewHelpfulCount: (
+      state,
+      action: PayloadAction<{ 
+        productId: string; 
+        reviewId: string; 
+        direction: 'increment' | 'decrement' 
+      }>
+    ) => {
       const { productId, reviewId, direction } = action.payload;
       const product = state.products.find((p) => p.id === productId);
       
@@ -132,13 +233,20 @@ const productsSlice = createSlice({
       if (direction === 'increment') {
         review.helpful = (review.helpful || 0) + 1;
       } else {
-        review.helpful = Math.max(0, (review.helpful || 0) - 1); // Prevent negative values
+        review.helpful = Math.max(0, (review.helpful || 0) - 1);
       }
       
       state.error = null;
+      saveProductsToStorage(state.products);
     },
 
-    updateStock: (state, action: PayloadAction<{ productId: string; quantity: number }>) => {
+    /**
+     * Update product stock
+     */
+    updateStock: (
+      state,
+      action: PayloadAction<{ productId: string; quantity: number }>
+    ) => {
       const { productId, quantity } = action.payload;
       const product = state.products.find((p) => p.id === productId);
       
@@ -154,13 +262,41 @@ const productsSlice = createSlice({
 
       product.stock -= quantity;
       state.error = null;
+      saveProductsToStorage(state.products);
     },
 
-    // Reset state
+    /**
+     * Update product stock directly (for admin)
+     */
+    setStock: (
+      state,
+      action: PayloadAction<{ productId: string; stock: number }>
+    ) => {
+      const { productId, stock } = action.payload;
+      const product = state.products.find((p) => p.id === productId);
+      
+      if (!product) {
+        state.error = `Product with ID ${productId} not found`;
+        return;
+      }
+
+      product.stock = Math.max(0, stock);
+      state.error = null;
+      saveProductsToStorage(state.products);
+    },
+
+    /**
+     * Reset products to initial state
+     */
     resetProductsState: (state) => {
       state.products = initialProducts;
       state.isLoading = false;
       state.error = null;
+      
+      // Clear storage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(PRODUCTS_STORAGE_KEY);
+      }
     },
   },
 });
@@ -174,6 +310,7 @@ export const {
   deleteReview, 
   updateReviewHelpfulCount, 
   updateStock,
+  setStock,
   resetProductsState,
 } = productsSlice.actions;
 

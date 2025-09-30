@@ -8,8 +8,34 @@ interface UIState {
   toast: { message: string; type: 'success' | 'error' | 'info' } | null;
 }
 
+/**
+ * Get initial theme from localStorage or system preference
+ */
+const getInitialTheme = (): 'light' | 'dark' => {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') {
+    return 'light';
+  }
+
+  try {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+
+    // Fallback to system preference
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+  } catch (error) {
+    console.error('Error loading theme:', error);
+  }
+
+  return 'light';
+};
+
 const initialState: UIState = {
-  theme: 'light',
+  theme: getInitialTheme(),
   searchQuery: '',
   isMenuOpen: false,
   quickViewProductId: null,
@@ -22,24 +48,58 @@ const uiSlice = createSlice({
   reducers: {
     setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
       state.theme = action.payload;
+      
+      // Persist to localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('theme', action.payload);
+        } catch (error) {
+          console.error('Error saving theme:', error);
+        }
+      }
     },
+    
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
     },
+    
     setIsMenuOpen: (state, action: PayloadAction<boolean>) => {
       state.isMenuOpen = action.payload;
     },
+    
     setQuickViewProductId: (state, action: PayloadAction<string | null>) => {
       state.quickViewProductId = action.payload;
     },
-    setToast: (state, action: PayloadAction<{ message: string; type: 'success' | 'error' | 'info' } | null>) => {
+    
+    setToast: (
+      state,
+      action: PayloadAction<{
+        message: string;
+        type: 'success' | 'error' | 'info';
+      } | null>
+    ) => {
       state.toast = action.payload;
     },
-     // NEW: A more flexible way to update multiple UI state properties
+    
+    clearToast: (state) => {
+      state.toast = null;
+    },
+    
+    /**
+     * Flexible way to update multiple UI state properties
+     */
     setUiState: (state, action: PayloadAction<Partial<UIState>>) => {
-        // Object.assign merges the new partial state into the existing state
-        Object.assign(state, action.payload);
-    }
+      Object.assign(state, action.payload);
+      
+      // If theme was updated, persist it
+      if (action.payload.theme && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('theme', action.payload.theme);
+        } catch (error) {
+          console.error('Error saving theme:', error);
+        }
+      }
+    },
   },
 });
 
@@ -49,6 +109,8 @@ export const {
   setIsMenuOpen,
   setQuickViewProductId,
   setToast,
-  setUiState
+  clearToast,
+  setUiState,
 } = uiSlice.actions;
+
 export default uiSlice.reducer;

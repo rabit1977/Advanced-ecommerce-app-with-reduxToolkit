@@ -10,15 +10,13 @@ import { ReduxProvider } from '@/lib/providers/ReduxProvider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-// import { ProductsLoader } from '@/components/products/products-loader';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  // title.template will be used by child pages
   title: {
-    template: '%s | My Awesome Store', // %s will be replaced by the child page's title
-    default: 'My Awesome Store', // The default title for the site
+    template: '%s | My Awesome Store',
+    default: 'My Awesome Store',
   },
   description: 'The best place to buy awesome things!',
 };
@@ -29,13 +27,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
+      <head>
+        {/* Inline script to prevent theme flash (FOUC) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  if (theme === 'light' || theme === 'dark') {
+                    document.documentElement.classList.add(theme);
+                  } else {
+                    var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    document.documentElement.classList.add(systemTheme);
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <ReduxProvider>
             <ThemeManager />
             <CommandPalette />
-            {/* <ProductsLoader /> */}
             <div className='min-h-screen bg-white font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-200'>
               <Header />
               <MobileSidebar />
@@ -44,8 +61,6 @@ export default function RootLayout({
               <QuickViewModal />
               <Toast />
             </div>
-            {/* {process.env.NODE_ENV === 'development' && <UserDebug />} */}
-            {/* {process.env.NODE_ENV === 'development' && <CartDebug />} */}
           </ReduxProvider>
         </ErrorBoundary>
       </body>

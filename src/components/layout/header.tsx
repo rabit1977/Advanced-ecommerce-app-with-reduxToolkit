@@ -1,45 +1,164 @@
 'use client';
 
-import { Zap } from 'lucide-react';
+import { Zap, Menu } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { NavActions } from './nav-actions';
 import { SearchBar } from './search-bar';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+const navLinks: NavLink[] = [
+  { href: '/products', label: 'Products' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+];
+
+/**
+ * Header component with sticky navigation, search, and responsive mobile menu
+ * 
+ * Features:
+ * - Sticky header with backdrop blur
+ * - Active link highlighting
+ * - Mobile navigation drawer
+ * - Accessible markup
+ * - Optimized re-renders
+ */
 const Header = () => {
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  /**
+   * Check if link is active
+   */
+  const isActiveLink = useCallback(
+    (href: string): boolean => {
+      if (href === '/') return pathname === '/';
+      return pathname.startsWith(href);
+    },
+    [pathname]
+  );
+
+  /**
+   * Close mobile menu
+   */
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
   return (
-    <header className='sticky top-0 z-30 w-full border-b bg-white/80 backdrop-blur-sm dark:bg-slate-950/80 dark:border-slate-800'>
+    <header 
+      className='sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-slate-950/95 dark:supports-[backdrop-filter]:bg-slate-950/80 dark:border-slate-800'
+      role='banner'
+    >
       <div className='container mx-auto flex h-16 items-center justify-between gap-4 px-4'>
-        <Link href='/' className='flex flex-shrink-0 items-center gap-2'>
-          <Zap className='h-6 w-6 text-slate-900 dark:text-white' />
-          <span className='hidden text-xl font-bold dark:text-white sm:inline'>
+        
+        {/* Logo */}
+        <Link 
+          href='/' 
+          className='flex flex-shrink-0 items-center gap-2 group'
+          aria-label='Electro home page'
+        >
+          <div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors'>
+            <Zap className='h-5 w-5 text-primary' />
+          </div>
+          <span className='hidden text-xl font-bold text-foreground sm:inline'>
             Electro
           </span>
         </Link>
 
-        <SearchBar />
+        {/* Search Bar */}
+        <div className='flex-1 max-w-md mx-4'>
+          <SearchBar />
+        </div>
 
-        <nav className='hidden items-center gap-4 lg:flex dark:text-slate-400'>
-          <Link
-            href='/products'
-            className='text-sm font-medium hover:text-slate-900 dark:hover:text-white'
-          >
-            Products
-          </Link>
-          <Link
-            href='/about'
-            className='text-sm font-medium hover:text-slate-900 dark:hover:text-white'
-          >
-            About
-          </Link>
-          <Link
-            href='/contact'
-            className='text-sm font-medium hover:text-slate-900 dark:hover:text-white'
-          >
-            Contact
-          </Link>
+        {/* Desktop Navigation */}
+        <nav 
+          className='hidden items-center gap-6 lg:flex'
+          aria-label='Main navigation'
+        >
+          {navLinks.map((link) => {
+            const isActive = isActiveLink(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'text-sm font-medium transition-colors relative',
+                  isActive 
+                    ? 'text-foreground' 
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {link.label}
+                {isActive && (
+                  <span className='absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary' />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        <NavActions />
+        {/* Nav Actions (Cart, Theme, etc.) */}
+        <div className='flex items-center gap-2'>
+          <NavActions />
+          
+          {/* Mobile Menu Button */}
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='lg:hidden'
+                aria-label='Open menu'
+              >
+                <Menu className='h-5 w-5' />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side='right' className='w-[280px] sm:w-[350px]'>
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              
+              {/* Mobile Navigation Links */}
+              <nav className='mt-8 flex flex-col gap-4' aria-label='Mobile navigation'>
+                {navLinks.map((link) => {
+                  const isActive = isActiveLink(link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={closeMobileMenu}
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                      )}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
