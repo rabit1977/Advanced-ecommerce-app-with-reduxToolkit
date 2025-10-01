@@ -96,14 +96,6 @@ export const wishlistSlice = createSlice({
       state.itemIds = [];
       saveWishlistToStorage(state.itemIds);
     },
-
-    /**
-     * Check if product is in wishlist (helper for selectors)
-     */
-    isInWishlist: (state, action: PayloadAction<string>) => {
-      // This is just for documentation - actual check done in selectors
-      return state.itemIds.includes(action.payload);
-    },
   },
 });
 

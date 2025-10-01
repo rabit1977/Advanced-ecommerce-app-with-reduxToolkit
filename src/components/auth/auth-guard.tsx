@@ -7,49 +7,78 @@ import { Loader2 } from 'lucide-react';
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  /**
+   * Optional redirect path (defaults to '/auth')
+   */
+  redirectTo?: string;
+  /**
+   * Optional loading component
+   */
+  fallback?: React.ReactNode;
 }
 
-const AuthGuard = ({ children }: AuthGuardProps) => {
+/**
+ * Auth guard component - protects routes from unauthenticated users
+ * Handles redux-persist rehydration gracefully
+ */
+const AuthGuard: React.FC<AuthGuardProps> = ({ 
+  children, 
+  redirectTo = '/auth',
+  fallback 
+}) => {
   const { user } = useAppSelector((state) => state.user);
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Wait for the initial state to be loaded, especially from redux-persist
-    const timer = setTimeout(() => {
-        if (user === undefined) {
-            // The user state is not yet determined, so we wait a bit more.
-            // This is a simple way to handle rehydration.
-            return;
-        }
+    // Handle initial authentication check
+    let timeoutId: NodeJS.Timeout;
 
-        if (!user) {
-            router.replace('/auth');
-        } else {
-            setIsLoading(false);
-        }
-    }, 500); // A small delay to allow the store to hydrate
+    const checkAuth = () => {
+      // If user is undefined, we're still rehydrating from persist
+      if (user === undefined) {
+        timeoutId = setTimeout(checkAuth, 100);
+        return;
+      }
 
-    // A fallback for when the user state is determined quickly
-    if (user) {
-        setIsLoading(false);
-        clearTimeout(timer);
-    } else if (user === null) {
-        router.replace('/auth');
-        clearTimeout(timer);
-    }
+      // User is authenticated
+      if (user) {
+        setIsChecking(false);
+        return;
+      }
 
-    return () => clearTimeout(timer);
-  }, [user, router]);
+      // User is not authenticated - redirect
+      if (user === null) {
+        router.replace(redirectTo);
+        return;
+      }
+    };
 
-  if (isLoading) {
-    return (
+    checkAuth();
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [user, router, redirectTo]);
+
+  // Show loading state while checking authentication
+  if (isChecking) {
+    return fallback || (
       <div className="flex min-h-[70vh] items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-slate-400" />
+        <div className="text-center space-y-4">
+          <Loader2 className="h-16 w-16 animate-spin text-slate-400 mx-auto" />
+          <p className="text-slate-600 dark:text-slate-400">
+            Loading...
+          </p>
+        </div>
       </div>
     );
   }
 
+  // User is authenticated - render children
   return <>{children}</>;
 };
 

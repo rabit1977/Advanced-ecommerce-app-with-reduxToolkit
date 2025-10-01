@@ -1,16 +1,5 @@
 'use client';
 
-import { Product } from '@/lib/types';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
-import { ProductGridControls } from './ProductGridControls';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +10,18 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { ProductGridPagination } from '@/lib/hooks/usePagination';
+import { Product } from '@/lib/types';
 import { FilterX } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
+import { ProductGridControls } from './ProductGridControls';
 import { ProductList } from './ProductList';
 import { FilterSidebar } from './filter-sidebar';
 
@@ -30,7 +30,8 @@ export type SortKey =
   | 'price-asc'
   | 'price-desc'
   | 'rating'
-  | 'newest';
+  | 'newest'
+  | 'popularity';
 
 interface ProductGridProps {
   /** Grid title */

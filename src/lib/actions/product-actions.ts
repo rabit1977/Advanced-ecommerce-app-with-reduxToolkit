@@ -1,95 +1,244 @@
 'use server';
 
 import * as z from 'zod';
-import { initialProducts } from '@/lib/constants/products';
-import { Product } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { initialProducts } from '@/lib/constants/products';
+import { Product } from '@/lib/types';
 
-// Define the same schema as the form for server-side validation
-const formSchema = z.object({
-  title: z.string().min(2),
-  description: z.string().min(10),
-  price: z.coerce.number().min(0),
-  stock: z.coerce.number().int().min(0),
-  brand: z.string().min(2),
-  category: z.string().min(2),
+/**
+ * Validation schema for product forms
+ * Shared between client and server for consistency
+ */
+export const productFormSchema = z.object({
+  title: z.string().min(2, 'Title must be at least 2 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  price: z.coerce.number().min(0, 'Price must be positive'),
+  stock: z.coerce.number().int().min(0, 'Stock must be a positive integer'),
+  brand: z.string().min(2, 'Brand must be at least 2 characters'),
+  category: z.string().min(2, 'Category must be at least 2 characters'),
+
 });
 
-export const addProduct = async (values: z.infer<typeof formSchema>) => {
-  // 1. Validate the data on the server
-  const validatedFields = formSchema.safeParse(values);
+export type ProductFormValues = z.infer<typeof productFormSchema>;
 
-  if (!validatedFields.success) {
+/**
+ * Server action result type
+ */
+type ActionResult<T = void> = 
+  | { success: true; data?: T }
+  | { success: false; error: string };
+
+/**
+ * Generate unique product ID
+ */
+const generateProductId = (): string => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+  return `sku-${timestamp}-${random}`;
+};
+
+/**
+ * Add a new product
+ * @param values - Product form data
+ * @returns Action result with success status
+ */
+export async function addProduct(
+  values: ProductFormValues
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    // Validate input
+    const validatedFields = productFormSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        error: validatedFields.error.errors[0]?.message || 'Invalid fields!',
+      };
+    }
+
+    const { title, description, price, stock, brand, category } = validatedFields.data;
+
+    // Create new product
+    const newProduct: Product = {
+      id: generateProductId(),
+      title,
+      description,
+      price,
+      stock,
+      brand,
+      category,
+      rating: 0,
+      reviewCount: 0,
+      images: ['/images/placeholder.jpg'],
+      reviews: [],
+    };
+
+    // TODO: Replace with database call
+    // await db.product.create({ data: newProduct });
+    initialProducts.unshift(newProduct);
+
+    // Revalidate cache
+    revalidatePath('/admin/products');
+    revalidatePath('/');
+
+    // Return success before redirect
+    const result: ActionResult<{ id: string }> = {
+      success: true,
+      data: { id: newProduct.id },
+    };
+
+    // Redirect after returning result
+    redirect('/admin/products');
+
+    return result;
+  } catch (error) {
+    // Handle unexpected errors
+    console.error('Error adding product:', error);
     return {
-      error: "Invalid fields!",
+      success: false,
+      error: 'Failed to add product. Please try again.',
     };
   }
+}
 
-  const { title, description, price, stock, brand, category } = validatedFields.data;
+/**
+ * Update an existing product
+ * @param productId - Product ID to update
+ * @param values - Updated product data
+ * @returns Action result with success status
+ */
+export async function updateProduct(
+  productId: string,
+  values: ProductFormValues
+): Promise<ActionResult> {
+  try {
+    // Validate input
+    const validatedFields = productFormSchema.safeParse(values);
 
-  // 2. Construct the new product object
-  const newProduct: Product = {
-    id: `sku-${Date.now()}`,
-    title,
-    description,
-    price,
-    stock,
-    brand,
-    category,
-    rating: 0, // Default value
-    reviewCount: 0, // Default value
-    images: ['/images/placeholder.jpg'], // Default placeholder
-  };
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        error: validatedFields.error.errors[0]?.message || 'Invalid fields!',
+      };
+    }
 
-  // 3. Mutate the data source
-  // In a real app, this would be a database call, e.g.:
-  // await db.product.create({ data: newProduct });
-  // For this demo, we'll just push to the in-memory array.
-  initialProducts.unshift(newProduct);
+    // Find product
+    const productIndex = initialProducts.findIndex((p) => p.id === productId);
 
-  // 4. Revalidate the cache and redirect
-  revalidatePath('/admin/products');
-  revalidatePath('/'); // Revalidate home page as well
-  redirect('/admin/products');
-};
+    if (productIndex === -1) {
+      return {
+        success: false,
+        error: 'Product not found!',
+      };
+    }
 
-export const updateProduct = async (productId: string, values: z.infer<typeof formSchema>) => {
-  const validatedFields = formSchema.safeParse(values);
+    // TODO: Replace with database call
+    // await db.product.update({
+    //   where: { id: productId },
+    //   data: validatedFields.data
+    // });
 
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
-  }
+    // Update product while preserving other fields
+    initialProducts[productIndex] = {
+      ...initialProducts[productIndex],
+      ...validatedFields.data,
+    };
 
-  const productIndex = initialProducts.findIndex((p) => p.id === productId);
+    // Revalidate cache
+    revalidatePath('/admin/products');
+    revalidatePath(`/products/${productId}`);
+    revalidatePath('/');
 
-  if (productIndex === -1) {
-    return { error: "Product not found!" };
-  }
+    // Redirect after successful update
+    redirect('/admin/products');
 
-  // In a real app, this would be a database call.
-  initialProducts[productIndex] = {
-    ...initialProducts[productIndex],
-    ...validatedFields.data,
-  };
-
-  revalidatePath('/admin/products');
-  revalidatePath(`/products/${productId}`);
-  redirect('/admin/products');
-};
-
-export const deleteProduct = async (productId: string) => {
-  const index = initialProducts.findIndex((p) => p.id === productId);
-
-  if (index === -1) {
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating product:', error);
     return {
-      error: "Product not found!",
+      success: false,
+      error: 'Failed to update product. Please try again.',
     };
   }
+}
 
-  // In a real app, this would be a database call.
-  initialProducts.splice(index, 1);
+/**
+ * Delete a product
+ * @param productId - Product ID to delete
+ * @returns Action result with success status
+ */
+export async function deleteProduct(
+  productId: string
+): Promise<ActionResult> {
+  try {
+    // Find product
+    const index = initialProducts.findIndex((p) => p.id === productId);
 
-  revalidatePath('/admin/products');
-  revalidatePath('/');
-};
+    if (index === -1) {
+      return {
+        success: false,
+        error: 'Product not found!',
+      };
+    }
+
+    // TODO: Replace with database call
+    // await db.product.delete({ where: { id: productId } });
+    initialProducts.splice(index, 1);
+
+    // Revalidate cache
+    revalidatePath('/admin/products');
+    revalidatePath('/');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return {
+      success: false,
+      error: 'Failed to delete product. Please try again.',
+    };
+  }
+}
+
+/**
+ * Bulk delete products
+ * @param productIds - Array of product IDs to delete
+ * @returns Action result with count of deleted products
+ */
+export async function bulkDeleteProducts(
+  productIds: string[]
+): Promise<ActionResult<{ count: number }>> {
+  try {
+    if (!productIds.length) {
+      return {
+        success: false,
+        error: 'No products selected',
+      };
+    }
+
+    let deletedCount = 0;
+
+    // Delete in reverse order to avoid index shifting issues
+    for (let i = initialProducts.length - 1; i >= 0; i--) {
+      if (productIds.includes(initialProducts[i].id)) {
+        initialProducts.splice(i, 1);
+        deletedCount++;
+      }
+    }
+
+    // Revalidate cache
+    revalidatePath('/admin/products');
+    revalidatePath('/');
+
+    return {
+      success: true,
+      data: { count: deletedCount },
+    };
+  } catch (error) {
+    console.error('Error bulk deleting products:', error);
+    return {
+      success: false,
+      error: 'Failed to delete products. Please try again.',
+    };
+  }
+}

@@ -1,98 +1,281 @@
-import { initialProducts } from "@/lib/constants";
-import { Product } from "@/lib/types";
+import { Product } from '@/lib/types';
+import { initialProducts } from '@/lib/constants/products';
 
-export type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest';
+/**
+ * Available sort options for products
+ */
+export type SortKey =
+  | 'featured'
+  | 'price-asc'
+  | 'price-desc'
+  | 'rating'
+  | 'newest'
+  | 'popularity';
 
-// Helper to extract number from SKU for sorting
+/**
+ * Extract numeric ID from SKU for sorting
+ * @param id - Product SKU (e.g., "sku-1234567890")
+ * @returns Numeric portion of the ID
+ */
 const extractIdNumber = (id: string): number => {
-  const match = id.match(/\d+$/);
+  const match = id.match(/\d+/);
   return match ? parseInt(match[0], 10) : 0;
 };
 
-// This map should live on the server, where the sorting happens.
-const sortOptions: Record<SortKey, (a: Product, b: Product) => number> = {
-  // Featured will now sort by highest rating as a sensible default
+/**
+ * Sort comparator functions
+ */
+const sortComparators: Record<SortKey, (a: Product, b: Product) => number> = {
   featured: (a, b) => (b.rating || 0) - (a.rating || 0),
   'price-asc': (a, b) => a.price - b.price,
   'price-desc': (a, b) => b.price - a.price,
   rating: (a, b) => (b.rating || 0) - (a.rating || 0),
-  // Newest will sort by the numerical part of the product ID, descending
   newest: (a, b) => extractIdNumber(b.id) - extractIdNumber(a.id),
+  popularity: (a, b) => (b.reviewCount || 0) - (a.reviewCount || 0),
 };
 
-interface GetProductsOptions {
+/**
+ * Options for fetching products
+ */
+export interface GetProductsOptions {
   query?: string;
   category?: string;
   brands?: string;
   minPrice?: number;
   maxPrice?: number;
+  minRating?: number;
+  inStock?: boolean;
   sort?: SortKey;
   page?: number;
   limit?: number;
 }
 
-interface GetProductsResult {
+/**
+ * Result of product fetch operation
+ */
+export interface GetProductsResult {
   products: Product[];
   totalCount: number;
+  page: number;
+  totalPages: number;
+  hasMore: boolean;
 }
 
+/**
+ * Fetch and filter products with pagination
+ * @param options - Filter and pagination options
+ * @param productSource - Product data source (defaults to initialProducts)
+ * @returns Filtered and paginated products with metadata
+ */
 export async function getProducts(
   options: GetProductsOptions = {},
-  productSource: Product[] = initialProducts 
+  productSource: Product[] = initialProducts
 ): Promise<GetProductsResult> {
-  const { query, category, brands, minPrice, maxPrice, sort = 'featured', page = 1, limit = 8 } = options;
+  const {
+    query,
+    category,
+    brands,
+    minPrice,
+    maxPrice,
+    minRating,
+    inStock,
+    sort = 'featured',
+    page = 1,
+    limit = 8,
+  } = options;
 
-  // Simulate a database fetch delay
+  // Simulate database delay (remove in production with real DB)
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  let products = productSource;
+  let products = [...productSource]; // Create copy to avoid mutations
 
-  // 1. Filter by search query
-  if (query) {
-    const lowerCaseQuery = query.toLowerCase();
-    products = products.filter(
-      (product) =>
-        product.title.toLowerCase().includes(lowerCaseQuery) ||
-        product.description.toLowerCase().includes(lowerCaseQuery) ||
-        product.category.toLowerCase().includes(lowerCaseQuery) ||
-        product.brand.toLowerCase().includes(lowerCaseQuery)
-    );
-  }
+  // Apply filters
+  products = applyFilters(products, {
+    query,
+    category,
+    brands,
+    minPrice,
+    maxPrice,
+    minRating,
+    inStock,
+  });
 
-  // 2. Filter by category (case-insensitive)
-  if (category && category !== 'all') {
-    products = products.filter((product) => product.category.toLowerCase() === category.toLowerCase());
-  }
-
-  // 3. Filter by brands (case-insensitive)
-  if (brands) {
-    const selectedBrands = new Set(brands.split(',').map(b => b.toLowerCase()));
-    products = products.filter((product) => selectedBrands.has(product.brand.toLowerCase()));
-  }
-
-  // 4. Filter by price range
-  if (minPrice !== undefined) {
-    products = products.filter((product) => product.price >= minPrice);
-  }
-  if (maxPrice !== undefined) {
-    products = products.filter((product) => product.price <= maxPrice);
-  }
-
-  // 5. Get total count after filtering
+  // Get total count after filtering
   const totalCount = products.length;
+  const totalPages = Math.ceil(totalCount / limit);
 
-  // 6. Sort
-  products.sort(sortOptions[sort]);
+  // Apply sorting
+  const comparator = sortComparators[sort];
+  if (comparator) {
+    products.sort(comparator);
+  }
 
-  // 7. Paginate
+  // Apply pagination
   const startIndex = (page - 1) * limit;
   const paginatedProducts = products.slice(startIndex, startIndex + limit);
 
-  return { products: paginatedProducts, totalCount };
+  return {
+    products: paginatedProducts,
+    totalCount,
+    page,
+    totalPages,
+    hasMore: page < totalPages,
+  };
 }
 
-export async function getProductById(id: string): Promise<Product | undefined> {
-  // Simulate a database fetch delay
+/**
+ * Apply filters to product array
+ */
+function applyFilters(
+  products: Product[],
+  filters: Omit<GetProductsOptions, 'sort' | 'page' | 'limit'>
+): Product[] {
+  let filtered = products;
+
+  // Search query filter
+  if (filters.query) {
+    const lowerQuery = filters.query.toLowerCase();
+    filtered = filtered.filter(
+      (p) =>
+        p.title.toLowerCase().includes(lowerQuery) ||
+        p.description.toLowerCase().includes(lowerQuery) ||
+        p.category.toLowerCase().includes(lowerQuery) ||
+        p.brand.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  // Category filter
+  if (filters.category && filters.category !== 'all') {
+    const lowerCategory = filters.category.toLowerCase();
+    filtered = filtered.filter(
+      (p) => p.category.toLowerCase() === lowerCategory
+    );
+  }
+
+  // Brands filter
+  if (filters.brands) {
+    const selectedBrands = new Set(
+      filters.brands.split(',').map((b) => b.trim().toLowerCase())
+    );
+    filtered = filtered.filter((p) =>
+      selectedBrands.has(p.brand.toLowerCase())
+    );
+  }
+
+  // Price range filters
+  if (filters.minPrice !== undefined) {
+    filtered = filtered.filter((p) => p.price >= filters.minPrice!);
+  }
+  if (filters.maxPrice !== undefined) {
+    filtered = filtered.filter((p) => p.price <= filters.maxPrice!);
+  }
+
+  // Rating filter
+  if (filters.minRating !== undefined) {
+    filtered = filtered.filter((p) => (p.rating || 0) >= filters.minRating!);
+  }
+
+  // Stock filter
+  if (filters.inStock) {
+    filtered = filtered.filter((p) => p.stock > 0);
+  }
+
+  return filtered;
+}
+
+/**
+ * Get a single product by ID
+ * @param id - Product ID
+ * @param productSource - Product data source
+ * @returns Product or undefined if not found
+ */
+export async function getProductById(
+  id: string,
+  productSource: Product[] = initialProducts
+): Promise<Product | undefined> {
+  // Simulate database delay
   await new Promise((resolve) => setTimeout(resolve, 100));
-  return initialProducts.find((product) => product.id === id);
+  return productSource.find((product) => product.id === id);
+}
+
+/**
+ * Get multiple products by IDs (useful for cart/wishlist)
+ * @param ids - Array of product IDs
+ * @param productSource - Product data source
+ * @returns Array of products
+ */
+export async function getProductsByIds(
+  ids: string[],
+  productSource: Product[] = initialProducts
+): Promise<Product[]> {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  const idSet = new Set(ids);
+  return productSource.filter((product) => idSet.has(product.id));
+}
+
+/**
+ * Get related products based on category and brand
+ * @param productId - Current product ID
+ * @param limit - Maximum number of related products
+ * @returns Array of related products
+ */
+export async function getRelatedProducts(
+  productId: string,
+  limit: number = 4
+): Promise<Product[]> {
+  const product = await getProductById(productId);
+  
+  if (!product) return [];
+
+  // Find products in same category or brand, excluding current product
+  const related = initialProducts
+    .filter((p) => 
+      p.id !== productId && 
+      (p.category === product.category || p.brand === product.brand)
+    )
+    .sort((a, b) => {
+      // Prioritize same category over same brand
+      const aScore = (a.category === product.category ? 2 : 0) + 
+                     (a.brand === product.brand ? 1 : 0);
+      const bScore = (b.category === product.category ? 2 : 0) + 
+                     (b.brand === product.brand ? 1 : 0);
+      return bScore - aScore;
+    })
+    .slice(0, limit);
+
+  return related;
+}
+
+/**
+ * Get unique categories from all products
+ * @returns Array of unique categories
+ */
+export async function getCategories(): Promise<string[]> {
+  const categories = new Set(initialProducts.map((p) => p.category));
+  return Array.from(categories).sort();
+}
+
+/**
+ * Get unique brands from all products
+ * @returns Array of unique brands
+ */
+export async function getBrands(): Promise<string[]> {
+  const brands = new Set(initialProducts.map((p) => p.brand));
+  return Array.from(brands).sort();
+}
+
+/**
+ * Get price range across all products
+ * @returns Object with min and max prices
+ */
+export async function getPriceRange(): Promise<{ min: number; max: number }> {
+  if (initialProducts.length === 0) {
+    return { min: 0, max: 0 };
+  }
+
+  const prices = initialProducts.map((p) => p.price);
+  return {
+    min: Math.min(...prices),
+    max: Math.max(...prices),
+  };
 }

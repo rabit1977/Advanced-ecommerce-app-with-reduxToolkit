@@ -119,7 +119,7 @@ export interface Order {
   date: string;
   items: CartItem[];
   total: number;
-  status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   shippingAddress: Address;
   billingAddress: Address;
   paymentMethod: string;

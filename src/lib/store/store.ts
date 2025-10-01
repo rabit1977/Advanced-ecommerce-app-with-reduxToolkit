@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import {
   FLUSH,
   PAUSE,
@@ -8,84 +8,90 @@ import {
   PURGE,
   REGISTER,
   REHYDRATE,
-  Storage,
+  type Storage,
 } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // Simplified import
+import storage from 'redux-persist/lib/storage';
+import rootReducer, { type RootState } from './rootReducer';
 
-// Import slice reducers
-import cartReducer from './slices/cartSlice';
-import orderReducer from './slices/orderSlice';
-import productReducer from './slices/productSlice';
-import uiReducer from './slices/uiSlice';
-import userReducer from './slices/userSlice';
-import wishlistReducer from './slices/wishlistSlice';
-
-// Create no-op storage for SSR environments
-const createNoopStorage = (): Storage => {
-  return {
-    getItem(_key: string): Promise<string | null> {
-      return Promise.resolve(null);
-    },
-    setItem(_key: string, value: string): Promise<string> {
-      return Promise.resolve(value);
-    },
-    removeItem(_key: string): Promise<void> {
-      return Promise.resolve();
-    },
-  };
-};
-
-// Get appropriate storage based on environment
-const getStorage = (): Storage => {
-  if (typeof window !== "undefined") {
-    return storage;
-  }
-  return createNoopStorage();
-};
-
-// Combine reducers
-const rootReducer = combineReducers({
-  cart: cartReducer,
-  wishlist: wishlistReducer,
-  products: productReducer,
-  orders: orderReducer,
-  user: userReducer,
-  ui: uiReducer,
+/**
+ * Create no-op storage for SSR environments (Next.js, etc.)
+ */
+const createNoopStorage = (): Storage => ({
+  getItem: (_key: string) => Promise.resolve(null),
+  setItem: (_key: string, value: string) => Promise.resolve(value),
+  removeItem: (_key: string) => Promise.resolve(),
 });
 
-// Define RootState type
-export type RootState = ReturnType<typeof rootReducer>;
+/**
+ * Get appropriate storage based on environment
+ */
+const getStorage = (): Storage => {
+  return typeof window !== 'undefined' ? storage : createNoopStorage();
+};
 
-const whitelistedSlices: string[] = ['cart', 'wishlist', 'user'];
-
+/**
+ * Persist configuration
+ * Only persist cart, wishlist, and user data
+ */
 const persistConfig = {
   key: 'root',
   storage: getStorage(),
-  whitelist: whitelistedSlices,
+  whitelist: ['cart', 'wishlist', 'user'], // Remove 'as const' to fix type issue
   version: 1,
   timeout: 10000,
+  // Optional: Add migration for version updates
+  // migrate: (state: any) => {
+  //   if (state?._persist?.version === 0) {
+  //     // Handle migration from version 0 to 1
+  //     return Promise.resolve(state);
+  //   }
+  //   return Promise.resolve(state);
+  // },
 };
 
-// Create persisted reducer with proper typing
-const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);
+/**
+ * Create persisted reducer
+ */
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Configure store
+/**
+ * Configure Redux store with middleware and DevTools
+ */
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
+        // Ignore redux-persist actions
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        // Optional: ignore specific paths if needed
-        // ignoredPaths: ['some.nested.path'],
+        // Optionally ignore Date objects in your state
+        // ignoredActionPaths: ['payload.date'],
+        // ignoredPaths: ['orders.items.date'],
       },
+      // Enable immutability check only in development
+      immutableCheck: process.env.NODE_ENV === 'development',
     }),
-  // Enable Redux DevTools in development only
-  devTools: process.env.NODE_ENV !== 'production',
+  // Enable Redux DevTools only in development
+  devTools: process.env.NODE_ENV !== 'production' && {
+    name: 'E-Commerce Store',
+    trace: true, // Enable action stack traces
+    traceLimit: 25,
+  },
 });
 
-// Create persistor
+/**
+ * Create persistor for redux-persist
+ */
 export const persistor = persistStore(store);
 
-// Export types
+/**
+ * Export types for use throughout the app
+ */
 export type AppDispatch = typeof store.dispatch;
+export type { RootState };
+
+/**
+ * Optional: Export store state type from store directly
+ * This ensures type consistency
+ */
+export type AppStore = typeof store;

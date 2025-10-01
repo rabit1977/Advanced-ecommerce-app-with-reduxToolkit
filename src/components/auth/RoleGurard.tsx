@@ -2,21 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAppSelector } from '@/lib/store/hooks';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { showToast } from '@/lib/store/thunks/uiThunks';
 
-interface AdminAuthGuardProps {
+type UserRole = 'user' | 'admin' | 'moderator'; // Extend as needed
+
+interface RoleGuardProps {
   children: React.ReactNode;
+  /**
+   * Required role(s) to access this route
+   */
+  requiredRole: UserRole | UserRole[];
   /**
    * Optional redirect path for non-authenticated users
    */
   authRedirectTo?: string;
   /**
-   * Optional redirect path for non-admin users
+   * Optional redirect path for users without required role
    */
   unauthorizedRedirectTo?: string;
+  /**
+   * Custom error message for unauthorized access
+   */
+  unauthorizedMessage?: string;
   /**
    * Custom loading component
    */
@@ -24,13 +34,15 @@ interface AdminAuthGuardProps {
 }
 
 /**
- * Admin auth guard - protects routes that require admin access
- * Checks both authentication and admin role
+ * Generic role-based guard component
+ * Can protect routes based on any role(s)
  */
-const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({
+const RoleGuard: React.FC<RoleGuardProps> = ({
   children,
+  requiredRole,
   authRedirectTo = '/auth',
   unauthorizedRedirectTo = '/',
+  unauthorizedMessage = 'You do not have permission to access this page.',
   fallback,
 }) => {
   const { user } = useAppSelector((state) => state.user);
@@ -42,10 +54,10 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
 
-    const checkAdminAccess = () => {
-      // If user is undefined, we're still rehydrating from persist
+    const checkRoleAccess = () => {
+      // If user is undefined, we're still rehydrating
       if (user === undefined) {
-        timeoutId = setTimeout(checkAdminAccess, 100);
+        timeoutId = setTimeout(checkRoleAccess, 100);
         return;
       }
 
@@ -60,44 +72,54 @@ const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({
         return;
       }
 
-      // User is authenticated but not an admin
-      if (user.role !== 'admin') {
-        dispatch(
-          showToast('You do not have permission to access this page.', 'error')
-        );
+      // Check if user has required role
+      const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+      const hasRequiredRole = allowedRoles.includes(user.role as UserRole);
+
+      if (!hasRequiredRole) {
+        dispatch(showToast(unauthorizedMessage, 'error'));
         router.replace(unauthorizedRedirectTo);
         return;
       }
 
-      // User is an admin - allow access
+      // User has required role - allow access
       setIsChecking(false);
     };
 
-    checkAdminAccess();
+    checkRoleAccess();
 
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
     };
-  }, [user, router, dispatch, hasChecked, authRedirectTo, unauthorizedRedirectTo]);
+  }, [
+    user,
+    router,
+    dispatch,
+    hasChecked,
+    requiredRole,
+    authRedirectTo,
+    unauthorizedRedirectTo,
+    unauthorizedMessage,
+  ]);
 
-  // Show loading state while checking
+  // Show loading state
   if (isChecking) {
     return fallback || (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="text-center space-y-4">
           <Loader2 className="h-16 w-16 animate-spin text-slate-400 mx-auto" />
           <p className="text-slate-600 dark:text-slate-400 font-medium">
-            Verifying admin access...
+            Verifying permissions...
           </p>
         </div>
       </div>
     );
   }
 
-  // User is an admin - render protected content
+  // User has required role - render protected content
   return <>{children}</>;
 };
 
-export default AdminAuthGuard;
+export { RoleGuard };
