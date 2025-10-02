@@ -1,9 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { priceFmt } from '@/lib/utils/formatters';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils/formatters';
+import { useRouter } from 'next/navigation';
+import { memo } from 'react';
 
 interface CartSummaryProps {
   subtotal: number;
@@ -11,21 +12,33 @@ interface CartSummaryProps {
   taxes?: number;
   discount?: number;
   total: number;
-  isCollapsible?: boolean; // New prop
+  isCollapsible?: boolean;
+  showCheckoutButton?: boolean;
+  onCheckout?: () => void;
 }
 
-const CartSummary = ({
+/**
+ * Cart summary component - displays order totals
+ * Memoized to prevent unnecessary re-renders
+ */
+const CartSummary = memo(({
   subtotal,
-  shipping = 5,
+  shipping = 0,
   taxes = 0,
   discount = 0,
   total,
-  isCollapsible = false, // Default to false
+  isCollapsible = false,
+  showCheckoutButton = true,
+  onCheckout,
 }: CartSummaryProps) => {
   const router = useRouter();
 
-  const navigateToCheckout = () => {
-    router.push('/checkout');
+  const handleCheckout = () => {
+    if (onCheckout) {
+      onCheckout();
+    } else {
+      router.push('/checkout');
+    }
   };
 
   return (
@@ -33,51 +46,78 @@ const CartSummary = ({
       className={cn(
         'h-fit',
         !isCollapsible &&
-          'rounded-lg border bg-white p-6 shadow-sm lg:sticky top-24 dark:bg-slate-950 dark:border-slate-800'
+          'rounded-lg border bg-white p-6 shadow-sm lg:sticky lg:top-24 dark:bg-slate-950 dark:border-slate-800'
       )}
     >
       {!isCollapsible && (
-        <h2 className='text-lg font-medium dark:text-white'>Order summary</h2>
+        <h2 className='text-lg font-semibold dark:text-white mb-6'>
+          Order Summary
+        </h2>
       )}
-      <div className={cn('space-y-4', !isCollapsible && 'mt-6')}>
+      
+      <div className={cn('space-y-3', !isCollapsible && 'border-b border-slate-200 dark:border-slate-800 pb-4')}>
+        {/* Subtotal */}
         <div className='flex items-center justify-between'>
           <p className='text-sm text-slate-600 dark:text-slate-300'>Subtotal</p>
           <p className='text-sm font-medium dark:text-white'>
-            {priceFmt(subtotal)}
+            {formatPrice(subtotal)}
           </p>
         </div>
-        <div className='flex items-center justify-between'>
-          <p className='text-sm text-slate-600 dark:text-slate-300'>Shipping</p>
-          <p className='text-sm font-medium dark:text-white'>
-            {priceFmt(shipping)}
-          </p>
-        </div>
-        {discount > 0 && (
-          <div className='flex items-center justify-between text-green-600 dark:text-green-400'>
-            <p className='text-sm'>Discount</p>
-            <p className='text-sm font-medium'>-{priceFmt(discount)}</p>
+
+        {/* Shipping */}
+        {shipping > 0 && (
+          <div className='flex items-center justify-between'>
+            <p className='text-sm text-slate-600 dark:text-slate-300'>Shipping</p>
+            <p className='text-sm font-medium dark:text-white'>
+              {formatPrice(shipping)}
+            </p>
           </div>
         )}
-        <div className='flex items-center justify-between'>
-          <p className='text-sm text-slate-600 dark:text-slate-300'>Taxes</p>
-          <p className='text-sm font-medium dark:text-white'>
-            {priceFmt(taxes)}
-          </p>
-        </div>
-        <div className='border-t border-slate-200 pt-4 flex items-center justify-between dark:border-slate-800'>
-          <p className='text-base font-medium dark:text-white'>Order total</p>
-          <p className='text-base font-medium dark:text-white'>
-            {priceFmt(total)}
-          </p>
-        </div>
+
+        {/* Discount */}
+        {discount > 0 && (
+          <div className='flex items-center justify-between text-green-600 dark:text-green-400'>
+            <p className='text-sm font-medium'>Discount</p>
+            <p className='text-sm font-medium'>-{formatPrice(discount)}</p>
+          </div>
+        )}
+
+        {/* Taxes */}
+        {taxes > 0 && (
+          <div className='flex items-center justify-between'>
+            <p className='text-sm text-slate-600 dark:text-slate-300'>
+              Estimated Tax
+            </p>
+            <p className='text-sm font-medium dark:text-white'>
+              {formatPrice(taxes)}
+            </p>
+          </div>
+        )}
       </div>
-      {!isCollapsible && (
-        <Button size='lg' className='w-full mt-6' onClick={navigateToCheckout}>
-          Checkout
+
+      {/* Total */}
+      <div className='pt-4 flex items-center justify-between'>
+        <p className='text-base font-semibold dark:text-white'>Total</p>
+        <p className='text-xl font-bold dark:text-white'>
+          {formatPrice(total)}
+        </p>
+      </div>
+
+      {/* Checkout Button */}
+      {!isCollapsible && showCheckoutButton && (
+        <Button 
+          size='lg' 
+          className='w-full mt-6' 
+          onClick={handleCheckout}
+          disabled={subtotal === 0}
+        >
+          Proceed to Checkout
         </Button>
       )}
     </div>
   );
-};
+});
+
+CartSummary.displayName = 'CartSummary';
 
 export { CartSummary };

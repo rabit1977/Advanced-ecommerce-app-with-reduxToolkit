@@ -119,6 +119,11 @@ export interface Order {
   date: string;
   items: CartItem[];
   total: number;
+  subtotal?: number;           // Added - calculated from items
+  shippingCost?: number;        // Added - from checkout
+  taxes?: number;               // Added - calculated tax
+  discountAmount?: number;      // Added - discount applied
+  shippingMethod?: 'standard' | 'express'; // Added - shipping option
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   shippingAddress: Address;
   billingAddress: Address;

@@ -7,7 +7,7 @@ import { addToCart } from '@/lib/store/slices/cartSlice';
 import { setQuickViewProductId } from '@/lib/store/slices/uiSlice';
 import { toggleWishlist } from '@/lib/store/thunks/cartThunks';
 import { cn } from '@/lib/utils';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Check,
@@ -191,7 +191,7 @@ const QuickViewModal = () => {
                 </div>
 
                 <p className='mt-4 text-2xl font-bold text-slate-900 dark:text-white'>
-                  {priceFmt(product.price)}
+                  {formatPrice(product.price)}
                 </p>
 
                 <div className='mt-4'>

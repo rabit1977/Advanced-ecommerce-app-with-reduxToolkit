@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -19,21 +18,21 @@ import {
 } from '@/components/ui/table';
 import { deleteProduct } from '@/lib/actions/product-actions';
 import { Product } from '@/lib/types';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
   AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
 } from '@radix-ui/react-alert-dialog';
 import { MoreHorizontal } from 'lucide-react';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { AlertDialogHeader, AlertDialogFooter } from '../ui/alert-dialog';
+import { AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog';
 
 interface ProductsDataTableProps {
   products: Product[];
@@ -104,7 +103,7 @@ export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
                   </Badge>
                 </TableCell>
                 <TableCell className='hidden md:table-cell'>
-                  {priceFmt(product.price)}
+                  {formatPrice(product.price)}
                 </TableCell>
                 <TableCell className='hidden md:table-cell'>
                   {product.stock}

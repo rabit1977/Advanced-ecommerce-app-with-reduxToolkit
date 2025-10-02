@@ -5,7 +5,7 @@ import { Stars } from '@/components/ui/stars';
 import { useCart } from '@/lib/hooks/useCart';
 import { useUI } from '@/lib/hooks/useUI';
 import { Product } from '@/lib/types';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import { motion } from 'framer-motion';
 import { Eye, Heart } from 'lucide-react';
 import Link from 'next/link';
@@ -92,7 +92,7 @@ const ProductCard = React.memo(({ product }: ProductCardProps) => {
           </h3>
           <div className='mt-2 flex items-center justify-between'>
             <span className='text-sm font-bold text-slate-800 dark:text-slate-400'>
-              {priceFmt(product.price)}
+              {formatPrice(product.price)}
             </span>
             <div className='flex items-center gap-1'>
               <Stars value={product.rating} />

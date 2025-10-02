@@ -3,11 +3,11 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Product } from '@/lib/types';
+import { formatPrice } from '@/lib/utils/formatters';
 import { Loader2, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { priceFmt } from '@/lib/utils/formatters';
 import {
   useCallback,
   useDeferredValue,
@@ -19,7 +19,7 @@ import {
 
 /**
  * Search bar component with autocomplete and keyboard navigation
- * 
+ *
  * Features:
  * - Debounced search with useDeferredValue
  * - Autocomplete dropdown with product previews
@@ -33,7 +33,7 @@ export const SearchBar = () => {
   const pathname = usePathname();
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const [inputValue, setInputValue] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -65,16 +65,16 @@ export const SearchBar = () => {
       }
 
       setIsLoading(true);
-      
+
       try {
         const response = await fetch(
           `/api/products/search?query=${encodeURIComponent(deferredQuery)}`
         );
-        
+
         if (!response.ok) {
           throw new Error('Search failed');
         }
-        
+
         const results = await response.json();
         setSearchResults(results.slice(0, 5)); // Limit to 5 results
       } catch (error) {
@@ -94,7 +94,9 @@ export const SearchBar = () => {
   const navigateToSearchResults = useCallback(() => {
     if (inputValue.trim()) {
       startTransition(() => {
-        router.push(`/products?search=${encodeURIComponent(inputValue.trim())}`);
+        router.push(
+          `/products?search=${encodeURIComponent(inputValue.trim())}`
+        );
         setIsSearchFocused(false);
         inputRef.current?.blur();
       });
@@ -122,50 +124,55 @@ export const SearchBar = () => {
   /**
    * Handle keyboard navigation
    */
-  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      navigateToSearchResults();
-    } else if (e.key === 'Escape') {
-      setIsSearchFocused(false);
-      inputRef.current?.blur();
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      const firstResult = searchContainerRef.current?.querySelector('a');
-      if (firstResult instanceof HTMLElement) {
-        firstResult.focus();
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        navigateToSearchResults();
+      } else if (e.key === 'Escape') {
+        setIsSearchFocused(false);
+        inputRef.current?.blur();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const firstResult = searchContainerRef.current?.querySelector('a');
+        if (firstResult instanceof HTMLElement) {
+          firstResult.focus();
+        }
       }
-    }
-  }, [navigateToSearchResults]);
+    },
+    [navigateToSearchResults]
+  );
 
   /**
    * Handle result link keyboard navigation
    */
-  const handleResultKeyDown = useCallback((
-    e: React.KeyboardEvent<HTMLAnchorElement>,
-    index: number
-  ) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      const nextLink = searchContainerRef.current?.querySelectorAll('a')[index + 1];
-      if (nextLink instanceof HTMLElement) {
-        nextLink.focus();
-      }
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (index === 0) {
-        inputRef.current?.focus();
-      } else {
-        const prevLink = searchContainerRef.current?.querySelectorAll('a')[index - 1];
-        if (prevLink instanceof HTMLElement) {
-          prevLink.focus();
+  const handleResultKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextLink =
+          searchContainerRef.current?.querySelectorAll('a')[index + 1];
+        if (nextLink instanceof HTMLElement) {
+          nextLink.focus();
         }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (index === 0) {
+          inputRef.current?.focus();
+        } else {
+          const prevLink =
+            searchContainerRef.current?.querySelectorAll('a')[index - 1];
+          if (prevLink instanceof HTMLElement) {
+            prevLink.focus();
+          }
+        }
+      } else if (e.key === 'Escape') {
+        setIsSearchFocused(false);
+        inputRef.current?.focus();
       }
-    } else if (e.key === 'Escape') {
-      setIsSearchFocused(false);
-      inputRef.current?.focus();
-    }
-  }, []);
+    },
+    []
+  );
 
   const showResults = isSearchFocused && inputValue.length > 1;
 
@@ -196,10 +203,10 @@ export const SearchBar = () => {
           aria-autocomplete='list'
           aria-controls={showResults ? 'search-results' : undefined}
         />
-        
+
         {/* Search Icon */}
         <Search className='pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-        
+
         {/* Clear/Loading Button */}
         {inputValue && (
           <button
@@ -219,7 +226,7 @@ export const SearchBar = () => {
 
       {/* Search Results Dropdown */}
       {showResults && (
-        <div 
+        <div
           id='search-results'
           role='listbox'
           className='absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border bg-background shadow-lg max-h-[400px] overflow-auto'
@@ -250,21 +257,19 @@ export const SearchBar = () => {
                           sizes='48px'
                         />
                       </div>
-                      
+
                       {/* Product Info */}
                       <div className='flex-1 min-w-0'>
                         <div className='text-sm font-medium truncate'>
                           {product.title}
                         </div>
                         <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-                          {product.brand && (
-                            <span>{product.brand}</span>
-                          )}
+                          {product.brand && <span>{product.brand}</span>}
                           {product.price && (
                             <>
                               <span>•</span>
                               <span className='font-semibold text-foreground'>
-                                {priceFmt(product.price)}
+                                {formatPrice(product.price)}
                               </span>
                             </>
                           )}

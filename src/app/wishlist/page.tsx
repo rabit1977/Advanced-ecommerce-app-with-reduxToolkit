@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { addToCart, toggleWishlist, clearWishlist } from '@/lib/store/thunks/cartThunks';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import { getProductImage } from '@/lib/utils/product-images';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import Image from 'next/image';
@@ -111,7 +111,7 @@ const WishlistPage = () => {
                       {product.brand}
                     </p>
                     <p className='mt-2 text-lg font-bold text-slate-900 dark:text-white'>
-                      {priceFmt(product.price)}
+                      {formatPrice(product.price)}
                     </p>
                     <div className='mt-4 pt-4 border-t flex flex-col gap-2  dark:border-slate-800'>
                       <Button

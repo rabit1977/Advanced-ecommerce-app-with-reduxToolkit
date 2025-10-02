@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/lib/store/hooks';
 import { CartItem } from '@/lib/types';
-import { formatDiscount, formatNumber, priceFmt } from '@/lib/utils/formatters';
+import { formatOrderDate, formatPrice } from '@/lib/utils/formatters';
 import { CheckCircle, ChevronLeft, Package, Truck } from 'lucide-react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
@@ -57,7 +57,7 @@ const OrderDetailPage = () => {
               Order Details
             </h1>
             <p className='text-slate-600 dark:text-slate-300 mt-2'>
-              Order #{order.id} • Placed on {order.date}
+              Order #{order.id} • Placed on {formatOrderDate(order.date)}
             </p>
           </div>
           <div className='mt-4 md:mt-0'>
@@ -160,7 +160,7 @@ const OrderDetailPage = () => {
                         </div>
                       )}
                       <p className='text-sm font-medium text-slate-900 dark:text-white mt-1'>
-                        {priceFmt(item.price * item.quantity)}
+                        {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
                   </div>
@@ -179,30 +179,30 @@ const OrderDetailPage = () => {
                 <div className='flex justify-between text-sm'>
                   <p className='text-slate-600 dark:text-slate-300'>Subtotal</p>
                   <p className='font-medium dark:text-white'>
-                    {priceFmt(order.subtotal)}
+                    {formatPrice(order.subtotal)}
                   </p>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className='flex justify-between text-sm text-green-600 dark:text-green-400'>
                     <p>Discount</p>
- <p>-{formatDiscount(order.discountAmount, order.total)}</p>
+                    <p>-{formatPrice(order.discountAmount)}</p>
                   </div>
                 )}
                 <div className='flex justify-between text-sm'>
                   <p className='text-slate-600 dark:text-slate-300'>Shipping</p>
                   <p className='font-medium dark:text-white'>
-                    {priceFmt(order.shippingCost)}
+                    {formatPrice(order.shippingCost)}
                   </p>
                 </div>
                 <div className='flex justify-between text-sm'>
                   <p className='text-slate-600 dark:text-slate-300'>Taxes</p>
                   <p className='font-medium dark:text-white'>
-                    {priceFmt(order.taxes)}
+                    {formatPrice(order.taxes)}
                   </p>
                 </div>
                 <div className='border-t border-slate-200 pt-2 flex justify-between text-base font-medium dark:border-slate-700 dark:text-white'>
                   <p>Total</p>
-                  <p>{formatNumber(order.total)}</p>
+                  <p>{formatPrice(order.total)}</p>
                 </div>
               </div>
             </div>

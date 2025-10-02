@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { addToCart, toggleWishlist } from '@/lib/store/thunks/cartThunks';
 import { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Check,
@@ -30,7 +30,9 @@ export function ProductPurchasePanel({
   onOptionChange,
 }: ProductPurchasePanelProps) {
   const dispatch = useAppDispatch();
-  const { itemIds: wishlistItems } = useAppSelector((state: any) => state.wishlist);
+  const { itemIds: wishlistItems } = useAppSelector(
+    (state: any) => state.wishlist
+  );
   const [isPending, startTransition] = useTransition();
   const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -43,13 +45,15 @@ export function ProductPurchasePanel({
 
   const handleAddToCart = useCallback(() => {
     startTransition(() => {
-      dispatch(addToCart({
-        id: product.id,
-        quantity,
-        title: product.title,
-        price: product.price,
-        options: selectedOptions,
-      }));
+      dispatch(
+        addToCart({
+          id: product.id,
+          quantity,
+          title: product.title,
+          price: product.price,
+          options: selectedOptions,
+        })
+      );
       setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
     });
@@ -75,7 +79,7 @@ export function ProductPurchasePanel({
 
       <div className='mt-6 flex items-baseline gap-3'>
         <span className='text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl'>
-          {priceFmt(product.price)}
+          {formatPrice(product.price)}
         </span>
       </div>
 

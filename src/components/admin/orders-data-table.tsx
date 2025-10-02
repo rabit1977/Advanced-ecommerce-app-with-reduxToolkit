@@ -23,7 +23,7 @@ import {
 import { useAppDispatch } from '@/lib/store/hooks';
 import { updateOrderStatusInStore } from '@/lib/store/thunks/orderThunks';
 import { Order } from '@/lib/types';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { useTransition } from 'react';
@@ -65,7 +65,7 @@ export const OrdersDataTable = ({ orders }: OrdersDataTableProps) => {
               <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
               <TableCell>{order.shippingAddress.name}</TableCell>
               <TableCell className='hidden md:table-cell'>
-                {priceFmt(order.total)}
+                {formatPrice(order.total)}
               </TableCell>
               <TableCell className='hidden md:table-cell'>
                 <Badge

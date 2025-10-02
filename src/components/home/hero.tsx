@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/lib/types';
-import { priceFmt } from '@/lib/utils/formatters';
+import { formatPrice } from '@/lib/utils/formatters';
 import { getProductImage } from '@/lib/utils/product-images';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ShoppingBag, Star } from 'lucide-react';
@@ -185,7 +185,7 @@ const Hero = ({
     }),
   };
 
-  const fadeInUpVariants: Variants  = {
+  const fadeInUpVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: (delay: number = 0) => ({
       opacity: 1,
@@ -316,7 +316,7 @@ const Hero = ({
                     {/* Price and Rating */}
                     <div className='flex items-center gap-4 flex-wrap'>
                       <span className='text-2xl sm:text-3xl font-bold text-white'>
-                        {priceFmt(currentProduct.price)}
+                        {formatPrice(currentProduct.price)}
                       </span>
                       {currentProduct.rating && (
                         <div className='flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1'>

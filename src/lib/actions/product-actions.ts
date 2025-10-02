@@ -1,10 +1,10 @@
 'use server';
 
-import * as z from 'zod';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { initialProducts } from '@/lib/constants/products';
 import { Product } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import * as z from 'zod';
 
 /**
  * Validation schema for product forms
@@ -17,7 +17,6 @@ export const productFormSchema = z.object({
   stock: z.coerce.number().int().min(0, 'Stock must be a positive integer'),
   brand: z.string().min(2, 'Brand must be at least 2 characters'),
   category: z.string().min(2, 'Category must be at least 2 characters'),
-
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -25,7 +24,7 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 /**
  * Server action result type
  */
-type ActionResult<T = void> = 
+type ActionResult<T = void> =
   | { success: true; data?: T }
   | { success: false; error: string };
 
@@ -57,7 +56,8 @@ export async function addProduct(
       };
     }
 
-    const { title, description, price, stock, brand, category } = validatedFields.data;
+    const { title, description, price, stock, brand, category } =
+      validatedFields.data;
 
     // Create new product
     const newProduct: Product = {
@@ -90,8 +90,6 @@ export async function addProduct(
 
     // Redirect after returning result
     redirect('/admin/products');
-
-    return result;
   } catch (error) {
     // Handle unexpected errors
     console.error('Error adding product:', error);
@@ -152,8 +150,6 @@ export async function updateProduct(
 
     // Redirect after successful update
     redirect('/admin/products');
-
-    return { success: true };
   } catch (error) {
     console.error('Error updating product:', error);
     return {
@@ -168,9 +164,7 @@ export async function updateProduct(
  * @param productId - Product ID to delete
  * @returns Action result with success status
  */
-export async function deleteProduct(
-  productId: string
-): Promise<ActionResult> {
+export async function deleteProduct(productId: string): Promise<ActionResult> {
   try {
     // Find product
     const index = initialProducts.findIndex((p) => p.id === productId);

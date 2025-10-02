@@ -64,7 +64,10 @@ export const formatNumber = (num: number): string => {
  * @param value - The value to format (e.g., 0.15 for 15%)
  * @param decimals - Number of decimal places (default: 0)
  */
-export const formatPercentage = (value: number, decimals: number = 0): string => {
+export const formatPercentage = (
+  value: number,
+  decimals: number = 0
+): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'percent',
     minimumFractionDigits: decimals,
@@ -85,7 +88,7 @@ export const formatDiscount = (
   if (originalPrice <= 0 || discountedPrice >= originalPrice) {
     return '';
   }
-  
+
   const discountPercent = (originalPrice - discountedPrice) / originalPrice;
   return `${formatPercentage(discountPercent)}% off`;
 };
@@ -132,9 +135,12 @@ export const formatRelativeTime = (dateString: string): string => {
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
   if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-  if (diffInDays < 7) return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
-  
+  if (diffInMinutes < 60)
+    return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+  if (diffInHours < 24)
+    return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+  if (diffInDays < 7)
+    return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+
   return formatOrderDate(dateString);
 };
