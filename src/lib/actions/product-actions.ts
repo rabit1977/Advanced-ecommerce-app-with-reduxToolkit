@@ -1,25 +1,10 @@
 'use server';
 
-import { initialProducts } from '@/lib/constants/products';
-import { Product } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import * as z from 'zod';
-
-/**
- * Validation schema for product forms
- * Shared between client and server for consistency
- */
-export const productFormSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.coerce.number().min(0, 'Price must be positive'),
-  stock: z.coerce.number().int().min(0, 'Stock must be a positive integer'),
-  brand: z.string().min(2, 'Brand must be at least 2 characters'),
-  category: z.string().min(2, 'Category must be at least 2 characters'),
-});
-
-export type ProductFormValues = z.infer<typeof productFormSchema>;
+import { initialProducts } from '@/lib/constants/products';
+import { productFormSchema } from '@/lib/schemas/product-schema';
+import { Product } from '@/lib/types';
 
 /**
  * Server action result type
@@ -39,15 +24,21 @@ const generateProductId = (): string => {
 
 /**
  * Add a new product
- * @param values - Product form data
- * @returns Action result with success status
  */
-export async function addProduct(
-  values: ProductFormValues
-): Promise<ActionResult<{ id: string }>> {
+export async function addProduct(formData: FormData) {
   try {
+    // Extract and parse form data
+    const rawData = {
+      title: formData.get('title') as string,
+      description: formData.get('description') as string,
+      price: parseFloat(formData.get('price') as string),
+      stock: parseInt(formData.get('stock') as string, 10),
+      brand: formData.get('brand') as string,
+      category: formData.get('category') as string,
+    };
+
     // Validate input
-    const validatedFields = productFormSchema.safeParse(values);
+    const validatedFields = productFormSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
       return {
@@ -56,8 +47,7 @@ export async function addProduct(
       };
     }
 
-    const { title, description, price, stock, brand, category } =
-      validatedFields.data;
+    const { title, description, price, stock, brand, category } = validatedFields.data;
 
     // Create new product
     const newProduct: Product = {
@@ -75,44 +65,40 @@ export async function addProduct(
     };
 
     // TODO: Replace with database call
-    // await db.product.create({ data: newProduct });
     initialProducts.unshift(newProduct);
 
     // Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath('/');
-
-    // Return success before redirect
-    const result: ActionResult<{ id: string }> = {
-      success: true,
-      data: { id: newProduct.id },
-    };
-
-    // Redirect after returning result
-    redirect('/admin/products');
   } catch (error) {
-    // Handle unexpected errors
     console.error('Error adding product:', error);
     return {
       success: false,
       error: 'Failed to add product. Please try again.',
     };
   }
+
+  // Redirect after successful creation
+  redirect('/admin/products');
 }
 
 /**
  * Update an existing product
- * @param productId - Product ID to update
- * @param values - Updated product data
- * @returns Action result with success status
  */
-export async function updateProduct(
-  productId: string,
-  values: ProductFormValues
-): Promise<ActionResult> {
+export async function updateProduct(productId: string, formData: FormData) {
   try {
+    // Extract and parse form data
+    const rawData = {
+      title: formData.get('title') as string,
+      description: formData.get('description') as string,
+      price: parseFloat(formData.get('price') as string),
+      stock: parseInt(formData.get('stock') as string, 10),
+      brand: formData.get('brand') as string,
+      category: formData.get('category') as string,
+    };
+
     // Validate input
-    const validatedFields = productFormSchema.safeParse(values);
+    const validatedFields = productFormSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
       return {
@@ -131,12 +117,6 @@ export async function updateProduct(
       };
     }
 
-    // TODO: Replace with database call
-    // await db.product.update({
-    //   where: { id: productId },
-    //   data: validatedFields.data
-    // });
-
     // Update product while preserving other fields
     initialProducts[productIndex] = {
       ...initialProducts[productIndex],
@@ -147,9 +127,6 @@ export async function updateProduct(
     revalidatePath('/admin/products');
     revalidatePath(`/products/${productId}`);
     revalidatePath('/');
-
-    // Redirect after successful update
-    redirect('/admin/products');
   } catch (error) {
     console.error('Error updating product:', error);
     return {
@@ -157,16 +134,16 @@ export async function updateProduct(
       error: 'Failed to update product. Please try again.',
     };
   }
+
+  // Redirect after successful update
+  redirect('/admin/products');
 }
 
 /**
  * Delete a product
- * @param productId - Product ID to delete
- * @returns Action result with success status
  */
 export async function deleteProduct(productId: string): Promise<ActionResult> {
   try {
-    // Find product
     const index = initialProducts.findIndex((p) => p.id === productId);
 
     if (index === -1) {
@@ -176,11 +153,8 @@ export async function deleteProduct(productId: string): Promise<ActionResult> {
       };
     }
 
-    // TODO: Replace with database call
-    // await db.product.delete({ where: { id: productId } });
     initialProducts.splice(index, 1);
 
-    // Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath('/');
 
@@ -196,8 +170,6 @@ export async function deleteProduct(productId: string): Promise<ActionResult> {
 
 /**
  * Bulk delete products
- * @param productIds - Array of product IDs to delete
- * @returns Action result with count of deleted products
  */
 export async function bulkDeleteProducts(
   productIds: string[]
@@ -212,7 +184,6 @@ export async function bulkDeleteProducts(
 
     let deletedCount = 0;
 
-    // Delete in reverse order to avoid index shifting issues
     for (let i = initialProducts.length - 1; i >= 0; i--) {
       if (productIds.includes(initialProducts[i].id)) {
         initialProducts.splice(i, 1);
@@ -220,7 +191,6 @@ export async function bulkDeleteProducts(
       }
     }
 
-    // Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath('/');
 

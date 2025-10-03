@@ -1,13 +1,9 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,27 +11,31 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  productFormSchema,
+  type ProductFormValues,
+} from '@/lib/schemas/product-schema';
 import { Product } from '@/lib/types';
-
-// Define the form schema using Zod
-const formSchema = z.object({
-  title: z.string().min(2, { message: 'Title must be at least 2 characters.' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  price: z.number().min(0, { message: 'Price must be a positive number.' }),
-  stock: z.number().int().min(0, { message: 'Stock must be a positive integer.' }),
-  brand: z.string().min(2, { message: 'Brand is required.' }),
-  category: z.string().min(2, { message: 'Category is required.' }),
-});
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 
 interface ProductFormProps {
   product?: Product | null;
-  onSubmit: (values: z.infer<typeof formSchema>) => void;
-  isSubmitting: boolean;
+  onSubmit: (values: ProductFormValues) => void | Promise<void>;
+  isSubmitting?: boolean;
 }
 
-export const ProductForm = ({ product, onSubmit, isSubmitting }: ProductFormProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+/**
+ * Product form component with proper validation and number handling
+ */
+export const ProductForm = ({
+  product,
+  onSubmit,
+  isSubmitting = false,
+}: ProductFormProps) => {
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
     defaultValues: {
       title: product?.title || '',
       description: product?.description || '',
@@ -48,93 +48,162 @@ export const ProductForm = ({ product, onSubmit, isSubmitting }: ProductFormProp
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+        {/* Title */}
         <FormField
           control={form.control}
-          name="title"
+          name='title'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Product Title</FormLabel>
               <FormControl>
-                <Input placeholder='e.g. Quantum QLED 65" TV' {...field} />
+                <Input
+                  placeholder='e.g. Quantum QLED 65" TV'
+                  disabled={isSubmitting}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Description */}
         <FormField
           control={form.control}
-          name="description"
+          name='description'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Describe the product..." {...field} />
+                <Textarea
+                  placeholder='Describe the product features and benefits...'
+                  rows={4}
+                  disabled={isSubmitting}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        {/* Price and Stock */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <FormField
             control={form.control}
-            name="price"
+            name='price'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price</FormLabel>
+                <FormLabel>Price ($)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g. 1299.99" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
+                  <Input
+                    type='number'
+                    step='0.01'
+                    min='0'
+                    placeholder='e.g. 1299.99'
+                    disabled={isSubmitting}
+                    {...field}
+                    value={field.value === 0 ? '' : field.value}
+                    onChange={(e) => {
+                      const value =
+                        e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      field.onChange(isNaN(value) ? 0 : value);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="stock"
+            name='stock'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Stock</FormLabel>
+                <FormLabel>Stock Quantity</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g. 25" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
+                  <Input
+                    type='number'
+                    min='0'
+                    placeholder='e.g. 25'
+                    disabled={isSubmitting}
+                    {...field}
+                    value={field.value === 0 ? '' : field.value}
+                    onChange={(e) => {
+                      const value =
+                        e.target.value === ''
+                          ? 0
+                          : parseInt(e.target.value, 10);
+                      field.onChange(isNaN(value) ? 0 : value);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        {/* Brand and Category */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <FormField
             control={form.control}
-            name="brand"
+            name='brand'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Brand</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. AuroVision" {...field} />
+                  <Input
+                    placeholder='e.g. AuroVision'
+                    disabled={isSubmitting}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="category"
+            name='category'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. TVs" {...field} />
+                  <Input
+                    placeholder='e.g. TVs'
+                    disabled={isSubmitting}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : (product ? 'Save Changes' : 'Create Product')}
-        </Button>
+
+        {/* Submit Button */}
+        <div className='flex gap-4 pt-4'>
+          <Button
+            type='submit'
+            disabled={isSubmitting}
+            className='min-w-[120px]'
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                Saving...
+              </>
+            ) : product ? (
+              'Save Changes'
+            ) : (
+              'Create Product'
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );
