@@ -333,7 +333,7 @@ const ProductGrid = ({
   );
 
   return (
-    <div className='bg-slate-50 dark:bg-slate-900 min-h-screen'>
+    <div className='bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 min-h-screen'>
       <div
         className='container mx-auto px-4 py-8 sm:py-12 lg:py-16'
         ref={gridRef}

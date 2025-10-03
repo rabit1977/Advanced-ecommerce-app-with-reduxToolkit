@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState, useCallback, useTransition } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { login, signup } from '@/lib/store/thunks/authThunks';
-import { showToast } from '@/lib/store/thunks/uiThunks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAppDispatch } from '@/lib/store/hooks';
+import { login, signup } from '@/lib/store/thunks/authThunks';
+import { showToast } from '@/lib/store/thunks/uiThunks';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import React, { useCallback, useState, useTransition } from 'react';
 
 type AuthMode = 'login' | 'signup' | 'forgot';
 
@@ -100,7 +100,7 @@ export const AuthForm: React.FC = () => {
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Clear error for this field when user types
     setErrors((prev) => ({ ...prev, [name]: undefined }));
     setServerError('');
@@ -134,7 +134,7 @@ export const AuthForm: React.FC = () => {
     try {
       if (mode === 'login') {
         const result = await dispatch(login(formData.email, formData.password));
-        
+
         if (!result.success) {
           setServerError(result.message || 'Invalid email or password');
         } else {
@@ -146,7 +146,7 @@ export const AuthForm: React.FC = () => {
         const result = await dispatch(
           signup(formData.name, formData.email, formData.password)
         );
-        
+
         if (!result.success) {
           setServerError(result.message || 'Failed to create account');
         } else {
@@ -176,14 +176,14 @@ export const AuthForm: React.FC = () => {
   const isLoading = isSubmitting || isPending;
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center bg-slate-50 p-4 dark:bg-slate-900">
-      <div className="w-full max-w-md">
-        <div className="rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-950 dark:border-slate-800">
+    <div className='flex min-h-[70vh] items-center justify-center bg-slate-50 p-4 dark:bg-slate-900'>
+      <div className='w-full max-w-md'>
+        <div className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-900 dark:border-slate-800'>
           {/* Tab Navigation (Login/Signup) */}
           {mode !== 'forgot' && (
-            <div className="flex border-b dark:border-slate-800">
+            <div className='flex border-b dark:border-slate-800'>
               <button
-                type="button"
+                type='button'
                 onClick={() => handleModeChange('login')}
                 className={`flex-1 p-4 font-medium transition-colors ${
                   mode === 'login'
@@ -195,7 +195,7 @@ export const AuthForm: React.FC = () => {
                 Login
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={() => handleModeChange('signup')}
                 className={`flex-1 p-4 font-medium transition-colors ${
                   mode === 'signup'
@@ -210,8 +210,8 @@ export const AuthForm: React.FC = () => {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-8">
-            <AnimatePresence mode="wait">
+          <form onSubmit={handleSubmit} className='p-8'>
+            <AnimatePresence mode='wait'>
               <motion.div
                 key={mode}
                 initial={{ opacity: 0, x: 20 }}
@@ -219,9 +219,9 @@ export const AuthForm: React.FC = () => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="space-y-4">
+                <div className='space-y-4'>
                   {/* Title */}
-                  <h2 className="text-2xl font-bold text-center dark:text-white">
+                  <h2 className='text-2xl font-bold text-center dark:text-white'>
                     {mode === 'login' && 'Welcome Back'}
                     {mode === 'signup' && 'Create an Account'}
                     {mode === 'forgot' && 'Reset Password'}
@@ -232,9 +232,9 @@ export const AuthForm: React.FC = () => {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2 dark:bg-red-950 dark:border-red-900 dark:text-red-300"
+                      className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2 dark:bg-red-900 dark:border-red-900 dark:text-red-300'
                     >
-                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <AlertCircle className='h-4 w-4 flex-shrink-0' />
                       <span>{serverError}</span>
                     </motion.div>
                   )}
@@ -243,16 +243,21 @@ export const AuthForm: React.FC = () => {
                   {mode === 'signup' && (
                     <div>
                       <Input
-                        name="name"
-                        placeholder="Full Name"
+                        name='name'
+                        placeholder='Full Name'
                         value={formData.name}
                         onChange={handleChange}
                         disabled={isLoading}
                         aria-invalid={!!errors.name}
-                        aria-describedby={errors.name ? 'name-error' : undefined}
+                        aria-describedby={
+                          errors.name ? 'name-error' : undefined
+                        }
                       />
                       {errors.name && (
-                        <p id="name-error" className="text-red-500 text-xs mt-1">
+                        <p
+                          id='name-error'
+                          className='text-red-500 text-xs mt-1'
+                        >
                           {errors.name}
                         </p>
                       )}
@@ -262,17 +267,19 @@ export const AuthForm: React.FC = () => {
                   {/* Email Field */}
                   <div>
                     <Input
-                      name="email"
-                      type="email"
-                      placeholder="Email Address"
+                      name='email'
+                      type='email'
+                      placeholder='Email Address'
                       value={formData.email}
                       onChange={handleChange}
                       disabled={isLoading}
                       aria-invalid={!!errors.email}
-                      aria-describedby={errors.email ? 'email-error' : undefined}
+                      aria-describedby={
+                        errors.email ? 'email-error' : undefined
+                      }
                     />
                     {errors.email && (
-                      <p id="email-error" className="text-red-500 text-xs mt-1">
+                      <p id='email-error' className='text-red-500 text-xs mt-1'>
                         {errors.email}
                       </p>
                     )}
@@ -282,17 +289,22 @@ export const AuthForm: React.FC = () => {
                   {mode !== 'forgot' && (
                     <div>
                       <Input
-                        name="password"
-                        type="password"
-                        placeholder="Password"
+                        name='password'
+                        type='password'
+                        placeholder='Password'
                         value={formData.password}
                         onChange={handleChange}
                         disabled={isLoading}
                         aria-invalid={!!errors.password}
-                        aria-describedby={errors.password ? 'password-error' : undefined}
+                        aria-describedby={
+                          errors.password ? 'password-error' : undefined
+                        }
                       />
                       {errors.password && (
-                        <p id="password-error" className="text-red-500 text-xs mt-1">
+                        <p
+                          id='password-error'
+                          className='text-red-500 text-xs mt-1'
+                        >
                           {errors.password}
                         </p>
                       )}
@@ -303,19 +315,24 @@ export const AuthForm: React.FC = () => {
                   {mode === 'signup' && (
                     <div>
                       <Input
-                        name="confirmPassword"
-                        type="password"
-                        placeholder="Confirm Password"
+                        name='confirmPassword'
+                        type='password'
+                        placeholder='Confirm Password'
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         disabled={isLoading}
                         aria-invalid={!!errors.confirmPassword}
                         aria-describedby={
-                          errors.confirmPassword ? 'confirm-password-error' : undefined
+                          errors.confirmPassword
+                            ? 'confirm-password-error'
+                            : undefined
                         }
                       />
                       {errors.confirmPassword && (
-                        <p id="confirm-password-error" className="text-red-500 text-xs mt-1">
+                        <p
+                          id='confirm-password-error'
+                          className='text-red-500 text-xs mt-1'
+                        >
                           {errors.confirmPassword}
                         </p>
                       )}
@@ -324,14 +341,14 @@ export const AuthForm: React.FC = () => {
 
                   {/* Submit Button */}
                   <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
+                    type='submit'
+                    className='w-full'
+                    size='lg'
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <Loader2 className='h-4 w-4 animate-spin mr-2' />
                         {mode === 'login' && 'Logging in...'}
                         {mode === 'signup' && 'Creating account...'}
                         {mode === 'forgot' && 'Sending...'}
@@ -347,11 +364,11 @@ export const AuthForm: React.FC = () => {
 
                   {/* Forgot Password Link */}
                   {mode === 'login' && (
-                    <div className="text-center">
+                    <div className='text-center'>
                       <Button
-                        type="button"
-                        variant="link"
-                        size="sm"
+                        type='button'
+                        variant='link'
+                        size='sm'
                         onClick={() => handleModeChange('forgot')}
                         disabled={isLoading}
                       >
@@ -362,11 +379,11 @@ export const AuthForm: React.FC = () => {
 
                   {/* Back to Login Link */}
                   {mode === 'forgot' && (
-                    <div className="text-center">
+                    <div className='text-center'>
                       <Button
-                        type="button"
-                        variant="link"
-                        size="sm"
+                        type='button'
+                        variant='link'
+                        size='sm'
                         onClick={() => handleModeChange('login')}
                         disabled={isLoading}
                       >

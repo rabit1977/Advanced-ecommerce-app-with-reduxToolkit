@@ -1,10 +1,5 @@
 'use client';
 
-import { Zap, Menu } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { NavActions } from './nav-actions';
-import { SearchBar } from './search-bar';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -13,8 +8,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { Menu, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useCallback, useState } from 'react';
+import { NavActions } from './nav-actions';
+import { SearchBar } from './search-bar';
 
 interface NavLink {
   href: string;
@@ -29,7 +29,7 @@ const navLinks: NavLink[] = [
 
 /**
  * Header component with sticky navigation, search, and responsive mobile menu
- * 
+ *
  * Features:
  * - Sticky header with backdrop blur
  * - Active link highlighting
@@ -60,15 +60,14 @@ const Header = () => {
   }, []);
 
   return (
-    <header 
-      className='sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-slate-950/95 dark:supports-[backdrop-filter]:bg-slate-950/80 dark:border-slate-800'
+    <header
+      className='sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/80 dark:border-slate-800'
       role='banner'
     >
       <div className='container mx-auto flex h-16 items-center justify-between gap-4 px-4'>
-        
         {/* Logo */}
-        <Link 
-          href='/' 
+        <Link
+          href='/'
           className='flex flex-shrink-0 items-center gap-2 group'
           aria-label='Electro home page'
         >
@@ -86,7 +85,7 @@ const Header = () => {
         </div>
 
         {/* Desktop Navigation */}
-        <nav 
+        <nav
           className='hidden items-center gap-6 lg:flex'
           aria-label='Main navigation'
         >
@@ -98,8 +97,8 @@ const Header = () => {
                 href={link.href}
                 className={cn(
                   'text-sm font-medium transition-colors relative',
-                  isActive 
-                    ? 'text-foreground' 
+                  isActive
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
                 aria-current={isActive ? 'page' : undefined}
@@ -116,7 +115,7 @@ const Header = () => {
         {/* Nav Actions (Cart, Theme, etc.) */}
         <div className='flex items-center gap-2'>
           <NavActions />
-          
+
           {/* Mobile Menu Button */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -133,9 +132,12 @@ const Header = () => {
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              
+
               {/* Mobile Navigation Links */}
-              <nav className='mt-8 flex flex-col gap-4' aria-label='Mobile navigation'>
+              <nav
+                className='mt-8 flex flex-col gap-4'
+                aria-label='Mobile navigation'
+              >
                 {navLinks.map((link) => {
                   const isActive = isActiveLink(link.href);
                   return (

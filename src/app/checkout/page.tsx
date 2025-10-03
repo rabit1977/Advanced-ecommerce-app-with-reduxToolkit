@@ -10,23 +10,21 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { placeOrder } from '@/lib/store/thunks/managementThunks';
 import { CartItem } from '@/lib/types';
 import { formatPrice } from '@/lib/utils/formatters';
-import { ShoppingCart, Loader2 } from 'lucide-react';
+import { Loader2, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { memo, useCallback, useMemo, useState, useTransition } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 
 interface ShippingInfo {
   firstName: string;
@@ -55,66 +53,62 @@ interface MobileOrderSummaryProps {
 /**
  * Mobile collapsible order summary
  */
-const MobileOrderSummary = memo(({
-  cart,
-  subtotal,
-  shippingCost,
-  taxes,
-  total,
-}: MobileOrderSummaryProps) => (
-  <div className='lg:hidden mb-8'>
-    <Accordion type='single' collapsible className='w-full'>
-      <AccordionItem value='order-summary' className='border rounded-lg'>
-        <AccordionTrigger className='px-6 hover:no-underline'>
-          <div className='flex items-center justify-between w-full pr-4'>
-            <div className='flex items-center gap-2'>
-              <ShoppingCart className='h-5 w-5' />
-              <span className='font-medium'>Order Summary</span>
+const MobileOrderSummary = memo(
+  ({ cart, subtotal, shippingCost, taxes, total }: MobileOrderSummaryProps) => (
+    <div className='lg:hidden mb-8'>
+      <Accordion type='single' collapsible className='w-full'>
+        <AccordionItem value='order-summary' className='border rounded-lg'>
+          <AccordionTrigger className='px-6 hover:no-underline'>
+            <div className='flex items-center justify-between w-full pr-4'>
+              <div className='flex items-center gap-2'>
+                <ShoppingCart className='h-5 w-5' />
+                <span className='font-medium'>Order Summary</span>
+              </div>
+              <span className='font-bold text-lg'>{formatPrice(total)}</span>
             </div>
-            <span className='font-bold text-lg'>{formatPrice(total)}</span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className='px-6 pb-6'>
-          <div className='border-t border-slate-200 dark:border-slate-800 pt-4'>
-            <ul className='space-y-4 mb-4'>
-              {cart.map((item) => (
-                <li key={item.cartItemId} className='flex items-center gap-4'>
-                  <div className='w-16 h-16 flex-shrink-0 relative rounded-md overflow-hidden border dark:border-slate-700'>
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className='object-cover'
-                    />
-                  </div>
-                  <div className='flex-1 min-w-0'>
-                    <p className='font-medium dark:text-white truncate'>
-                      {item.title}
+          </AccordionTrigger>
+          <AccordionContent className='px-6 pb-6'>
+            <div className='border-t border-slate-200 dark:border-slate-800 pt-4'>
+              <ul className='space-y-4 mb-4'>
+                {cart.map((item) => (
+                  <li key={item.cartItemId} className='flex items-center gap-4'>
+                    <div className='w-16 h-16 flex-shrink-0 relative rounded-md overflow-hidden border dark:border-slate-700'>
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className='object-cover'
+                      />
+                    </div>
+                    <div className='flex-1 min-w-0'>
+                      <p className='font-medium dark:text-white truncate'>
+                        {item.title}
+                      </p>
+                      <p className='text-sm text-slate-500 dark:text-slate-400'>
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <p className='text-sm font-medium dark:text-white'>
+                      {formatPrice(item.price * item.quantity)}
                     </p>
-                    <p className='text-sm text-slate-500 dark:text-slate-400'>
-                      Qty: {item.quantity}
-                    </p>
-                  </div>
-                  <p className='text-sm font-medium dark:text-white'>
-                    {formatPrice(item.price * item.quantity)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-            <CartSummary
-              subtotal={subtotal}
-              shipping={shippingCost}
-              taxes={taxes}
-              total={total}
-              isCollapsible
-              showCheckoutButton={false}
-            />
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  </div>
-));
+                  </li>
+                ))}
+              </ul>
+              <CartSummary
+                subtotal={subtotal}
+                shipping={shippingCost}
+                taxes={taxes}
+                total={total}
+                isCollapsible
+                showCheckoutButton={false}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  )
+);
 
 MobileOrderSummary.displayName = 'MobileOrderSummary';
 
@@ -143,7 +137,9 @@ const CheckoutPage = () => {
     expiry: '',
     cvc: '',
   });
-  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard');
+  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>(
+    'standard'
+  );
 
   // Calculate totals
   const subtotal = useMemo(
@@ -227,22 +223,32 @@ const CheckoutPage = () => {
     } catch (error) {
       console.error('Order placement failed:', error);
     }
-  }, [cart, total, subtotal, shippingCost, taxes, shippingInfo, shippingMethod, dispatch, router]);
+  }, [
+    cart,
+    total,
+    subtotal,
+    shippingCost,
+    taxes,
+    shippingInfo,
+    shippingMethod,
+    dispatch,
+    router,
+  ]);
 
   // Empty cart check
   if (cart.length === 0) {
     return (
       <AuthGuard>
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center">
-            <ShoppingCart className="mx-auto h-16 w-16 text-slate-300 dark:text-slate-600" />
-            <h2 className="mt-4 text-2xl font-bold dark:text-white">
+        <div className='container mx-auto px-4 py-16'>
+          <div className='text-center'>
+            <ShoppingCart className='mx-auto h-16 w-16 text-slate-300 dark:text-slate-600' />
+            <h2 className='mt-4 text-2xl font-bold dark:text-white'>
               Your cart is empty
             </h2>
-            <p className="mt-2 text-slate-600 dark:text-slate-400">
+            <p className='mt-2 text-slate-600 dark:text-slate-400'>
               Add items to your cart before checking out
             </p>
-            <Button onClick={() => router.push('/products')} className="mt-6">
+            <Button onClick={() => router.push('/products')} className='mt-6'>
               Continue Shopping
             </Button>
           </div>
@@ -258,8 +264,9 @@ const CheckoutPage = () => {
           <h1 className='text-3xl font-bold tracking-tight dark:text-white mb-2'>
             Checkout
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mb-8">
-            Complete your purchase in {3 - step + 1} {3 - step + 1 === 1 ? 'step' : 'steps'}
+          <p className='text-slate-600 dark:text-slate-400 mb-8'>
+            Complete your purchase in {3 - step + 1}{' '}
+            {3 - step + 1 === 1 ? 'step' : 'steps'}
           </p>
 
           <MobileOrderSummary
@@ -274,7 +281,7 @@ const CheckoutPage = () => {
 
           <div className='mt-8 grid lg:grid-cols-3 gap-8'>
             {/* Main Content */}
-            <div className='lg:col-span-2 rounded-lg border bg-white p-6 shadow-sm dark:bg-slate-950 dark:border-slate-800'>
+            <div className='lg:col-span-2 rounded-lg border bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800'>
               {/* Step 1: Shipping */}
               {step === 1 && (
                 <div>
@@ -334,7 +341,7 @@ const CheckoutPage = () => {
                       Shipping Method
                     </h3>
                     <div className='space-y-3'>
-                      <label className='flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg transition-all hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-950 dark:border-slate-700'>
+                      <label className='flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg transition-all hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900 dark:border-slate-700'>
                         <input
                           type='radio'
                           name='shipping'
@@ -343,8 +350,8 @@ const CheckoutPage = () => {
                           onChange={() => setShippingMethod('standard')}
                           className='w-4 h-4 text-blue-600'
                         />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
+                        <div className='flex-1'>
+                          <div className='flex items-center justify-between'>
                             <p className='font-semibold text-slate-900 dark:text-white'>
                               Standard Shipping
                             </p>
@@ -358,7 +365,7 @@ const CheckoutPage = () => {
                         </div>
                       </label>
 
-                      <label className='flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg transition-all hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-950 dark:border-slate-700'>
+                      <label className='flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg transition-all hover:border-slate-300 dark:hover:border-slate-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900 dark:border-slate-700'>
                         <input
                           type='radio'
                           name='shipping'
@@ -367,8 +374,8 @@ const CheckoutPage = () => {
                           onChange={() => setShippingMethod('express')}
                           className='w-4 h-4 text-blue-600'
                         />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
+                        <div className='flex-1'>
+                          <div className='flex items-center justify-between'>
                             <p className='font-semibold text-slate-900 dark:text-white'>
                               Express Shipping
                             </p>
@@ -442,7 +449,7 @@ const CheckoutPage = () => {
                       variant='outline'
                       size='lg'
                       onClick={() => setStep(1)}
-                      className="w-full sm:w-auto"
+                      className='w-full sm:w-auto'
                     >
                       Back
                     </Button>
@@ -450,7 +457,7 @@ const CheckoutPage = () => {
                       size='lg'
                       onClick={() => setStep(3)}
                       disabled={!isPaymentValid}
-                      className="w-full sm:flex-1"
+                      className='w-full sm:flex-1'
                     >
                       Review Order
                     </Button>
@@ -464,48 +471,53 @@ const CheckoutPage = () => {
                   <h2 className='text-xl font-semibold dark:text-white mb-6'>
                     Review Your Order
                   </h2>
-                  
+
                   <div className='space-y-4'>
                     {/* Shipping Info */}
                     <div className='border rounded-lg p-4 dark:border-slate-700'>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className='flex items-center justify-between mb-2'>
                         <h3 className='font-semibold dark:text-white'>
                           Shipping Address
                         </h3>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
+                        <Button
+                          variant='ghost'
+                          size='sm'
                           onClick={() => setStep(1)}
                         >
                           Edit
                         </Button>
                       </div>
                       <p className='text-slate-600 dark:text-slate-300 text-sm'>
-                        {shippingInfo.firstName} {shippingInfo.lastName}<br />
-                        {shippingInfo.address}<br />
-                        {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}
+                        {shippingInfo.firstName} {shippingInfo.lastName}
+                        <br />
+                        {shippingInfo.address}
+                        <br />
+                        {shippingInfo.city}, {shippingInfo.state}{' '}
+                        {shippingInfo.zip}
                       </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                        {shippingMethod === 'express' ? 'Express' : 'Standard'} Shipping
+                      <p className='text-sm text-slate-500 dark:text-slate-400 mt-2'>
+                        {shippingMethod === 'express' ? 'Express' : 'Standard'}{' '}
+                        Shipping
                       </p>
                     </div>
 
                     {/* Payment Info */}
                     <div className='border rounded-lg p-4 dark:border-slate-700'>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className='flex items-center justify-between mb-2'>
                         <h3 className='font-semibold dark:text-white'>
                           Payment Method
                         </h3>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
+                        <Button
+                          variant='ghost'
+                          size='sm'
                           onClick={() => setStep(2)}
                         >
                           Edit
                         </Button>
                       </div>
                       <p className='text-slate-600 dark:text-slate-300 text-sm'>
-                        {paymentInfo.nameOnCard}<br />
+                        {paymentInfo.nameOnCard}
+                        <br />
                         Card ending in {paymentInfo.cardNumber.slice(-4)}
                       </p>
                     </div>
@@ -517,7 +529,10 @@ const CheckoutPage = () => {
                       </h3>
                       <ul className='space-y-4'>
                         {cart.map((item) => (
-                          <li key={item.cartItemId} className='flex items-center gap-4'>
+                          <li
+                            key={item.cartItemId}
+                            className='flex items-center gap-4'
+                          >
                             <div className='w-16 h-16 flex-shrink-0 relative rounded-md overflow-hidden border dark:border-slate-700'>
                               <Image
                                 src={item.image}
@@ -526,7 +541,7 @@ const CheckoutPage = () => {
                                 className='object-cover'
                               />
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className='flex-1 min-w-0'>
                               <p className='font-medium dark:text-white truncate'>
                                 {item.title}
                               </p>
@@ -549,7 +564,7 @@ const CheckoutPage = () => {
                       size='lg'
                       onClick={() => setStep(2)}
                       disabled={isPending}
-                      className="w-full sm:w-auto"
+                      className='w-full sm:w-auto'
                     >
                       Back
                     </Button>
@@ -561,7 +576,7 @@ const CheckoutPage = () => {
                     >
                       {isPending ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                           Processing...
                         </>
                       ) : (

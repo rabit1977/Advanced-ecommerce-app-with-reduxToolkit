@@ -19,7 +19,7 @@ interface ValueCardProps {
  * Reusable value card component
  */
 const ValueCard = ({ icon, title, description }: ValueCardProps) => (
-  <div className='group p-6 sm:p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 dark:bg-slate-950 border border-transparent hover:border-primary/20'>
+  <div className='group p-6 sm:p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 dark:bg-slate-800 border border-transparent hover:border-primary/20'>
     <div className='w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300'>
       {icon}
     </div>

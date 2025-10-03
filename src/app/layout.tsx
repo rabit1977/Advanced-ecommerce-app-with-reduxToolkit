@@ -53,7 +53,7 @@ export default function RootLayout({
           <ReduxProvider>
             <ThemeManager />
             <CommandPalette />
-            <div className='min-h-screen bg-white font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-200'>
+            <div className='min-h-screen bg-white font-sans text-slate-800 dark:bg-slate-900 dark:text-slate-200'>
               <Header />
               <MobileSidebar />
               <main className='min-h-[calc(100vh-4rem)]'>{children}</main>

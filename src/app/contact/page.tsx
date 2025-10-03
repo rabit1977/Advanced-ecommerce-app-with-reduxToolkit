@@ -5,9 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useUI } from '@/lib/hooks/useUI';
-import { Mail, MapPin, Phone, Send, Clock } from 'lucide-react';
-import React, { useCallback, useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
+import { Clock, Mail, MapPin, Phone, Send } from 'lucide-react';
+import React, { useCallback, useState, useTransition } from 'react';
 
 interface FormData {
   name: string;
@@ -32,7 +32,7 @@ const INITIAL_FORM_STATE: FormData = {
 
 /**
  * Contact page component with form validation and accessibility
- * 
+ *
  * Features:
  * - Client-side form validation
  * - Loading states with useTransition
@@ -88,7 +88,7 @@ const ContactPage = () => {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
-      
+
       // Clear error for this field when user starts typing
       if (errors[name as keyof FormErrors]) {
         setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -144,7 +144,8 @@ const ContactPage = () => {
             Get in Touch
           </h1>
           <p className='mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto'>
-            We&apos;re here to help you. Fill out the form below or find us at our office.
+            We&apos;re here to help you. Fill out the form below or find us at
+            our office.
           </p>
         </motion.div>
 
@@ -156,11 +157,11 @@ const ContactPage = () => {
             variants={fadeInUp}
             custom={0.1}
           >
-            <div className='rounded-xl border bg-white p-6 sm:p-8 shadow-lg dark:bg-slate-950 dark:border-slate-800'>
+            <div className='rounded-xl border bg-white p-6 sm:p-8 shadow-lg dark:bg-slate-900 dark:border-slate-800'>
               <h2 className='text-2xl font-semibold dark:text-white mb-6'>
                 Send us a message
               </h2>
-              
+
               <form onSubmit={handleSubmit} className='space-y-5' noValidate>
                 {/* Name Field */}
                 <div className='space-y-2'>
@@ -176,7 +177,11 @@ const ContactPage = () => {
                     disabled={isPending}
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? 'name-error' : undefined}
-                    className={errors.name ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                    className={
+                      errors.name
+                        ? 'border-red-500 focus-visible:ring-red-500'
+                        : ''
+                    }
                   />
                   {errors.name && (
                     <p id='name-error' className='text-sm text-red-500'>
@@ -200,7 +205,11 @@ const ContactPage = () => {
                     disabled={isPending}
                     aria-invalid={!!errors.email}
                     aria-describedby={errors.email ? 'email-error' : undefined}
-                    className={errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                    className={
+                      errors.email
+                        ? 'border-red-500 focus-visible:ring-red-500'
+                        : ''
+                    }
                   />
                   {errors.email && (
                     <p id='email-error' className='text-sm text-red-500'>
@@ -222,8 +231,14 @@ const ContactPage = () => {
                     onChange={handleChange}
                     disabled={isPending}
                     aria-invalid={!!errors.subject}
-                    aria-describedby={errors.subject ? 'subject-error' : undefined}
-                    className={errors.subject ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                    aria-describedby={
+                      errors.subject ? 'subject-error' : undefined
+                    }
+                    className={
+                      errors.subject
+                        ? 'border-red-500 focus-visible:ring-red-500'
+                        : ''
+                    }
                   />
                   {errors.subject && (
                     <p id='subject-error' className='text-sm text-red-500'>
@@ -246,8 +261,14 @@ const ContactPage = () => {
                     disabled={isPending}
                     rows={5}
                     aria-invalid={!!errors.message}
-                    aria-describedby={errors.message ? 'message-error' : undefined}
-                    className={errors.message ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                    aria-describedby={
+                      errors.message ? 'message-error' : undefined
+                    }
+                    className={
+                      errors.message
+                        ? 'border-red-500 focus-visible:ring-red-500'
+                        : ''
+                    }
                   />
                   {errors.message && (
                     <p id='message-error' className='text-sm text-red-500'>
@@ -257,9 +278,9 @@ const ContactPage = () => {
                 </div>
 
                 {/* Submit Button */}
-                <Button 
-                  type='submit' 
-                  className='w-full gap-2' 
+                <Button
+                  type='submit'
+                  className='w-full gap-2'
                   size='lg'
                   disabled={isPending}
                 >
@@ -287,7 +308,7 @@ const ContactPage = () => {
               animate='visible'
               variants={fadeInUp}
               custom={0.2}
-              className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-950 dark:border-slate-800'
+              className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-900 dark:border-slate-800'
             >
               <h2 className='text-2xl font-semibold dark:text-white mb-6'>
                 Our Location
@@ -298,9 +319,12 @@ const ContactPage = () => {
                     <MapPin className='h-5 w-5 text-primary' />
                   </div>
                   <div>
-                    <p className='font-semibold text-lg dark:text-white'>Address</p>
+                    <p className='font-semibold text-lg dark:text-white'>
+                      Address
+                    </p>
                     <p className='text-slate-600 dark:text-slate-400 mt-1'>
-                      123 Tech Avenue, Suite 100<br />
+                      123 Tech Avenue, Suite 100
+                      <br />
                       Innovation City, CA 90210
                     </p>
                   </div>
@@ -311,8 +335,10 @@ const ContactPage = () => {
                     <Phone className='h-5 w-5 text-primary' />
                   </div>
                   <div>
-                    <p className='font-semibold text-lg dark:text-white'>Phone</p>
-                    <a 
+                    <p className='font-semibold text-lg dark:text-white'>
+                      Phone
+                    </p>
+                    <a
                       href='tel:+15551234567'
                       className='text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors mt-1 block'
                     >
@@ -326,8 +352,10 @@ const ContactPage = () => {
                     <Mail className='h-5 w-5 text-primary' />
                   </div>
                   <div>
-                    <p className='font-semibold text-lg dark:text-white'>Email</p>
-                    <a 
+                    <p className='font-semibold text-lg dark:text-white'>
+                      Email
+                    </p>
+                    <a
                       href='mailto:support@electro.com'
                       className='text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors mt-1 block'
                     >
@@ -344,7 +372,7 @@ const ContactPage = () => {
               animate='visible'
               variants={fadeInUp}
               custom={0.3}
-              className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-950 dark:border-slate-800'
+              className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-900 dark:border-slate-800'
             >
               <div className='flex items-center gap-3 mb-6'>
                 <div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>

@@ -65,7 +65,7 @@ export const ProductsDataTable = ({ products }: ProductsDataTableProps) => {
 
   return (
     <>
-      <div className='rounded-lg border bg-white dark:bg-slate-950 dark:border-slate-800'>
+      <div className='rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-800'>
         <Table>
           <TableHeader>
             <TableRow>

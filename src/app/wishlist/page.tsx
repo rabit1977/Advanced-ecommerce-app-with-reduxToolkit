@@ -1,8 +1,14 @@
 'use client';
 
+import AuthGuard from '@/components/auth/auth-guard';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { addToCart, toggleWishlist, clearWishlist } from '@/lib/store/thunks/cartThunks';
+import {
+  addToCart,
+  clearWishlist,
+  toggleWishlist,
+} from '@/lib/store/thunks/cartThunks';
+import { Product } from '@/lib/types';
 import { formatPrice } from '@/lib/utils/formatters';
 import { getProductImage } from '@/lib/utils/product-images';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
@@ -10,8 +16,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
-import AuthGuard from '@/components/auth/auth-guard';
-import { Product } from '@/lib/types';
 
 const WishlistPage = () => {
   const router = useRouter();
@@ -30,12 +34,14 @@ const WishlistPage = () => {
   const handleAddToCart = (productId: string) => {
     const product = products.find((p: Product) => p.id === productId);
     if (product) {
-      dispatch(addToCart({
-        id: product.id,
-        quantity: 1,
-        title: product.title,
-        price: product.price,
-      }));
+      dispatch(
+        addToCart({
+          id: product.id,
+          quantity: 1,
+          title: product.title,
+          price: product.price,
+        })
+      );
       dispatch(toggleWishlist(product.id));
     }
   };
@@ -55,7 +61,11 @@ const WishlistPage = () => {
           <p className='mt-2 text-slate-500 dark:text-slate-400'>
             Browse products and save your favorites for later.
           </p>
-          <Button size='lg' onClick={() => router.push('/products')} className='mt-8'>
+          <Button
+            size='lg'
+            onClick={() => router.push('/products')}
+            className='mt-8'
+          >
             Find Products
           </Button>
         </div>
@@ -72,8 +82,8 @@ const WishlistPage = () => {
                   {wishlistedProducts.length !== 1 ? 's' : ''}
                 </span>
               </div>
-              <Button variant="outline" onClick={handleClearWishlist}>
-                <Trash2 className="mr-2 h-4 w-4" />
+              <Button variant='outline' onClick={handleClearWishlist}>
+                <Trash2 className='mr-2 h-4 w-4' />
                 Clear Wishlist
               </Button>
             </div>
@@ -82,7 +92,7 @@ const WishlistPage = () => {
               {wishlistedProducts.map((product: Product) => (
                 <div
                   key={product.id}
-                  className='border rounded-2xl bg-white shadow-sm overflow-hidden flex flex-col dark:bg-slate-950 dark:border-slate-800'
+                  className='border rounded-2xl bg-white shadow-sm overflow-hidden flex flex-col dark:bg-slate-900 dark:border-slate-800'
                 >
                   <div className='h-48 w-full overflow-hidden relative'>
                     <Image

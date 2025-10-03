@@ -10,10 +10,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useProducts } from '@/lib/hooks/useProducts';
 import { Product } from '@/lib/types';
+import { Separator } from '@radix-ui/react-dropdown-menu';
 import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 /**
  * Initialize default selected options from product
  */
@@ -89,7 +89,7 @@ const ProductDetailPage = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className='bg-white dark:bg-slate-950 min-h-screen'>
+      <div className='bg-white dark:bg-slate-900 min-h-screen'>
         <div className='container mx-auto px-4 py-12'>
           <Skeleton className='h-10 w-40 mb-6' />
           <div className='grid gap-8 md:grid-cols-2 md:gap-12'>
@@ -117,7 +117,7 @@ const ProductDetailPage = () => {
   // Error state
   if (error) {
     return (
-      <div className='bg-white dark:bg-slate-950 min-h-screen'>
+      <div className='bg-white dark:bg-slate-900 min-h-screen'>
         <div className='container mx-auto px-4 py-16'>
           <Alert variant='destructive'>
             <AlertCircle className='h-4 w-4' />
@@ -141,7 +141,7 @@ const ProductDetailPage = () => {
   // Product not found state
   if (!product) {
     return (
-      <div className='bg-white dark:bg-slate-950 min-h-screen'>
+      <div className='bg-white dark:bg-slate-900 min-h-screen'>
         <div className='container mx-auto px-4 py-16'>
           <div className='text-center space-y-6'>
             <div className='flex justify-center'>
@@ -181,7 +181,7 @@ const ProductDetailPage = () => {
 
   // Main product detail view
   return (
-    <div className='bg-white dark:bg-slate-950 min-h-screen'>
+    <div className='bg-white dark:bg-slate-900 min-h-screen'>
       <div className='container mx-auto px-4 py-8 sm:py-12'>
         {/* Breadcrumb Navigation */}
         <nav className='mb-6 sm:mb-8' aria-label='Breadcrumb'>

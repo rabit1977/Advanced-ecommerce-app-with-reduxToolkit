@@ -64,9 +64,9 @@ export const UsersDataTable = ({ users }: UsersDataTableProps) => {
 
   return (
     <>
-      <div className='rounded-lg border bg-white dark:bg-slate-950 dark:border-slate-800'>
+      <div className='rounded-lg divide-y border bg-white dark:bg-slate-900 dark:border-slate-800 overflow-hidden shadow-sm '>
         <Table>
-          <TableHeader>
+          <TableHeader className='bg-slate-50 dark:bg-slate-800'>
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
