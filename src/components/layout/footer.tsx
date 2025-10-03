@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Facebook, Instagram, Twitter, Zap, Send } from 'lucide-react';
+import { Facebook, Instagram, Send, Twitter, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useState, useTransition } from 'react';
 
@@ -53,13 +53,21 @@ const footerLinks: FooterSection[] = [
 
 const socialLinks: SocialLink[] = [
   { icon: Twitter, href: 'https://twitter.com', label: 'Follow us on Twitter' },
-  { icon: Facebook, href: 'https://facebook.com', label: 'Follow us on Facebook' },
-  { icon: Instagram, href: 'https://instagram.com', label: 'Follow us on Instagram' },
+  {
+    icon: Facebook,
+    href: 'https://facebook.com',
+    label: 'Follow us on Facebook',
+  },
+  {
+    icon: Instagram,
+    href: 'https://instagram.com',
+    label: 'Follow us on Instagram',
+  },
 ];
 
 /**
  * Footer component with newsletter subscription and navigation links
- * 
+ *
  * Features:
  * - Responsive grid layout
  * - Newsletter subscription with validation
@@ -126,14 +134,16 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className='border-t ' role='contentinfo'>
+    <footer
+      className='border-t dark:bg-slate-950/20 bg-white'
+      role='contentinfo'
+    >
       <div className='container mx-auto px-4 py-12 sm:px-6 lg:px-8'>
         <div className='grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8'>
-          
           {/* Brand Section */}
           <div className='lg:col-span-4 space-y-6'>
-            <Link 
-              href='/' 
+            <Link
+              href='/'
               className='inline-flex items-center gap-2 group'
               aria-label='Electro home page'
             >
@@ -142,23 +152,24 @@ export function Footer() {
               </div>
               <span className='text-xl font-bold text-foreground'>Electro</span>
             </Link>
-            
+
             <p className='text-sm text-muted-foreground max-w-xs'>
-              Your one-stop shop for the best electronics. Quality products, unbeatable prices, exceptional service.
+              Your one-stop shop for the best electronics. Quality products,
+              unbeatable prices, exceptional service.
             </p>
-            
+
             {/* Social Links */}
             <div className='flex gap-2'>
               {socialLinks.map((social) => (
-                <Link 
+                <Link
                   key={social.label}
-                  href={social.href} 
+                  href={social.href}
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label={social.label}
                 >
-                  <Button 
-                    variant='ghost' 
+                  <Button
+                    variant='ghost'
                     size='icon'
                     className='hover:bg-primary/10'
                   >
@@ -170,7 +181,7 @@ export function Footer() {
           </div>
 
           {/* Navigation Links */}
-          <nav 
+          <nav
             className='lg:col-span-5 grid grid-cols-1 sm:grid-cols-3 gap-8'
             aria-label='Footer navigation'
           >
@@ -203,7 +214,7 @@ export function Footer() {
             <p className='text-sm text-muted-foreground mb-4'>
               Subscribe to our newsletter for the latest deals and updates.
             </p>
-            
+
             <form onSubmit={handleSubscribe} className='space-y-3'>
               <div className='space-y-2'>
                 <div className='flex gap-2'>
@@ -216,10 +227,12 @@ export function Footer() {
                     aria-label='Email for newsletter'
                     aria-invalid={!!error}
                     aria-describedby={error ? 'email-error' : undefined}
-                    className={error ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                    className={
+                      error ? 'border-red-500 focus-visible:ring-red-500' : ''
+                    }
                   />
-                  <Button 
-                    type='submit' 
+                  <Button
+                    type='submit'
                     disabled={isPending}
                     className='gap-2 flex-shrink-0'
                   >
@@ -246,18 +259,16 @@ export function Footer() {
       <div className='border-t bg-muted/30'>
         <div className='container mx-auto px-4 py-6'>
           <div className='flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground'>
-            <p>
-              &copy; {currentYear} Electro Inc. All rights reserved.
-            </p>
+            <p>&copy; {currentYear} Electro Inc. All rights reserved.</p>
             <div className='flex gap-6'>
-              <Link 
-                href='/privacy' 
+              <Link
+                href='/privacy'
                 className='hover:text-foreground transition-colors'
               >
                 Privacy Policy
               </Link>
-              <Link 
-                href='/terms' 
+              <Link
+                href='/terms'
                 className='hover:text-foreground transition-colors'
               >
                 Terms of Service

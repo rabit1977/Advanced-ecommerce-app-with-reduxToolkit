@@ -131,7 +131,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className='bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 min-h-screen'>
+    <div className=''>
       <div className='container mx-auto px-4 py-12 sm:py-16 lg:py-20'>
         {/* Page Header */}
         <motion.div

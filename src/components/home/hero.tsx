@@ -199,7 +199,7 @@ const Hero = ({
   }
 
   return (
-    <div className='relative bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800'>
+    <div className='bg-slate-50 dark:bg-slate-900 min-h-screen'>
       {/* Hero Header Section */}
       <div className='container mx-auto px-4 py-12 sm:py-16 lg:py-20 text-center'>
         <motion.div

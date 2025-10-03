@@ -61,7 +61,7 @@ const Header = () => {
 
   return (
     <header
-      className='sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/80 dark:border-slate-800'
+      className='sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-slate-950 dark:supports-[backdrop-filter]:bg-slate-900/80 dark:border-slate-800'
       role='banner'
     >
       <div className='container mx-auto flex h-16 items-center justify-between gap-4 px-4'>
