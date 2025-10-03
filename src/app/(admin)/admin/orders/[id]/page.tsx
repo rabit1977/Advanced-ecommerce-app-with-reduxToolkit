@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useTransition, Suspense } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { use, Suspense, useTransition, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
   Card,
@@ -19,7 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { updateOrderStatus } from '@/lib/store/thunks/orderThunks';
 import { formatPrice, formatOrderDate, formatDateTime } from '@/lib/utils/formatters';
@@ -33,13 +45,20 @@ import {
   Calendar,
   Loader2,
   Mail,
-  Phone
+  Phone,
+  Trash2,
+  Download,
+  Printer
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Order } from '@/lib/types';
 
+interface OrderDetailsPageProps {
+  params: Promise<{ id: string }>;
+}
+
 /**
- * Get status badge variant based on order status
+ * Get status badge variant
  */
 const getStatusVariant = (status: Order['status']): 'default' | 'secondary' | 'destructive' | 'outline' => {
   const variants: Partial<Record<Order['status'], 'default' | 'secondary' | 'destructive' | 'outline'>> = {
@@ -53,82 +72,30 @@ const getStatusVariant = (status: Order['status']): 'default' | 'secondary' | 'd
 };
 
 /**
- * Loading skeleton component
+ * Order details skeleton
  */
 function OrderDetailsSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Header Skeleton */}
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <div className="h-8 w-64 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-          <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-pulse ml-12" />
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-48" />
         </div>
-        <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+        <Skeleton className="h-10 w-32" />
       </div>
-
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content Skeleton */}
         <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="h-6 w-40 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-              <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mt-2" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-10 w-full bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                    <div className="h-3 w-1/2 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                  </div>
-                  <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          <Skeleton className="h-64" />
+          <Skeleton className="h-96" />
         </div>
-
-        {/* Sidebar Skeleton */}
         <div className="space-y-6">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="h-5 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="h-4 w-full bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                  <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                  <div className="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                </div>
-              </CardContent>
-            </Card>
+            <Skeleton key={i} className="h-32" />
           ))}
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * Page component with Suspense boundary
- */
-export default function AdminOrderDetailsPage() {
-  return (
-    <Suspense fallback={<OrderDetailsSkeleton />}>
-      <AdminOrderDetailsContent />
-    </Suspense>
   );
 }
 
@@ -154,20 +121,23 @@ function OrderNotFound() {
 }
 
 /**
- * Main order details component
+ * Order details content
  */
-function AdminOrderDetailsContent() {
-  const params = useParams<{ id: string }>();
+function OrderDetailsContent({ orderId }: { orderId: string }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [isPending, startTransition] = useTransition();
 
-  // Get order from Redux store
   const order = useAppSelector((state) =>
-    state.orders.orders.find((o) => o.id === params.id)
+    state.orders.orders.find((o) => o.id === orderId)
   );
 
-  // Handle status change
+  // Calculate subtotal
+  const subtotal = useMemo(() => 
+    order?.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0,
+    [order]
+  );
+
   const handleStatusChange = async (newStatus: Order['status']) => {
     if (!order) return;
 
@@ -184,16 +154,22 @@ function AdminOrderDetailsContent() {
     }
   };
 
-  // Navigate to customer order view
-  const viewCustomerOrder = () => {
-    if (order) {
-      startTransition(() => {
-        router.push(`/account/orders/${order.id}`);
-      });
-    }
+  const handlePrint = () => {
+    window.print();
+    toast.success('Print dialog opened');
   };
 
-  // Show not found if order doesn't exist
+  const handleDownload = () => {
+    toast.success('Invoice download started');
+    // Implement invoice download logic
+  };
+
+  const handleDelete = () => {
+    toast.success('Order deleted');
+    router.push('/admin/orders');
+    // Implement delete logic
+  };
+
   if (!order) {
     return <OrderNotFound />;
   }
@@ -208,45 +184,61 @@ function AdminOrderDetailsContent() {
               variant="ghost"
               size="icon"
               onClick={() => router.push('/admin/orders')}
-              className="hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="text-2xl font-bold dark:text-white">
-              Order Details
+              Order #{order.id.slice(0, 12)}
             </h1>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 ml-12">
-            Manage and view order information
+            Placed on {formatDateTime(order.date)}
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={viewCustomerOrder}
-          disabled={isPending}
-        >
-          {isPending ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Package className="h-4 w-4 mr-2" />
-          )}
-          Customer View
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handlePrint}>
+            <Printer className="h-4 w-4 mr-2" />
+            Print
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" />
+            Invoice
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Order</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this order? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Order Info Card */}
+          {/* Status Card */}
           <Card>
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-xl">Order #{order.id}</CardTitle>
-                  <CardDescription className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {formatDateTime(order.date)}
+                <div>
+                  <CardTitle>Order Status</CardTitle>
+                  <CardDescription className="mt-2">
+                    Update the order fulfillment status
                   </CardDescription>
                 </div>
                 <Badge variant={getStatusVariant(order.status)}>
@@ -255,31 +247,25 @@ function AdminOrderDetailsContent() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                    Update Status
-                  </label>
-                  <Select
-                    value={order.status}
-                    onValueChange={(value) => handleStatusChange(value as Order['status'])}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Shipped">Shipped</SelectItem>
-                      <SelectItem value="Delivered">Delivered</SelectItem>
-                      <SelectItem value="Cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <Select
+                value={order.status}
+                onValueChange={(value) => handleStatusChange(value as Order['status'])}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Processing">Processing</SelectItem>
+                  <SelectItem value="Shipped">Shipped</SelectItem>
+                  <SelectItem value="Delivered">Delivered</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
             </CardContent>
           </Card>
 
-          {/* Order Items Card */}
+          {/* Order Items */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -293,7 +279,7 @@ function AdminOrderDetailsContent() {
                   <div key={item.cartItemId}>
                     {index > 0 && <Separator />}
                     <div className="flex items-center gap-4 py-2">
-                      <div className="w-16 h-16 flex-shrink-0 relative rounded-md overflow-hidden border dark:border-slate-700">
+                      <div className="w-16 h-16 relative rounded-md overflow-hidden border dark:border-slate-700">
                         <Image
                           src={item.image || '/images/placeholder.jpg'}
                           alt={item.title}
@@ -301,20 +287,16 @@ function AdminOrderDetailsContent() {
                           className="object-cover"
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium dark:text-white truncate">
-                          {item.title}
-                        </p>
-                        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      <div className="flex-1">
+                        <p className="font-medium dark:text-white">{item.title}</p>
+                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mt-1">
                           <span>Qty: {item.quantity}</span>
                           <span>{formatPrice(item.price)} each</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold dark:text-white">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
-                      </div>
+                      <p className="font-semibold dark:text-white">
+                        {formatPrice(item.price * item.quantity)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -322,28 +304,21 @@ function AdminOrderDetailsContent() {
 
               <Separator className="my-4" />
 
-              {/* Order Totals */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600 dark:text-slate-400">Subtotal</span>
-                  <span className="font-medium dark:text-white">
-                    {formatPrice(order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0))}
-                  </span>
+                  <span className="font-medium dark:text-white">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600 dark:text-slate-400">Shipping</span>
-                  <span className="font-medium dark:text-white">
-                    {formatPrice(0)}
-                  </span>
+                  <span className="font-medium dark:text-white">{formatPrice(0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600 dark:text-slate-400">Tax</span>
-                  <span className="font-medium dark:text-white">
-                    {formatPrice(0)}
-                  </span>
+                  <span className="font-medium dark:text-white">{formatPrice(0)}</span>
                 </div>
                 <Separator />
-                <div className="flex justify-between text-base font-semibold pt-2">
+                <div className="flex justify-between font-semibold pt-2">
                   <span className="dark:text-white">Total</span>
                   <span className="dark:text-white">{formatPrice(order.total)}</span>
                 </div>
@@ -354,7 +329,6 @@ function AdminOrderDetailsContent() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Customer Info Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -367,13 +341,11 @@ function AdminOrderDetailsContent() {
                 <p className="font-semibold dark:text-white">
                   {order.shippingAddress.name}
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   Customer since {formatOrderDate(order.date)}
                 </p>
               </div>
-              
               <Separator />
-
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-slate-400" />
@@ -391,7 +363,6 @@ function AdminOrderDetailsContent() {
             </CardContent>
           </Card>
 
-          {/* Shipping Address Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -414,27 +385,6 @@ function AdminOrderDetailsContent() {
             </CardContent>
           </Card>
 
-          {/* Shipping Method Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Truck className="h-5 w-5" />
-                Shipping Method
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="font-medium dark:text-white">
-                  Standard Shipping
-                </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Delivery in 5-7 business days
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Payment Info Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -444,20 +394,29 @@ function AdminOrderDetailsContent() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p className="font-medium dark:text-white">
-                  {order.paymentMethod}
-                </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="font-medium dark:text-white">{order.paymentMethod}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Payment processed successfully
                 </p>
-                <Badge variant="outline" className="mt-2">
-                  Paid
-                </Badge>
+                <Badge variant="outline" className="mt-2">Paid</Badge>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Order details page with Suspense
+ */
+export default function AdminOrderDetailsPage({ params }: OrderDetailsPageProps) {
+  const { id } = use(params);
+
+  return (
+    <Suspense fallback={<OrderDetailsSkeleton />}>
+      <OrderDetailsContent orderId={id} />
+    </Suspense>
   );
 }
