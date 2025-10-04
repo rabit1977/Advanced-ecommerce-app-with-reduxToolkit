@@ -36,7 +36,7 @@ const getStorage = (): Storage => {
 const persistConfig = {
   key: 'root',
   storage: getStorage(),
-  whitelist: ['cart', 'wishlist', 'user'], // Remove 'as const' to fix type issue
+  whitelist: ['cart', 'wishlist', 'user, orders'], // Remove 'as const' to fix type issue
   version: 1,
   timeout: 10000,
   // Optional: Add migration for version updates

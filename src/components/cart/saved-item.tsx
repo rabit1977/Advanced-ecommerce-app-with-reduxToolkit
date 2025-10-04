@@ -26,7 +26,7 @@ const SavedItem = React.memo(({ item }: SavedItemProps) => {
   }, [item.cartItemId, dispatch]);
 
   return (
-    <li className='flex flex-col py-6 sm:flex-row'>
+    <li className='flex flex-col py-2 sm:flex-row'>
       <div className='h-48 w-full flex-shrink-0 overflow-hidden rounded-md border dark:border-slate-800 sm:h-24 sm:w-24'>
         <Image
           src={item.image || '/images/placeholder.jpg'}
@@ -56,10 +56,10 @@ const SavedItem = React.memo(({ item }: SavedItemProps) => {
           <Button
             variant='link'
             size='sm'
-            className='font-medium text-red-600 hover:text-red-500'
+            className='font-medium text-red-600 hover:text-red-500 -mr-2.5'
             onClick={handleRemove}
           >
-            <Trash2 className='mr-1 h-4 w-4' />
+            <Trash2 className='h-4 w-4' />
             Remove
           </Button>
         </div>

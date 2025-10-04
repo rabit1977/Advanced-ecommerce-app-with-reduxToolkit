@@ -2,9 +2,16 @@ export interface AppContextType extends AppState {
   setPage: (page: string) => void;
   viewProduct: (productId: string) => void;
   viewOrder: (orderId: string) => void;
-  login: (email: string, password: string) => { success: boolean; message?: string };
+  login: (
+    email: string,
+    password: string
+  ) => { success: boolean; message?: string };
   logout: () => void;
-  signup: (name: string, email: string, password: string) => { success: boolean; message?: string };
+  signup: (
+    name: string,
+    email: string,
+    password: string
+  ) => { success: boolean; message?: string };
   addToCart: (item: Omit<CartItem, 'cartItemId' | 'image'>) => void;
   updateCartQuantity: (cartItemId: string, newQuantity: number) => void;
   removeFromCart: (cartItemId: string) => void;
@@ -75,7 +82,6 @@ export interface Product {
   releaseDate?: string;
 }
 
-
 export interface ProductOption {
   name: string;
   type: string;
@@ -119,17 +125,16 @@ export interface Order {
   date: string;
   items: CartItem[];
   total: number;
-  subtotal?: number;           // Added - calculated from items
-  shippingCost?: number;        // Added - from checkout
-  taxes?: number;               // Added - calculated tax
-  discountAmount?: number;      // Added - discount applied
+  subtotal?: number; // Added - calculated from items
+  shippingCost?: number; // Added - from checkout
+  taxes?: number; // Added - calculated tax
+  discountAmount?: number; // Added - discount applied
   shippingMethod?: 'standard' | 'express'; // Added - shipping option
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   shippingAddress: Address;
   billingAddress: Address;
   paymentMethod: string;
   createdAt: string;
-  selectedId: string | null;
 }
 
 export interface Address {

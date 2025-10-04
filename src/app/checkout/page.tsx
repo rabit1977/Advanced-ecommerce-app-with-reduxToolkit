@@ -191,6 +191,8 @@ const CheckoutPage = () => {
       subtotal,
       shippingCost,
       taxes,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       discountAmount: 0,
       shippingAddress: {
         name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
@@ -214,7 +216,7 @@ const CheckoutPage = () => {
     };
 
     try {
-      const result = await dispatch(placeOrder(orderDetails));
+      const result = await dispatch(placeOrder(orderDetails)).unwrap();
       if (result) {
         startTransition(() => {
           router.push(`/order-confirmation?orderId=${result}`);
