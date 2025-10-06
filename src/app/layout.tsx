@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang='en' suppressHydrationWarning>
       <head>
         {/* Inline script to prevent theme flash (FOUC) */}
-        <script
+        {/* <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -45,7 +45,7 @@ export default function RootLayout({
               })();
             `,
           }}
-        />
+        /> */}
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
