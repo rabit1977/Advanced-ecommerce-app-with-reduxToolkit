@@ -5,19 +5,18 @@ import { getProducts, SortKey } from '@/lib/data/get-products';
 export const dynamic = 'force-dynamic';
 
 interface ProductsPageProps {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-
-const ProductsPage = async (props: ProductsPageProps) => {
-  const { searchParams } = props;
+const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
+  const params = await searchParams;
   // 1. Parse and validate search params
-  const query = (searchParams?.search as string) || '';
-  const category = (searchParams?.category as string) || 'all';
-  const brands = (searchParams?.brands as string) || '';
-  const minPrice = Number(searchParams?.minPrice) || undefined;
-  const maxPrice = Number(searchParams?.maxPrice) || undefined;
-  const sort = (searchParams?.sort as SortKey) || 'featured';
-  const page = Number(searchParams?.page) || 1;
+  const query = (params?.search as string) || '';
+  const category = (params?.category as string) || 'all';
+  const brands = (params?.brands as string) || '';
+  const minPrice = Number(params?.minPrice) || undefined;
+  const maxPrice = Number(params?.maxPrice) || undefined;
+  const sort = (params?.sort as SortKey) || 'featured';
+  const page = Number(params?.page) || 1;
 
   // 2. Fetch data from the server with all options
   const { products, totalCount } = await getProducts({
@@ -42,7 +41,10 @@ const ProductsPage = async (props: ProductsPageProps) => {
       currentBrands={brands}
       currentMinPrice={minPrice}
       currentMaxPrice={maxPrice}
-      currentSort={sort} currentPage={0} currentCategory={''}    />
+      currentSort={sort}
+      currentPage={0}
+      currentCategory={''}
+    />
   );
 };
 

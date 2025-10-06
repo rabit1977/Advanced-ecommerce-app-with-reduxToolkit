@@ -43,7 +43,6 @@ export const initialOrders: Order[] = [
     },
     paymentMethod: "Credit Card",
     createdAt: "2023-08-15T10:00:00Z",
-    selectedId: null,
   },
   {
     id: "ORD-002",
@@ -79,7 +78,6 @@ export const initialOrders: Order[] = [
     },
     paymentMethod: "Credit Card",
     createdAt: "2023-08-10T14:30:00Z",
-    selectedId: null,
   },
   {
     id: "ORD-003",
@@ -114,6 +112,5 @@ export const initialOrders: Order[] = [
     },
     paymentMethod: "Credit Card",
     createdAt: "2023-08-01T09:15:00Z",
-    selectedId: null,
   },
 ];

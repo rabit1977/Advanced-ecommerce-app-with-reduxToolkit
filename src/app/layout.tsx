@@ -1,7 +1,6 @@
 import ErrorBoundary from '@/components/error-boundary';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
-import { MobileSidebar } from '@/components/layout/mobile-sidebar';
 import { ThemeManager } from '@/components/layout/theme-manager';
 import { QuickViewModal } from '@/components/product/quick-view-modal';
 import { Toast } from '@/components/toast';
@@ -55,7 +54,7 @@ export default function RootLayout({
             <CommandPalette />
             <div className='min-h-screen bg-white font-sans text-slate-800 dark:bg-slate-900 dark:text-slate-200'>
               <Header />
-              <MobileSidebar />
+              {/* <MobileSidebar /> */}
               <main className='min-h-[calc(100vh-4rem)]'>{children}</main>
               <Footer />
               <QuickViewModal />

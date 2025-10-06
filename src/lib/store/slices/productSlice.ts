@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { initialProducts } from '@/lib/constants/products';
 import { Product, Review, ReviewPayload } from '@/lib/types';
-import { initialProducts } from '@/lib/constants';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ProductsState {
   products: Product[];
@@ -15,24 +15,29 @@ const PRODUCTS_STORAGE_KEY = 'products';
  */
 const loadProductsFromStorage = (): Product[] => {
   if (typeof window === 'undefined') return initialProducts;
-  
+
   try {
     const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
     if (!stored) return initialProducts;
-    
+
     const storedProducts: Product[] = JSON.parse(stored);
-    
+
     // Merge stored products with initial products
     // Keep user-generated reviews and stock updates
-    return initialProducts.map(initialProduct => {
-      const storedProduct = storedProducts.find(p => p.id === initialProduct.id);
+    return initialProducts.map((initialProduct) => {
+      const storedProduct = storedProducts.find(
+        (p) => p.id === initialProduct.id
+      );
       if (storedProduct) {
         return {
           ...initialProduct,
           reviews: storedProduct.reviews || initialProduct.reviews,
           reviewCount: storedProduct.reviewCount || initialProduct.reviewCount,
           rating: storedProduct.rating || initialProduct.rating,
-          stock: storedProduct.stock !== undefined ? storedProduct.stock : initialProduct.stock,
+          stock:
+            storedProduct.stock !== undefined
+              ? storedProduct.stock
+              : initialProduct.stock,
         };
       }
       return initialProduct;
@@ -48,17 +53,17 @@ const loadProductsFromStorage = (): Product[] => {
  */
 const saveProductsToStorage = (products: Product[]): void => {
   if (typeof window === 'undefined') return;
-  
+
   try {
     // Only save essential data to reduce storage size
-    const productsToSave = products.map(p => ({
+    const productsToSave = products.map((p) => ({
       id: p.id,
       reviews: p.reviews,
       reviewCount: p.reviewCount,
       rating: p.rating,
       stock: p.stock,
     }));
-    
+
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(productsToSave));
   } catch (error) {
     console.error('Error saving products to storage:', error);
@@ -116,7 +121,7 @@ const productsSlice = createSlice({
     ) => {
       const { productId, reviewData } = action.payload;
       const product = state.products.find((p) => p.id === productId);
-      
+
       if (!product) {
         state.error = `Product with ID ${productId} not found`;
         return;
@@ -127,10 +132,12 @@ const productsSlice = createSlice({
 
       if (reviewData.id) {
         // Update existing review
-        const reviewExists = existingReviews.some(r => r.id === reviewData.id);
+        const reviewExists = existingReviews.some(
+          (r) => r.id === reviewData.id
+        );
         if (reviewExists) {
-          newReviews = existingReviews.map(r => 
-            r.id === reviewData.id ? { ...r, ...reviewData } as Review : r
+          newReviews = existingReviews.map((r) =>
+            r.id === reviewData.id ? ({ ...r, ...reviewData } as Review) : r
           );
         } else {
           state.error = `Review with ID ${reviewData.id} not found`;
@@ -154,10 +161,11 @@ const productsSlice = createSlice({
       const totalRating = newReviews.reduce((sum, r) => sum + r.rating, 0);
       product.reviews = newReviews;
       product.reviewCount = newReviews.length;
-      product.rating = newReviews.length > 0 
-        ? parseFloat((totalRating / newReviews.length).toFixed(1)) 
-        : 0;
-      
+      product.rating =
+        newReviews.length > 0
+          ? parseFloat((totalRating / newReviews.length).toFixed(1))
+          : 0;
+
       state.error = null;
       saveProductsToStorage(state.products);
     },
@@ -171,7 +179,7 @@ const productsSlice = createSlice({
     ) => {
       const { productId, reviewId } = action.payload;
       const product = state.products.find((p) => p.id === productId);
-      
+
       if (!product) {
         state.error = `Product with ID ${productId} not found`;
         return;
@@ -182,24 +190,29 @@ const productsSlice = createSlice({
         return;
       }
 
-      const reviewExists = product.reviews.some(r => r.id === reviewId);
+      const reviewExists = product.reviews.some((r) => r.id === reviewId);
       if (!reviewExists) {
         state.error = `Review with ID ${reviewId} not found`;
         return;
       }
 
       product.reviews = product.reviews.filter((r) => r.id !== reviewId);
-      
+
       // Recalculate rating
       if (product.reviews.length > 0) {
-        const totalRating = product.reviews.reduce((sum, r) => sum + r.rating, 0);
-        product.rating = parseFloat((totalRating / product.reviews.length).toFixed(1));
+        const totalRating = product.reviews.reduce(
+          (sum, r) => sum + r.rating,
+          0
+        );
+        product.rating = parseFloat(
+          (totalRating / product.reviews.length).toFixed(1)
+        );
         product.reviewCount = product.reviews.length;
       } else {
         product.rating = 0;
         product.reviewCount = 0;
       }
-      
+
       state.error = null;
       saveProductsToStorage(state.products);
     },
@@ -209,22 +222,22 @@ const productsSlice = createSlice({
      */
     updateReviewHelpfulCount: (
       state,
-      action: PayloadAction<{ 
-        productId: string; 
-        reviewId: string; 
-        direction: 'increment' | 'decrement' 
+      action: PayloadAction<{
+        productId: string;
+        reviewId: string;
+        direction: 'increment' | 'decrement';
       }>
     ) => {
       const { productId, reviewId, direction } = action.payload;
       const product = state.products.find((p) => p.id === productId);
-      
+
       if (!product || !product.reviews) {
         state.error = 'Product or reviews not found';
         return;
       }
 
       const review = product.reviews.find((r) => r.id === reviewId);
-      
+
       if (!review) {
         state.error = `Review with ID ${reviewId} not found`;
         return;
@@ -235,7 +248,7 @@ const productsSlice = createSlice({
       } else {
         review.helpful = Math.max(0, (review.helpful || 0) - 1);
       }
-      
+
       state.error = null;
       saveProductsToStorage(state.products);
     },
@@ -249,7 +262,7 @@ const productsSlice = createSlice({
     ) => {
       const { productId, quantity } = action.payload;
       const product = state.products.find((p) => p.id === productId);
-      
+
       if (!product) {
         state.error = `Product with ID ${productId} not found`;
         return;
@@ -274,7 +287,7 @@ const productsSlice = createSlice({
     ) => {
       const { productId, stock } = action.payload;
       const product = state.products.find((p) => p.id === productId);
-      
+
       if (!product) {
         state.error = `Product with ID ${productId} not found`;
         return;
@@ -292,7 +305,7 @@ const productsSlice = createSlice({
       state.products = initialProducts;
       state.isLoading = false;
       state.error = null;
-      
+
       // Clear storage
       if (typeof window !== 'undefined') {
         localStorage.removeItem(PRODUCTS_STORAGE_KEY);
@@ -301,14 +314,14 @@ const productsSlice = createSlice({
   },
 });
 
-export const { 
+export const {
   setLoading,
   setError,
   clearError,
   setProducts,
-  addReview, 
-  deleteReview, 
-  updateReviewHelpfulCount, 
+  addReview,
+  deleteReview,
+  updateReviewHelpfulCount,
   updateStock,
   setStock,
   resetProductsState,

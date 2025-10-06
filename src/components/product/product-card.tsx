@@ -1,111 +1,213 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Stars } from '@/components/ui/stars';
 import { useCart } from '@/lib/hooks/useCart';
 import { useUI } from '@/lib/hooks/useUI';
 import { Product } from '@/lib/types';
+import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/utils/formatters';
 import { motion } from 'framer-motion';
-import { Eye, Heart } from 'lucide-react';
+import { Eye, Heart, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import React, { useCallback, useMemo, useTransition } from 'react';
+import { memo, useCallback, useMemo, useTransition } from 'react';
+import { toast } from 'sonner';
 import { ProductImageCarousel } from './product-image-carousel';
 
 interface ProductCardProps {
   product: Product;
 }
 
-const ProductCard = React.memo(({ product }: ProductCardProps) => {
-  // We now get the wishlist and toggle function directly from your client-side context
+export const ProductCard = memo(({ product }: ProductCardProps) => {
   const { setQuickViewProductId } = useUI();
-  const { wishlistItems, toggleWishlist } = useCart();
+  const { wishlistItems, toggleWishlist, addToCart } = useCart();
   const [isPending, startTransition] = useTransition();
 
-  // The source of truth is the client-side wishlist Set from your context
   const isWished = useMemo(
     () => wishlistItems.includes(product.id),
     [wishlistItems, product.id]
   );
+
   const isOutOfStock = useMemo(() => product.stock === 0, [product.stock]);
 
-  const handleQuickViewClick = useCallback(() => {
-    setQuickViewProductId(product.id);
-  }, [product.id, setQuickViewProductId]);
+  const isLowStock = useMemo(
+    () => !isOutOfStock && product.stock < 10,
+    [isOutOfStock, product.stock]
+  );
 
-  // This handler now uses useTransition for a non-blocking UI update
-  const handleToggleWishlist = useCallback(() => {
-    startTransition(() => {
-      // This state update is marked as a transition. React will keep the UI
-      // responsive while this runs in the background.
-      toggleWishlist(product.id);
-    });
-  }, [product.id, toggleWishlist]);
+  // Discount calculation
+  const discount = useMemo(() => {
+    if (product.discount && product.discount > 0) {
+      const discountedPrice = product.price * (1 - product.discount / 100);
+      return {
+        percentage: product.discount,
+        originalPrice: product.price,
+        discountedPrice,
+      };
+    }
+    return null;
+  }, [product.price, product.discount]);
+
+  const handleQuickView = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setQuickViewProductId(product.id);
+    },
+    [product.id, setQuickViewProductId]
+  );
+
+  const handleToggleWishlist = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      startTransition(() => {
+        toggleWishlist(product.id);
+        toast.success(
+          isWished ? 'Removed from wishlist' : 'Added to wishlist',
+          { duration: 2000 }
+        );
+      });
+    },
+    [product.id, toggleWishlist, isWished]
+  );
+
+  const handleAddToCart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (isOutOfStock) return;
+
+      startTransition(() => {
+        addToCart({
+          id: product.id,
+          title: product.title,
+          price: discount?.discountedPrice || product.price,
+          quantity: 1,
+        });
+        toast.success('Added to cart', { duration: 2000 });
+      });
+    },
+    [product, isOutOfStock, discount, addToCart]
+  );
 
   return (
     <motion.div
       layoutId={`product-card-${product.id}`}
-      // whileHover={{ y: -5 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       className='w-full'
     >
-      <div className='group relative w-full overflow-hidden rounded-2xl border bg-white shadow-md transition-shadow hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 '>
+      <div className='group relative h-full overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900'>
+        {/* Image Carousel */}
         <ProductImageCarousel product={product} />
 
-        {isOutOfStock && (
-          <div className='pointer-events-none absolute inset-0 top-0 flex h-48 items-center justify-center bg-black/50'>
-            <span className='font-bold uppercase tracking-widest text-white'>
-              Out of Stock
-            </span>
-          </div>
+        {/* Discount Badge */}
+        {discount && (
+          <Badge className='absolute top-3 left-3 z-20 bg-red-500 text-white shadow-lg'>
+            -{discount.percentage}%
+          </Badge>
         )}
 
-        <div className='absolute right-2 top-2 flex gap-2 '>
-          <Button
-            size='icon'
-            variant='secondary'
-            className='h-8 w-8 rounded-full shadow-md opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100'
-            onClick={handleQuickViewClick}
-            aria-label='Quick view'
-          >
-            <Eye className='h-4 w-4' />
-          </Button>
+        {/* Quick Actions */}
+        <div className='absolute right-3 top-12 z-20 flex flex-col gap-1'>
           <Button
             size='icon'
             variant={isWished ? 'default' : 'secondary'}
-            className='h-8 w-8 rounded-full shadow-md'
+            className={cn(
+              'h-7 w-7 rounded-full shadow-lg backdrop-blur-sm transition-all duration-300',
+              isWished && 'bg-red-500 hover:bg-red-600'
+            )}
             onClick={handleToggleWishlist}
-            disabled={isPending} // Disable the button while the transition is pending
+            disabled={isPending}
             aria-label={isWished ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <Heart
-              className={`h-4 w-4 ${isWished ? 'fill-red-500 stroke-0' : ''}`}
+              className={cn(
+                'size-3.5 transition-all',
+                isWished && 'fill-white text-white'
+              )}
             />
+          </Button>
+          <Button
+            size='icon'
+            variant='secondary'
+            className='h-7 w-7 rounded-full shadow-lg backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100'
+            onClick={handleQuickView}
+            aria-label='Quick view'
+          >
+            <Eye className='size-3.5' />
           </Button>
         </div>
 
-        <Link href={`/products/${product.id}`} className='block p-4'>
-          <div className='text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400'>
-            {product.brand}
-          </div>
-          <h3 className='truncate text-lg font-semibold leading-tight text-slate-800 dark:text-white'>
-            {product.title}
-          </h3>
-          <div className='mt-2 flex items-center justify-between'>
-            <span className='text-sm font-bold text-slate-800 dark:text-slate-400'>
-              {formatPrice(product.price)}
+        {/* Product Info */}
+        <div className='p-4 space-y-3'>
+          {/* Brand & Category */}
+          <div className='flex items-center justify-between'>
+            <span className='text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400'>
+              {product.brand}
             </span>
-            <div className='flex items-center gap-1'>
-              <Stars value={product.rating} />
-              <span className='text-xs text-slate-600 dark:text-slate-400'>
-                ({product.reviewCount})
-              </span>
-            </div>
+            <Badge variant='outline' className='text-xs'>
+              {product.category}
+            </Badge>
           </div>
-        </Link>
+
+          {/* Title */}
+          <Link href={`/products/${product.id}`}>
+            <h3 className='line-clamp-2 text-base font-semibold leading-tight text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors'>
+              {product.title}
+            </h3>
+          </Link>
+
+          {/* Rating */}
+          <div className='flex items-center gap-2'>
+            <Stars value={product.rating} size='sm' />
+            <span className='text-xs text-slate-600 dark:text-slate-400'>
+              ({product.reviewCount})
+            </span>
+          </div>
+
+          {/* Price & Stock */}
+          <div className='flex items-end justify-between pt-2'>
+            <div className='flex flex-col gap-1'>
+              {discount ? (
+                <>
+                  <span className='text-lg font-bold text-slate-900 dark:text-white'>
+                    {formatPrice(discount.discountedPrice)}
+                  </span>
+                  <span className='text-sm text-slate-500 line-through dark:text-slate-400'>
+                    {formatPrice(discount.originalPrice)}
+                  </span>
+                </>
+              ) : (
+                <span className='text-lg font-bold text-slate-900 dark:text-white'>
+                  {formatPrice(product.price)}
+                </span>
+              )}
+            </div>
+
+            {isLowStock && !isOutOfStock && (
+              <Badge variant='secondary' className='text-xs'>
+                Only {product.stock} left
+              </Badge>
+            )}
+          </div>
+
+          {/* Add to Cart Button */}
+          <Button
+            className={cn(
+              'w-full transition-all duration-300',
+              isOutOfStock && 'opacity-50 cursor-not-allowed'
+            )}
+            onClick={handleAddToCart}
+            disabled={isOutOfStock || isPending}
+          >
+            <ShoppingCart className='h-4 w-4 mr-2' />
+            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
 });
 
 ProductCard.displayName = 'ProductCard';
-export { ProductCard };
