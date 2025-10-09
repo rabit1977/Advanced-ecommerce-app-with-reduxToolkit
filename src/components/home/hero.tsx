@@ -265,7 +265,7 @@ const Hero = ({
           role='region'
           aria-label='Featured products carousel'
         >
-          <AnimatePresence initial={false} custom={direction} mode='wait'>
+          <AnimatePresence initial={false} custom={direction} mode='popLayout'>
             <motion.div
               key={currentProductIndex}
               custom={direction}
@@ -273,7 +273,7 @@ const Hero = ({
               initial='enter'
               animate='center'
               exit='exit'
-              className='absolute inset-0'
+              className='absolute inset-0 cursor-pointer flex items-center justify-center overflow-hidden'
             >
               {/* Product Image */}
               <div className='relative w-full h-full'>
