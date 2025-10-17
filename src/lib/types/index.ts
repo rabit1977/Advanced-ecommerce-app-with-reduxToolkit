@@ -145,3 +145,34 @@ export interface Address {
   zip: string;
   country: string;
 }
+
+export type SortKey =
+  | 'featured'
+  | 'price-asc'
+  | 'price-desc'
+  | 'rating'
+  | 'newest'
+  | 'popularity';
+
+export interface FilterState {
+  category: string;
+  brands: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort: SortKey;
+  page: number;
+}
+
+export interface ProductGridProps {
+  title?: string;
+  subtitle?: string;
+  products: Product[];
+  totalCount: number;
+  currentPage: number;
+  currentCategory: string;
+  currentBrands: string;
+  currentMinPrice?: number;
+  currentMaxPrice?: number;
+  currentSort: SortKey;
+  pageSize?: number;
+}
