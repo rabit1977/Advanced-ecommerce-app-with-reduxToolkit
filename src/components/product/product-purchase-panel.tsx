@@ -33,6 +33,7 @@ export function ProductPurchasePanel({
   const { itemIds: wishlistItems } = useAppSelector(
     (state: any) => state.wishlist
   );
+  const cartItems = useAppSelector((state: any) => state.cart?.items);
   const [isPending, startTransition] = useTransition();
   const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -41,9 +42,36 @@ export function ProductPurchasePanel({
     () => wishlistItems.includes(product.id),
     [wishlistItems, product.id]
   );
-  const isOutOfStock = useMemo(() => product.stock === 0, [product.stock]);
+
+  // Calculate how many items of this product are already in the cart
+  const quantityInCart = useMemo(() => {
+    if (!cartItems || !Array.isArray(cartItems)) return 0;
+    const cartItem = cartItems.find((item: any) => item.id === product.id);
+    return cartItem?.quantity || 0;
+  }, [cartItems, product.id]);
+
+  // Calculate remaining stock available to add
+  const availableStock = useMemo(() => {
+    return Math.max(0, product.stock - quantityInCart);
+  }, [product.stock, quantityInCart]);
+
+  const isOutOfStock = useMemo(() => availableStock === 0, [availableStock]);
+
+  // Reset quantity when available stock changes
+  useMemo(() => {
+    if (quantity > availableStock && availableStock > 0) {
+      setQuantity(availableStock);
+    } else if (availableStock === 0) {
+      setQuantity(0);
+    }
+  }, [availableStock, quantity]);
 
   const handleAddToCart = useCallback(() => {
+    // Prevent adding if no stock available
+    if (availableStock === 0) {
+      return;
+    }
+    
     startTransition(() => {
       dispatch(
         addToCart({
@@ -55,9 +83,11 @@ export function ProductPurchasePanel({
         })
       );
       setAddedToCart(true);
+      // Reset quantity to available stock or 1 after adding to cart
+      setQuantity(Math.min(1, availableStock - quantity));
       setTimeout(() => setAddedToCart(false), 2000);
     });
-  }, [product, quantity, selectedOptions, dispatch]);
+  }, [product, quantity, selectedOptions, dispatch, availableStock]);
 
   return (
     <div>
@@ -85,10 +115,17 @@ export function ProductPurchasePanel({
 
       <div className='mt-4'>
         {isOutOfStock ? (
-          <p className='font-semibold text-red-500'>Out of Stock</p>
+          <p className='font-semibold text-red-500'>
+            All items are already in your cart
+          </p>
         ) : (
           <p className='text-sm text-slate-600 dark:text-slate-400'>
-            In stock: {product.stock} items
+            Available to add: {availableStock} items
+            {quantityInCart > 0 && (
+              <span className='ml-1 text-slate-500'>
+                ({quantityInCart} already in cart)
+              </span>
+            )}
           </p>
         )}
       </div>
@@ -147,6 +184,7 @@ export function ProductPurchasePanel({
             variant='ghost'
             size='icon'
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            disabled={isOutOfStock}
             aria-label='Decrease quantity'
           >
             <Minus className='h-4 w-4' />
@@ -155,10 +193,8 @@ export function ProductPurchasePanel({
           <Button
             variant='ghost'
             size='icon'
-            // ✅ FIX 1: Cap the quantity at the available stock
-            onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-            // ✅ FIX 2: Disable the button when the max stock is reached
-            disabled={quantity >= product.stock}
+            onClick={() => setQuantity((q) => Math.min(availableStock, q + 1))}
+            disabled={quantity >= availableStock}
             aria-label='Increase quantity'
           >
             <Plus className='h-4 w-4' />
@@ -190,7 +226,7 @@ export function ProductPurchasePanel({
               ) : (
                 <>
                   <ShoppingCart className='h-5 w-5' />{' '}
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {isOutOfStock ? 'All in Cart' : 'Add to Cart'}
                 </>
               )}
             </motion.span>

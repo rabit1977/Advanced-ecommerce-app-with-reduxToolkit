@@ -9,11 +9,12 @@ import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 import { useQuickViewHandlers } from '@/lib/hooks/useQuickViewHandlers';
 import { useQuickViewState } from '@/lib/hooks/useQuickViewState';
 import { AddToCartButton } from '../shared/quick-view-modal/AddToCartButton';
-import { ImageGallery } from '../shared/quick-view-modal/ImageGallery';
+
 import { ModalHeader } from '../shared/quick-view-modal/ModalHeader';
 import { ProductInfo } from '../shared/quick-view-modal/ProductInfo';
 import { ProductOptions } from '../shared/quick-view-modal/ProductOptions';
 import { QuantitySelector } from '../shared/quick-view-modal/QuantitySelector';
+import { ImageGallery } from '../shared/quick-view-modal/ImageGallery';
 
 const QuickViewModal = () => {
   const dispatch = useAppDispatch();
