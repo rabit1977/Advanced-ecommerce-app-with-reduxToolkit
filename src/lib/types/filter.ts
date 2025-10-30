@@ -1,11 +1,11 @@
 export interface FilterSidebarProps {
   categories: string[];
   brands: string[];
-  currentCategory: string;
+  currentCategories: string; // Comma-separated string
   currentBrands: string;
   currentMinPrice?: number;
   currentMaxPrice?: number;
-  onCategoryChange: (category: string) => void;
+  onCategoriesChange: (categories: string[]) => void;
   onBrandsChange: (brands: string[]) => void;
   onPriceChange: (priceRange: [number, number]) => void;
   className?: string;
@@ -14,10 +14,10 @@ export interface FilterSidebarProps {
 
 export interface CategoryFilterProps {
   categories: string[];
-  currentCategory: string;
-  onCategoryChange: (category: string) => void;
+  selectedCategories: Set<string>;
+  onCategoryToggle: (category: string, checked: boolean) => void;
   isPending: boolean;
-  showFilterCount: boolean;
+  showFilterCount?: boolean;
 }
 
 export interface BrandFilterProps {

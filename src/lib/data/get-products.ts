@@ -39,8 +39,8 @@ const sortComparators: Record<SortKey, (a: Product, b: Product) => number> = {
  */
 export interface GetProductsOptions {
   query?: string;
-  category?: string;
-  brands?: string;
+  categories?: string; // Comma-separated string of categories
+  brands?: string; // Comma-separated string of brands
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;
@@ -73,7 +73,7 @@ export async function getProducts(
 ): Promise<GetProductsResult> {
   const {
     query,
-    category,
+    categories,
     brands,
     minPrice,
     maxPrice,
@@ -92,7 +92,7 @@ export async function getProducts(
   // Apply filters
   products = applyFilters(products, {
     query,
-    category,
+    categories,
     brands,
     minPrice,
     maxPrice,
@@ -144,22 +144,37 @@ function applyFilters(
     );
   }
 
-  // Category filter
-  if (filters.category && filters.category !== 'all') {
-    const lowerCategory = filters.category.toLowerCase();
-    filtered = filtered.filter(
-      (p) => p.category.toLowerCase() === lowerCategory
+  // Categories filter (multiple categories support)
+  if (filters.categories) {
+    const selectedCategories = new Set(
+      filters.categories
+        .split(',')
+        .map((c) => c.trim().toLowerCase())
+        .filter(Boolean) // Remove empty strings
     );
+    
+    // Only filter if there are selected categories
+    if (selectedCategories.size > 0) {
+      filtered = filtered.filter((p) =>
+        selectedCategories.has(p.category.toLowerCase())
+      );
+    }
   }
 
   // Brands filter
   if (filters.brands) {
     const selectedBrands = new Set(
-      filters.brands.split(',').map((b) => b.trim().toLowerCase())
+      filters.brands
+        .split(',')
+        .map((b) => b.trim().toLowerCase())
+        .filter(Boolean)
     );
-    filtered = filtered.filter((p) =>
-      selectedBrands.has(p.brand.toLowerCase())
-    );
+    
+    if (selectedBrands.size > 0) {
+      filtered = filtered.filter((p) =>
+        selectedBrands.has(p.brand.toLowerCase())
+      );
+    }
   }
 
   // Price range filters

@@ -17,11 +17,11 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
   ({
     categories,
     brands,
-    currentCategory,
+    currentCategories,
     currentBrands,
     currentMinPrice = 0,
     currentMaxPrice = MAX_PRICE,
-    onCategoryChange,
+    onCategoriesChange,
     onBrandsChange,
     onPriceChange,
     className,
@@ -31,28 +31,29 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
       localPriceRange,
       setLocalPriceRange,
       selectedBrandsSet,
+      selectedCategoriesSet,
       isPriceFilterActive,
       activeFiltersCount,
     } = useFilterState(
       currentMinPrice,
       currentMaxPrice,
       currentBrands,
-      currentCategory
+      currentCategories
     );
 
     const {
       isPending,
       handleBrandToggle,
-      handleCategoryChange,
+      handleCategoryToggle,
       handlePriceValueChange,
       handlePriceCommit,
     } = useFilterHandlers(
       selectedBrandsSet,
-      currentCategory,
+      selectedCategoriesSet,
       currentMinPrice,
       currentMaxPrice,
       onBrandsChange,
-      onCategoryChange,
+      onCategoriesChange,
       onPriceChange
     );
 
@@ -74,8 +75,8 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
         >
           <CategoryFilter
             categories={categories}
-            currentCategory={currentCategory}
-            onCategoryChange={handleCategoryChange}
+            selectedCategories={selectedCategoriesSet}
+            onCategoryToggle={handleCategoryToggle}
             isPending={isPending}
             showFilterCount={showFilterCount}
           />

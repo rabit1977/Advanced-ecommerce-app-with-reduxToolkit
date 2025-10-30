@@ -13,7 +13,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
   
   // Parse and validate search params
   const query = (params?.search as string) || '';
-  const category = (params?.category as string) || 'all';
+  const categories = (params?.categories as string) || ''; // Now comma-separated
   const brands = (params?.brands as string) || '';
   const minPrice = Number(params?.minPrice) || undefined;
   const maxPrice = Number(params?.maxPrice) || undefined;
@@ -23,7 +23,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
   // Fetch data from the server with all options
   const { products, totalCount } = await getProducts({
     query,
-    category,
+    categories, // Pass categories instead of category
     brands,
     minPrice,
     maxPrice,
@@ -40,7 +40,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
       products={products}
       totalCount={totalCount}
       currentPage={page}
-      currentCategory={category}
+      currentCategories={categories}
       currentBrands={brands}
       currentMinPrice={minPrice}
       currentMaxPrice={maxPrice}

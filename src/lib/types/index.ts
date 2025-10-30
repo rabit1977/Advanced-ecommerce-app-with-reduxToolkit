@@ -169,10 +169,10 @@ export interface ProductGridProps {
   products: Product[];
   totalCount: number;
   currentPage: number;
-  currentCategory: string;
-  currentBrands: string;
+  currentCategories: string; // Comma-separated string
+  currentBrands: string; // Comma-separated string
   currentMinPrice?: number;
   currentMaxPrice?: number;
-  currentSort: SortKey;
+  currentSort: string;
   pageSize?: number;
 }

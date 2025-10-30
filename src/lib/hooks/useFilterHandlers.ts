@@ -2,11 +2,11 @@ import { useCallback, useTransition } from 'react';
 
 export const useFilterHandlers = (
   selectedBrandsSet: Set<string>,
-  currentCategory: string,
+  selectedCategoriesSet: Set<string>,
   currentMinPrice: number,
   currentMaxPrice: number,
   onBrandsChange: (brands: string[]) => void,
-  onCategoryChange: (category: string) => void,
+  onCategoriesChange: (categories: string[]) => void,
   onPriceChange: (priceRange: [number, number]) => void
 ) => {
   const [isPending, startTransition] = useTransition();
@@ -28,15 +28,21 @@ export const useFilterHandlers = (
     [selectedBrandsSet, onBrandsChange]
   );
 
-  const handleCategoryChange = useCallback(
-    (category: string) => {
-      if (category !== currentCategory) {
-        startTransition(() => {
-          onCategoryChange(category);
-        });
-      }
+  const handleCategoryToggle = useCallback(
+    (category: string, checked: boolean) => {
+      startTransition(() => {
+        const newSelectedCategories = new Set(selectedCategoriesSet);
+
+        if (checked) {
+          newSelectedCategories.add(category);
+        } else {
+          newSelectedCategories.delete(category);
+        }
+
+        onCategoriesChange(Array.from(newSelectedCategories));
+      });
     },
-    [currentCategory, onCategoryChange]
+    [selectedCategoriesSet, onCategoriesChange]
   );
 
   const handlePriceValueChange = useCallback((value: number[]) => {
@@ -58,7 +64,7 @@ export const useFilterHandlers = (
   return {
     isPending,
     handleBrandToggle,
-    handleCategoryChange,
+    handleCategoryToggle,
     handlePriceValueChange,
     handlePriceCommit,
   };

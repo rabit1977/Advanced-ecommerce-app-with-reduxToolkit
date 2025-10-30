@@ -1,6 +1,5 @@
-import { useCallback, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useTransition } from 'react';
+import { useCallback, useRef, useTransition } from 'react';
 
 export const useProductFilters = () => {
   const router = useRouter();
@@ -27,7 +26,11 @@ export const useProductFilters = () => {
   );
 
   const navigateWithTransition = useCallback(
-    (queryString: string, scrollToTop = false, gridRef?: React.RefObject<HTMLDivElement>) => {
+    (
+      queryString: string,
+      scrollToTop = false,
+      gridRef?: React.RefObject<HTMLDivElement | null>
+    ) => {
       startTransition(() => {
         router.push(`${pathname}?${queryString}`, { scroll: false });
 
@@ -44,10 +47,12 @@ export const useProductFilters = () => {
     [router, pathname]
   );
 
-  const handleCategoryChange = useCallback(
-    (newCategory: string) => {
+  const handleCategoriesChange = useCallback(
+    (newCategories: string[]) => {
+      const categoriesStr =
+        newCategories.length > 0 ? newCategories.join(',') : null;
       const queryString = createQueryString({
-        category: newCategory === 'all' ? null : newCategory,
+        categories: categoriesStr,
         page: 1,
       });
       navigateWithTransition(queryString);
@@ -95,7 +100,7 @@ export const useProductFilters = () => {
   );
 
   const handlePageChange = useCallback(
-    (newPage: number, gridRef?: React.RefObject<HTMLDivElement>) => {
+    (newPage: number, gridRef?: React.RefObject<HTMLDivElement | null>) => {
       const queryString = createQueryString({ page: newPage });
       navigateWithTransition(queryString, true, gridRef);
     },
@@ -104,7 +109,7 @@ export const useProductFilters = () => {
 
   const handleClearFilters = useCallback(() => {
     const queryString = createQueryString({
-      category: null,
+      categories: null,
       brands: null,
       minPrice: null,
       maxPrice: null,
@@ -116,7 +121,7 @@ export const useProductFilters = () => {
   return {
     isPending,
     priceTimeoutRef,
-    handleCategoryChange,
+    handleCategoriesChange,
     handleBrandsChange,
     handlePriceChange,
     handleSortChange,

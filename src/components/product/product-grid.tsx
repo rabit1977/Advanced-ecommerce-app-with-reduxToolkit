@@ -20,7 +20,7 @@ export const ProductGrid = ({
   products,
   totalCount,
   currentPage,
-  currentCategory,
+  currentCategories,
   currentBrands,
   currentMinPrice,
   currentMaxPrice,
@@ -33,7 +33,7 @@ export const ProductGrid = ({
   const {
     isPending,
     priceTimeoutRef,
-    handleCategoryChange,
+    handleCategoriesChange,
     handleBrandsChange,
     handlePriceChange,
     handleSortChange,
@@ -43,7 +43,7 @@ export const ProductGrid = ({
 
   const { activeFiltersCount, hasActiveFilters, searchQuery } =
     useFilterMetadata(
-      currentCategory,
+      currentCategories,
       currentBrands,
       currentMinPrice,
       currentMaxPrice
@@ -95,11 +95,11 @@ export const ProductGrid = ({
       <FilterSidebar
         categories={allCategories}
         brands={allBrands}
-        currentCategory={currentCategory}
+        currentCategories={currentCategories}
         currentBrands={currentBrands}
         currentMinPrice={currentMinPrice}
         currentMaxPrice={currentMaxPrice}
-        onCategoryChange={handleCategoryChange}
+        onCategoriesChange={handleCategoriesChange}
         onBrandsChange={handleBrandsChange}
         onPriceChange={handlePriceChange}
       />
@@ -107,11 +107,11 @@ export const ProductGrid = ({
     [
       allCategories,
       allBrands,
-      currentCategory,
+      currentCategories,
       currentBrands,
       currentMinPrice,
       currentMaxPrice,
-      handleCategoryChange,
+      handleCategoriesChange,
       handleBrandsChange,
       handlePriceChange,
     ]
@@ -120,11 +120,6 @@ export const ProductGrid = ({
   const wrappedClearFilters = () => {
     setIsSheetOpen(false);
     handleClearFilters();
-  };
-
-  const wrappedCategoryChange = (category: string) => {
-    setIsSheetOpen(false);
-    handleCategoryChange(category);
   };
 
   const wrappedPageChange = (page: number) => {
