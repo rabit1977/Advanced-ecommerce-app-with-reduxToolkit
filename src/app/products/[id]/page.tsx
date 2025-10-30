@@ -1,9 +1,9 @@
 'use client';
 
-import { ProductImageGallery } from '@/components/product/product-image-gallery';
 import { ProductPurchasePanel } from '@/components/product/product-purchase-panel';
 import { RelatedProducts } from '@/components/product/related-products';
 import { ReviewsSection } from '@/components/product/reviews-section';
+import { ProductImageGallery } from '@/components/shared/product-image-gallery';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -14,6 +14,7 @@ import { Separator } from '@radix-ui/react-dropdown-menu';
 import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
 /**
  * Initialize default selected options from product
  */
@@ -25,13 +26,32 @@ const getDefaultOptions = (
   }
 
   return product.options.reduce<Record<string, string>>((acc, opt) => {
-    // Get first available variant, fallback to empty string
     const firstVariant = opt.variants?.[0]?.value ?? '';
     return {
       ...acc,
       [opt.name]: firstVariant,
     };
   }, {});
+};
+
+/**
+ * Get active image based on selected color option
+ */
+const getActiveImage = (
+  product: Product,
+  selectedOptions: Record<string, string>
+): string => {
+  const colorOption = product.options?.find((opt) => opt.type === 'color');
+  if (colorOption) {
+    const selectedColor = selectedOptions[colorOption.name];
+    const selectedVariant = colorOption.variants.find(
+      (v) => v.value === selectedColor
+    );
+    return (
+      selectedVariant?.image || product.images?.[0] || '/images/placeholder.jpg'
+    );
+  }
+  return product.images?.[0] || '/images/placeholder.jpg';
 };
 
 /**
@@ -61,6 +81,12 @@ const ProductDetailPage = () => {
     Record<string, string>
   >({});
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Compute active image based on selected options
+  const activeImage = useMemo(() => {
+    if (!product) return '/images/placeholder.jpg';
+    return getActiveImage(product, selectedOptions);
+  }, [product, selectedOptions]);
 
   // Initialize selected options when product loads
   useEffect(() => {
@@ -200,6 +226,7 @@ const ProductDetailPage = () => {
           {/* Product Image Gallery */}
           <ProductImageGallery
             product={product}
+            activeImage={activeImage}
             selectedOptions={selectedOptions}
             onOptionChange={handleOptionChange}
           />

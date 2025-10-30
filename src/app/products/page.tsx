@@ -7,9 +7,11 @@ export const dynamic = 'force-dynamic';
 interface ProductsPageProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+
 const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
   const params = await searchParams;
-  // 1. Parse and validate search params
+  
+  // Parse and validate search params
   const query = (params?.search as string) || '';
   const category = (params?.category as string) || 'all';
   const brands = (params?.brands as string) || '';
@@ -18,7 +20,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
   const sort = (params?.sort as SortKey) || 'featured';
   const page = Number(params?.page) || 1;
 
-  // 2. Fetch data from the server with all options
+  // Fetch data from the server with all options
   const { products, totalCount } = await getProducts({
     query,
     category,
@@ -30,20 +32,19 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
     limit: 8, // The number of products per page
   });
 
-  // 3. Pass the pre-filtered, pre-sorted, and pre-paginated data to the client component
+  // Pass the pre-filtered, pre-sorted, and pre-paginated data to the client component
   return (
     <ProductGrid
       title='All Products'
       subtitle='Browse our complete collection'
       products={products}
       totalCount={totalCount}
-      // Pass down current params so the client component knows its state
+      currentPage={page}
+      currentCategory={category}
       currentBrands={brands}
       currentMinPrice={minPrice}
       currentMaxPrice={maxPrice}
       currentSort={sort}
-      currentPage={0}
-      currentCategory={''}
     />
   );
 };

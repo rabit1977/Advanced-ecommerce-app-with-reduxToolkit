@@ -1,15 +1,14 @@
 // components/product/product-list.tsx
 'use client';
 
-import React from 'react';
-import { ProductCard } from './product-card';
 import { Product } from '@/lib/types';
+import { ProductCard } from './product-card';
 
 interface ProductListProps {
   products: Product[];
 }
 
-const ProductList = ({ products }: ProductListProps) => {
+export const ProductList = ({ products }: ProductListProps) => {
   return (
     <div className='mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
       {products.length > 0 ? (
@@ -31,5 +30,3 @@ const ProductList = ({ products }: ProductListProps) => {
     </div>
   );
 };
-
-export { ProductList };

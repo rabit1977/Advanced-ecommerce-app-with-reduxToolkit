@@ -1,3 +1,5 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -5,8 +7,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { FilterX } from 'lucide-react';
 
 interface MobileFilterSheetProps {
@@ -32,16 +32,19 @@ export const MobileFilterSheet = ({
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent
         side='left'
-        className='w-[85%] sm:w-[400px] p-0 flex flex-col'
+        className='w-[85%] sm:w-[350px] p-0 flex flex-col'
       >
         <SheetHeader className='p-4 border-b dark:border-slate-800'>
           <div className='flex items-center justify-between'>
-            <div>
+            <div className='space-y-1'>
               <SheetTitle>Filters</SheetTitle>
               <SheetDescription>Refine your product search</SheetDescription>
             </div>
             {hasActiveFilters && (
-              <Badge variant='secondary' className='font-semibold'>
+              <Badge
+                variant='secondary'
+                className='font-semibold grid self-end'
+              >
                 {activeFiltersCount}
               </Badge>
             )}

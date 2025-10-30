@@ -10,11 +10,11 @@ import { useQuickViewHandlers } from '@/lib/hooks/useQuickViewHandlers';
 import { useQuickViewState } from '@/lib/hooks/useQuickViewState';
 import { AddToCartButton } from '../shared/quick-view-modal/AddToCartButton';
 
+import { ProductImageGallery } from '../shared/product-image-gallery';
 import { ModalHeader } from '../shared/quick-view-modal/ModalHeader';
 import { ProductInfo } from '../shared/quick-view-modal/ProductInfo';
 import { ProductOptions } from '../shared/quick-view-modal/ProductOptions';
 import { QuantitySelector } from '../shared/quick-view-modal/QuantitySelector';
-import { ImageGallery } from '../shared/quick-view-modal/ImageGallery';
 
 const QuickViewModal = () => {
   const dispatch = useAppDispatch();
@@ -62,6 +62,7 @@ const QuickViewModal = () => {
     !product?.stock ? undefined : handleAddToCart
   );
 
+  // Unified option change handler that updates both state and active image
   const onOptionChange = (optionName: string, optionValue: string) => {
     const newOption = handleOptionChange(optionName, optionValue);
     if (newOption) {
@@ -116,11 +117,11 @@ const QuickViewModal = () => {
 
             <div className='grid md:grid-cols-2 gap-8 p-6 md:p-8'>
               {/* Left Column - Images */}
-              <ImageGallery
-                images={product.images || []}
+              <ProductImageGallery
+                product={product}
                 activeImage={activeImage}
-                onImageChange={setActiveImage}
-                productTitle={product.title}
+                selectedOptions={selectedOptions}
+                onOptionChange={onOptionChange}
               />
 
               {/* Right Column - Product Details */}
