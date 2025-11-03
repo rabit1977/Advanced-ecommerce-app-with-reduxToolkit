@@ -48,7 +48,7 @@ export const FeaturedProducts = ({
 
           {/* View All Button */}
           {showViewAll && (
-            <Button asChild size="lg" className="gap-2">
+            <Button asChild  size="lg" className="gap-2">
               <Link href="/products">
                 View All Products
                 <ArrowRight className="h-4 w-4" />
@@ -62,7 +62,7 @@ export const FeaturedProducts = ({
 
         {/* Bottom CTA - Mobile */}
         {showViewAll && (
-          <div className="mt-12 flex justify-center sm:hidden">
+          <div className="mt-12 flex justify-center sm:hidden ">
             <Button asChild size="lg" className="gap-2 w-full max-w-md">
               <Link href="/products">
                 View All Products

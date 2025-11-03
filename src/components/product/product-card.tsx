@@ -2,7 +2,6 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Stars } from '@/components/ui/stars';
 import { useCart } from '@/lib/hooks/useCart';
 import { useUI } from '@/lib/hooks/useUI';
 import { Product } from '@/lib/types';
@@ -157,14 +156,6 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
               {product.title}
             </h3>
           </Link>
-
-          {/* Rating */}
-          <div className='flex items-center gap-2'>
-            <Stars value={product.rating} size='sm' />
-            <span className='text-xs text-slate-600 dark:text-slate-400'>
-              ({product.reviewCount})
-            </span>
-          </div>
 
           {/* Price & Stock */}
           <div className='flex items-end justify-between pt-2'>

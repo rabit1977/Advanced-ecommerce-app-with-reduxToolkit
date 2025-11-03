@@ -6,53 +6,109 @@ interface UserState {
   users: User[];
 }
 
+// Constants
 const CURRENT_USER_KEY = 'currentUser';
 const USERS_KEY = 'users';
+
+// Type guard for localStorage availability
+const isLocalStorageAvailable = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    const test = '__localStorage_test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Safe localStorage operations with error handling
+ */
+class StorageManager {
+  private isAvailable = isLocalStorageAvailable();
+
+  getItem<T>(key: string, fallback: T): T {
+    if (!this.isAvailable) return fallback;
+
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : fallback;
+    } catch (error) {
+      console.error(`Error reading ${key} from localStorage:`, error);
+      return fallback;
+    }
+  }
+
+  setItem<T>(key: string, value: T): boolean {
+    if (!this.isAvailable) return false;
+
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.error(`Error writing ${key} to localStorage:`, error);
+      // Handle quota exceeded
+      if (error instanceof Error && error.name === 'QuotaExceededError') {
+        console.warn(
+          'localStorage quota exceeded. Consider clearing old data.'
+        );
+      }
+      return false;
+    }
+  }
+
+  removeItem(key: string): boolean {
+    if (!this.isAvailable) return false;
+
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (error) {
+      console.error(`Error removing ${key} from localStorage:`, error);
+      return false;
+    }
+  }
+
+  clear(): boolean {
+    if (!this.isAvailable) return false;
+
+    try {
+      localStorage.clear();
+      return true;
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+      return false;
+    }
+  }
+}
+
+const storage = new StorageManager();
 
 /**
  * Load current user from localStorage
  */
 const loadCurrentUser = (): User | null => {
-  if (typeof window === 'undefined') return null;
-  
-  try {
-    const stored = localStorage.getItem(CURRENT_USER_KEY);
-    return stored ? JSON.parse(stored) : null;
-  } catch (error) {
-    console.error('Error loading current user:', error);
-    return null;
-  }
+  return storage.getItem<User | null>(CURRENT_USER_KEY, null);
 };
 
 /**
  * Load all users from localStorage
  */
 const loadUsers = (): User[] => {
-  if (typeof window === 'undefined') return [];
-  
-  try {
-    const stored = localStorage.getItem(USERS_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch (error) {
-    console.error('Error loading users:', error);
-    return [];
-  }
+  return storage.getItem<User[]>(USERS_KEY, []);
 };
 
 /**
  * Save current user to localStorage
  */
 const saveCurrentUser = (user: User | null): void => {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    if (user) {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(CURRENT_USER_KEY);
-    }
-  } catch (error) {
-    console.error('Error saving current user:', error);
+  if (user) {
+    storage.setItem(CURRENT_USER_KEY, user);
+  } else {
+    storage.removeItem(CURRENT_USER_KEY);
   }
 };
 
@@ -60,15 +116,23 @@ const saveCurrentUser = (user: User | null): void => {
  * Save all users to localStorage
  */
 const saveUsers = (users: User[]): void => {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch (error) {
-    console.error('Error saving users:', error);
-  }
+  storage.setItem(USERS_KEY, users);
 };
 
+/**
+ * Helper: Update user in users array
+ */
+const updateUserInArray = (users: User[], updatedUser: User): User[] => {
+  const index = users.findIndex((u) => u.id === updatedUser.id);
+
+  if (index === -1) return users;
+
+  const newUsers = [...users];
+  newUsers[index] = updatedUser;
+  return newUsers;
+};
+
+// Initial state
 const initialState: UserState = {
   user: loadCurrentUser(),
   users: loadUsers(),
@@ -84,14 +148,11 @@ const userSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
       saveCurrentUser(action.payload);
-      
-      // Also update in users array if exists
+
+      // Sync with users array
       if (action.payload) {
-        const userIndex = state.users.findIndex(u => u.id === action.payload.id);
-        if (userIndex !== -1) {
-          state.users[userIndex] = action.payload;
-          saveUsers(state.users);
-        }
+        state.users = updateUserInArray(state.users, action.payload);
+        saveUsers(state.users);
       }
     },
 
@@ -100,12 +161,10 @@ const userSlice = createSlice({
      */
     addUser: (state, action: PayloadAction<User>) => {
       const newUser = action.payload;
-      
-      // Check if user already exists
-      const existingIndex = state.users.findIndex(u => 
-        u.email === newUser.email || u.id === newUser.id
+      const existingIndex = state.users.findIndex(
+        (u) => u.email === newUser.email || u.id === newUser.id
       );
-      
+
       if (existingIndex !== -1) {
         // Update existing user
         state.users[existingIndex] = newUser;
@@ -113,7 +172,7 @@ const userSlice = createSlice({
         // Add new user
         state.users.push(newUser);
       }
-      
+
       saveUsers(state.users);
     },
 
@@ -121,17 +180,16 @@ const userSlice = createSlice({
      * Update current user data
      */
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-        saveCurrentUser(state.user);
-        
-        // Update in users array
-        const userIndex = state.users.findIndex(u => u.id === state.user!.id);
-        if (userIndex !== -1) {
-          state.users[userIndex] = state.user;
-          saveUsers(state.users);
-        }
-      }
+      if (!state.user) return;
+
+      // Create new user object (immutable update)
+      const updatedUser = { ...state.user, ...action.payload };
+      state.user = updatedUser;
+      saveCurrentUser(updatedUser);
+
+      // Sync with users array
+      state.users = updateUserInArray(state.users, updatedUser);
+      saveUsers(state.users);
     },
 
     /**
@@ -139,7 +197,18 @@ const userSlice = createSlice({
      */
     setUsers: (state, action: PayloadAction<User[]>) => {
       state.users = action.payload;
-      saveUsers(state.users);
+      saveUsers(action.payload);
+
+      // Ensure current user is synced
+      if (state.user) {
+        const updatedCurrentUser = action.payload.find(
+          (u) => u.id === state.user!.id
+        );
+        if (updatedCurrentUser) {
+          state.user = updatedCurrentUser;
+          saveCurrentUser(updatedCurrentUser);
+        }
+      }
     },
 
     /**
@@ -147,27 +216,25 @@ const userSlice = createSlice({
      */
     toggleHelpfulReview: (state, action: PayloadAction<string>) => {
       if (!state.user) return;
-      
+
       const reviewId = action.payload;
       const helpfulReviews = state.user.helpfulReviews || [];
-      const existingIndex = helpfulReviews.findIndex(id => id === reviewId);
+      const isAlreadyHelpful = helpfulReviews.includes(reviewId);
 
-      if (existingIndex !== -1) {
-        // Remove from helpful
-        state.user.helpfulReviews = helpfulReviews.filter(id => id !== reviewId);
-      } else {
-        // Add to helpful
-        state.user.helpfulReviews = [...helpfulReviews, reviewId];
-      }
-      
-      saveCurrentUser(state.user);
-      
-      // Update in users array
-      const userIndex = state.users.findIndex(u => u.id === state.user!.id);
-      if (userIndex !== -1) {
-        state.users[userIndex] = state.user;
-        saveUsers(state.users);
-      }
+      // Create new user object with updated reviews
+      const updatedUser: User = {
+        ...state.user,
+        helpfulReviews: isAlreadyHelpful
+          ? helpfulReviews.filter((id) => id !== reviewId)
+          : [...helpfulReviews, reviewId],
+      };
+
+      state.user = updatedUser;
+      saveCurrentUser(updatedUser);
+
+      // Sync with users array
+      state.users = updateUserInArray(state.users, updatedUser);
+      saveUsers(state.users);
     },
 
     /**

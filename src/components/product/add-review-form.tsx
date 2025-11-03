@@ -16,7 +16,7 @@ interface AddReviewFormProps {
   onCancelEdit: () => void;
 }
 
-const AddReviewForm = ({
+export const AddReviewForm = ({
   productId,
   reviewToEdit,
   onCancelEdit,
@@ -49,12 +49,15 @@ const AddReviewForm = ({
       return;
     }
 
-    dispatch(addReview(productId, {
-      id: reviewToEdit?.id,
-      author: user.name,
-      rating,
-      title,
-      comment,
+    dispatch(addReview({
+      productId,
+      reviewData: {
+        id: reviewToEdit?.id,
+        author: user.name,
+        rating,
+        title,
+        comment,
+      },
     }));
 
     setRating(0);
@@ -116,4 +119,3 @@ const AddReviewForm = ({
   );
 };
 
-export { AddReviewForm };
