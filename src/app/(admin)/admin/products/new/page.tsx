@@ -4,41 +4,39 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductForm } from '@/components/admin/product-form';
 import { Button } from '@/components/ui/button';
-import { addProduct } from '@/lib/actions/product-actions';
 import { type ProductFormValues } from '@/lib/schemas/product-schema';
-import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import { useProducts } from '@/lib/hooks/useProducts';
 
 export default function NewProductPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { createProduct } = useProducts();
 
   const handleSubmit = (values: ProductFormValues) => {
     startTransition(async () => {
       try {
-        // Convert to FormData for server action
-        const formData = new FormData();
-        formData.append('title', values.title);
-        formData.append('description', values.description);
-        formData.append('price', values.price.toString());
-        formData.append('stock', values.stock.toString());
-        formData.append('brand', values.brand);
-        formData.append('category', values.category);
+        // Create product using Redux thunk
+        const result = createProduct({
+          title: values.title,
+          description: values.description,
+          price: values.price,
+          stock: values.stock,
+          brand: values.brand,
+          category: values.category,
+          images: values.images,
+          imageUrl: values.imageUrl,
+          discount: values.discount,
+          tags: values.tags,
+          options: values.options,
+        });
 
-        const result = await addProduct(formData);
-        
-        if (result?.error) {
-          toast.error(result.error);
-        } else {
-          toast.success('Product created successfully');
-          // Navigation handled by server action redirect
+        if (result.success) {
+          // Navigate back to products list
+          router.push('/admin/products');
+          router.refresh();
         }
       } catch (error) {
-        // Redirect error is expected - it's how Next.js handles server action redirects
-        if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-          return; // This is the successful redirect, don't show error
-        }
-        toast.error('Failed to create product');
         console.error('Create product error:', error);
       }
     });

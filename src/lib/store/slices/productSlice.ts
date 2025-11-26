@@ -1,3 +1,6 @@
+// File: lib/store/slices/productSlice.ts
+// Enhanced with full CRUD operations while keeping your existing logic
+
 import { initialProducts } from '@/lib/constants/products';
 import { Product, Review, ReviewPayload } from '@/lib/types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -24,7 +27,7 @@ const loadProductsFromStorage = (): Product[] => {
 
     // Merge stored products with initial products
     // Keep user-generated reviews and stock updates
-    return initialProducts.map((initialProduct) => {
+    const mergedProducts = initialProducts.map((initialProduct) => {
       const storedProduct = storedProducts.find(
         (p) => p.id === initialProduct.id
       );
@@ -42,6 +45,14 @@ const loadProductsFromStorage = (): Product[] => {
       }
       return initialProduct;
     });
+
+    // Add user-created products that aren't in initialProducts
+    const userCreatedProducts = storedProducts.filter(
+      (storedProduct) =>
+        !initialProducts.some((initial) => initial.id === storedProduct.id)
+    );
+
+    return [...mergedProducts, ...userCreatedProducts];
   } catch (error) {
     console.error('Error loading products from storage:', error);
     return initialProducts;
@@ -49,22 +60,41 @@ const loadProductsFromStorage = (): Product[] => {
 };
 
 /**
- * Save products to localStorage (only save reviews and stock changes)
+ * Save products to localStorage
+ * Save full product data for user-created products
+ * Only save essential data for initial products
  */
 const saveProductsToStorage = (products: Product[]): void => {
   if (typeof window === 'undefined') return;
 
   try {
-    // Only save essential data to reduce storage size
-    const productsToSave = products.map((p) => ({
-      id: p.id,
-      reviews: p.reviews,
-      reviewCount: p.reviewCount,
-      rating: p.rating,
-      stock: p.stock,
-    }));
+    const productsToSave = products.map((p) => {
+      // Check if this is a user-created product (not in initialProducts)
+      const isUserCreated = !initialProducts.some((initial) => initial.id === p.id);
+
+      if (isUserCreated) {
+        // Save full product data for user-created products
+        return p;
+      } else {
+        // Only save essential data for initial products
+        return {
+          id: p.id,
+          reviews: p.reviews,
+          reviewCount: p.reviewCount,
+          rating: p.rating,
+          stock: p.stock,
+        };
+      }
+    });
 
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(productsToSave));
+
+    // Dispatch custom event for cross-component sync
+    window.dispatchEvent(
+      new CustomEvent('productsUpdated', {
+        detail: { products },
+      })
+    );
   } catch (error) {
     console.error('Error saving products to storage:', error);
   }
@@ -113,6 +143,66 @@ const productsSlice = createSlice({
     },
 
     /**
+     * Add a new product (for admin)
+     */
+    addProduct: (state, action: PayloadAction<Product>) => {
+      const existingProduct = state.products.find(
+        (p) => p.id === action.payload.id
+      );
+
+      if (existingProduct) {
+        state.error = 'Product with this ID already exists';
+        return;
+      }
+
+      state.products.push(action.payload);
+      state.error = null;
+      saveProductsToStorage(state.products);
+    },
+
+    /**
+     * Update existing product (for admin)
+     */
+    updateProduct: (
+      state,
+      action: PayloadAction<{ id: string; changes: Partial<Product> }>
+    ) => {
+      const { id, changes } = action.payload;
+      const productIndex = state.products.findIndex((p) => p.id === id);
+
+      if (productIndex === -1) {
+        state.error = `Product with ID ${id} not found`;
+        return;
+      }
+
+      state.products[productIndex] = {
+        ...state.products[productIndex],
+        ...changes,
+        updatedAt: new Date().toISOString(),
+      };
+
+      state.error = null;
+      saveProductsToStorage(state.products);
+    },
+
+    /**
+     * Delete product (for admin)
+     */
+    deleteProduct: (state, action: PayloadAction<string>) => {
+      const productId = action.payload;
+      const productExists = state.products.some((p) => p.id === productId);
+
+      if (!productExists) {
+        state.error = `Product with ID ${productId} not found`;
+        return;
+      }
+
+      state.products = state.products.filter((p) => p.id !== productId);
+      state.error = null;
+      saveProductsToStorage(state.products);
+    },
+
+    /**
      * Add or update a review
      */
     addReview: (
@@ -146,7 +236,7 @@ const productsSlice = createSlice({
       } else {
         // Add new review
         const newReview: Review = {
-          id: `review_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: `review_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
           author: reviewData.author,
           rating: reviewData.rating,
           title: reviewData.title,
@@ -319,6 +409,9 @@ export const {
   setError,
   clearError,
   setProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
   addReview,
   deleteReview,
   updateReviewHelpfulCount,

@@ -72,6 +72,7 @@ export interface Product {
   category: string;
   images: string[];
   rating: number;
+  thumbnail: string;
   reviewCount: number;
   reviews?: Review[];
   options?: ProductOption[];
