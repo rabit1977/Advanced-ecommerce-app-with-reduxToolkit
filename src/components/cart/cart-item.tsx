@@ -1,5 +1,14 @@
-'use client';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/lib/store/hooks';
 import {
@@ -133,15 +142,32 @@ const CartItem = React.memo(({ item }: CartItemProps) => {
             <Button variant='link' size='sm' onClick={handleSaveForLater}>
               Save for Later
             </Button>
-            <Button
-              variant='link'
-              size='sm'
-              className='font-medium text-red-600 hover:text-red-500 -mx-2.5'
-              onClick={handleRemove}
-            >
-              <Trash2 className='h-4 w-4' />
-              Remove
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant='link'
+                  size='sm'
+                  className='font-medium text-red-600 hover:text-red-500 -mx-2.5'
+                >
+                  <Trash2 className='h-4 w-4' />
+                  Remove
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Remove Item</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to remove this item from your cart?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRemove}>
+                    Remove
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>

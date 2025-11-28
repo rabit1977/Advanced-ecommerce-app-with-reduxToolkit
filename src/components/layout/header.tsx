@@ -9,7 +9,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { Menu, Zap } from 'lucide-react';
+import { Briefcase, Headset, Info, LucideIcon, Menu, Package, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -19,12 +19,14 @@ import { SearchBar } from './search-bar';
 interface NavLink {
   href: string;
   label: string;
+  icon?: LucideIcon;
 }
 
 const navLinks: NavLink[] = [
-  { href: '/products', label: 'Products' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/products', label: 'Products', icon: Package },
+  { href: '/about', label: 'About', icon: Info },
+  { href: '/contact', label: 'Customer Care', icon: Headset },
+  { href: '/services', label: 'Services', icon: Briefcase },
 ];
 
 /**
@@ -55,9 +57,9 @@ const Header = () => {
   /**
    * Close mobile menu
    */
-  const closeMobileMenu = useCallback(() => {
+  const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-  }, []);
+  };
 
   return (
     <header
@@ -103,7 +105,21 @@ const Header = () => {
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                {link.label}
+                {/* Icon */}
+                <div className='group'>
+                  {link.icon && (
+                    <link.icon
+                      className={cn(
+                        'mb-0.5 inline-block h-4 w-4 mr-1 hover:text-foreground group flex-shrink-0 items-center justify-center',
+                        isActive
+                          ? 'text-foreground'
+                          : 'text-muted-foreground group-hover:text-foreground'
+                      )}
+                    />
+                  )}
+                  {link.label}
+                </div>
+
                 {isActive && (
                   <span className='absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary' />
                 )}
@@ -113,7 +129,7 @@ const Header = () => {
         </nav>
 
         {/* Nav Actions (Cart, Theme, etc.) */}
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-2 '>
           <NavActions />
 
           {/* Mobile Menu Button */}
@@ -128,37 +144,39 @@ const Header = () => {
                 <Menu className='h-5 w-5' />
               </Button>
             </SheetTrigger>
-            <SheetContent side='right' className='w-[280px] sm:w-[350px]'>
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-              </SheetHeader>
+            <div>
+              <SheetContent side='right' className='w-[280px] sm:w-[350px] '>
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
 
-              {/* Mobile Navigation Links */}
-              <nav
-                className='mt-8 flex flex-col gap-4'
-                aria-label='Mobile navigation'
-              >
-                {navLinks.map((link) => {
-                  const isActive = isActiveLink(link.href);
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={closeMobileMenu}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
-                        isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                      )}
-                      aria-current={isActive ? 'page' : undefined}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </SheetContent>
+                {/* Mobile Navigation Links */}
+                <nav
+                  className='mt-8 flex flex-col gap-4'
+                  aria-label='Mobile navigation'
+                >
+                  {navLinks.map((link) => {
+                    const isActive = isActiveLink(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={closeMobileMenu}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ',
+                          isActive
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                        )}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </SheetContent>
+            </div>
           </Sheet>
         </div>
       </div>

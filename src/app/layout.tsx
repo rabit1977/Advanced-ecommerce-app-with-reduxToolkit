@@ -14,8 +14,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | My Awesome Store',
-    default: 'My Awesome Store',
+    template: '%s | Electro Store',
+    default: 'Electro Store',
   },
   description: 'The best place to buy awesome things!',
 };
@@ -55,7 +55,7 @@ export default function RootLayout({
             <div className='min-h-screen bg-white font-sans text-slate-800 dark:bg-slate-900 dark:text-slate-200'>
               <Header />
               {/* <MobileSidebar /> */}
-              <main className='min-h-[calc(100vh-4rem)]'>{children}</main>
+              <main className='min-h-auto'>{children}</main>
               <Footer />
               <QuickViewModal />
               <Toast />

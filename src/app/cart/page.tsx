@@ -51,8 +51,8 @@ function EmptyCart() {
   const router = useRouter();
 
   return (
-    <div className='container mx-auto px-4 py-16'>
-      <div className='flex flex-col items-center justify-center min-h-[50vh] text-center space-y-6'>
+    <div className='container  mx-auto px-4'>
+      <div className='flex flex-col items-center py-30 min-h-[calc(100lvh-440px)]   text-center space-y-6'>
         <div className='relative'>
           <div className='absolute inset-0 bg-slate-100 dark:bg-slate-800 rounded-full blur-3xl opacity-50' />
           <ShoppingCart className='relative h-24 w-24 text-slate-300 dark:text-slate-600' />
