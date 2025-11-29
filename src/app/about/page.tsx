@@ -1,12 +1,13 @@
 // app/about/page.tsx
 import { aboutContent } from '@/lib/constants/about-data';
 import { Heart, ShieldCheck, Zap } from 'lucide-react';
-import Image from 'next/image';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'Learn about Electro\'s story, our values, and the team behind the innovation. Making technology accessible to everyone since 2023.',
+  description:
+    "Learn about Electro's story, our values, and the team behind the innovation. Making technology accessible to everyone since 2023.",
 };
 
 interface ValueCardProps {
@@ -15,6 +16,26 @@ interface ValueCardProps {
   description: string;
 }
 
+const values = [
+  {
+    icon: <Zap className='h-8 w-8 text-primary' />,
+    title: 'Innovation',
+    description:
+      'We constantly seek out the latest and greatest in technology to bring you products that shape the future.',
+  },
+  {
+    icon: <ShieldCheck className='h-8 w-8 text-primary' />,
+    title: 'Quality',
+    description:
+      'Our products are chosen for their reliability and performance, ensuring you get the best value for your money.',
+  },
+  {
+    icon: <Heart className='h-8 w-8 text-red-500' />,
+    title: 'Customer First',
+    description:
+      "Your satisfaction is our priority. We're here to help you every step of the way.",
+  },
+];
 /**
  * Reusable value card component
  */
@@ -51,7 +72,7 @@ const TeamMemberCard = ({ member }: TeamMemberProps) => (
         alt={`${member.name} - ${member.role}`}
         fill
         sizes='128px'
-        className='object-cover group-hover:scale-110 transition-transform duration-300'
+        className='object-cover group-hover:scale-105 transition-transform duration-300'
       />
     </div>
     <h3 className='mt-4 text-lg font-semibold dark:text-white'>
@@ -63,63 +84,41 @@ const TeamMemberCard = ({ member }: TeamMemberProps) => (
   </div>
 );
 
-/**
- * About page component with company story, values, and team
- * 
- * Features:
- * - Responsive grid layouts
- * - Optimized images with Next.js Image
- * - Hover effects and transitions
- * - Accessible markup with proper semantics
- * - SEO-friendly metadata
- */
 const AboutPage = () => {
-  const values = [
-    {
-      icon: <Zap className='h-8 w-8 text-primary' />,
-      title: 'Innovation',
-      description: 'We constantly seek out the latest and greatest in technology to bring you products that shape the future.',
-    },
-    {
-      icon: <ShieldCheck className='h-8 w-8 text-primary' />,
-      title: 'Quality',
-      description: 'Our products are chosen for their reliability and performance, ensuring you get the best value for your money.',
-    },
-    {
-      icon: <Heart className='h-8 w-8 text-red-500' />,
-      title: 'Customer First',
-      description: 'Your satisfaction is our priority. We\'re here to help you every step of the way.',
-    },
-  ];
-
   return (
     <div className='bg-slate-50 dark:bg-slate-900 min-h-screen'>
-      <div className='container mx-auto px-4 py-12 sm:py-16 lg:py-20'>
-        
+      <div className='container mx-auto px-4 py-12 sm:py-16 lg:py-20 max-w-6xl'>
         {/* Story Section */}
-        <section className='grid lg:grid-cols-2 gap-8 lg:gap-12 items-center' aria-labelledby='story-heading'>
+        <section
+          className='grid lg:grid-cols-2 gap-8 lg:gap-12 items-center'
+          aria-labelledby='story-heading'
+        >
           <div className='space-y-6'>
-            <h1 id='story-heading' className='text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white'>
+            <h1
+              id='story-heading'
+              className='text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white'
+            >
               Our Story
             </h1>
             <div className='space-y-4 text-base sm:text-lg leading-relaxed text-slate-600 dark:text-slate-400'>
               <p>
-                Founded in 2023, Electro was born from a simple idea: to make the
-                latest technology accessible to everyone. We&apos;re a team of
-                tech enthusiasts who believe that innovation should be effortless
-                and exciting. We&apos;ve dedicated ourselves to curating a
-                selection of products that are not only high-performing but also
-                beautifully designed.
+                Founded in 2023, Electro was born from a simple idea: to make
+                the latest technology accessible to everyone. We&apos;re a team
+                of tech enthusiasts who believe that innovation should be
+                effortless and exciting. We&apos;ve dedicated ourselves to
+                curating a selection of products that are not only
+                high-performing but also beautifully designed.
               </p>
               <p>
                 From the smallest smart gadget to the most powerful computing
                 device, every product on our platform is hand-picked and
-                rigorously tested. We stand behind our products with a commitment
-                to quality and customer service that is second to none.
+                rigorously tested. We stand behind our products with a
+                commitment to quality and customer service that is second to
+                none.
               </p>
             </div>
           </div>
-          
+
           <div className='relative h-64 sm:h-80 lg:h-full lg:min-h-[400px] rounded-2xl overflow-hidden shadow-2xl'>
             <Image
               src={aboutContent.storyImage}
@@ -133,16 +132,22 @@ const AboutPage = () => {
         </section>
 
         {/* Values Section */}
-        <section className='mt-16 sm:mt-20 lg:mt-24' aria-labelledby='values-heading'>
+        <section
+          className='mt-16 sm:mt-20 lg:mt-24'
+          aria-labelledby='values-heading'
+        >
           <div className='text-center mb-12'>
-            <h2 id='values-heading' className='text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white'>
+            <h2
+              id='values-heading'
+              className='text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white'
+            >
               Our Values
             </h2>
             <p className='mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto'>
               The principles that guide everything we do
             </p>
           </div>
-          
+
           <div className='grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'>
             {values.map((value) => (
               <ValueCard
@@ -156,23 +161,28 @@ const AboutPage = () => {
         </section>
 
         {/* Team Section */}
-        <section className='mt-16 sm:mt-20 lg:mt-24' aria-labelledby='team-heading'>
+        <section
+          className='mt-16 sm:mt-20 lg:mt-24'
+          aria-labelledby='team-heading'
+        >
           <div className='text-center mb-12'>
-            <h2 id='team-heading' className='text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white'>
+            <h2
+              id='team-heading'
+              className='text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white'
+            >
               Meet Our Team
             </h2>
             <p className='mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto'>
               The passionate people behind Electro
             </p>
           </div>
-          
+
           <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 lg:gap-12'>
             {aboutContent.team.map((member) => (
               <TeamMemberCard key={member.name} member={member} />
             ))}
           </div>
         </section>
-
       </div>
     </div>
   );

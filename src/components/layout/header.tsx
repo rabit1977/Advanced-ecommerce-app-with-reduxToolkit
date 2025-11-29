@@ -9,7 +9,15 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { Briefcase, Headset, Info, LucideIcon, Menu, Package, Zap } from 'lucide-react';
+import {
+  Briefcase,
+  Headset,
+  Info,
+  LucideIcon,
+  Menu,
+  Package,
+  Zap,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -66,7 +74,7 @@ const Header = () => {
       className='sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:bg-slate-950 dark:supports-[backdrop-filter]:bg-slate-900/80 dark:border-slate-800'
       role='banner'
     >
-      <div className='container mx-auto flex h-16 items-center justify-between gap-4 px-4'>
+      <div className='container mx-auto flex h-20 items-center justify-between gap-4 px-4'>
         {/* Logo */}
         <Link
           href='/'
@@ -88,7 +96,7 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav
-          className='hidden items-center gap-6 lg:flex'
+          className='hidden items-center gap-4 lg:flex'
           aria-label='Main navigation'
         >
           {navLinks.map((link) => {
@@ -106,11 +114,11 @@ const Header = () => {
                 aria-current={isActive ? 'page' : undefined}
               >
                 {/* Icon */}
-                <div className='group'>
+                <div className='group flex items-center gap-2'>
                   {link.icon && (
                     <link.icon
                       className={cn(
-                        'mb-0.5 inline-block h-4 w-4 mr-1 hover:text-foreground group flex-shrink-0 items-center justify-center',
+                        'mb-0.5 inline-block h-4 w-4  hover:text-foreground group flex-shrink-0 items-center justify-center',
                         isActive
                           ? 'text-foreground'
                           : 'text-muted-foreground group-hover:text-foreground'
@@ -121,7 +129,7 @@ const Header = () => {
                 </div>
 
                 {isActive && (
-                  <span className='absolute -bottom-[17px] left-0 right-0 h-0.5 bg-primary' />
+                  <span className='absolute -bottom-[10px] left-0 right-0 h-0.5 bg-primary' />
                 )}
               </Link>
             );

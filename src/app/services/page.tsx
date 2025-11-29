@@ -49,7 +49,7 @@ export const metadata = {
 
 const Services = () => {
   return (
-    <div className='container mx-auto px-4 py-12 sm:px-6 lg:px-8'>
+    <div className='container mx-auto px-4 py-12 sm:px-6 lg:px-8 max-w-6xl'>
       <section className='text-center mb-12'>
         <h1 className='text-4xl font-bold text-foreground mb-4'>
           Our Services
@@ -65,7 +65,7 @@ const Services = () => {
         {services.map((service, index) => (
           <Card
             key={index}
-            className='flex flex-col items-center text-center p-6 hover:shadow-lg transition-shadow duration-300'
+            className='group p-6 sm:p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 dark:bg-slate-800 border border-transparent hover:border-primary/20'
           >
             <CardHeader className='flex flex-col items-center mb-4'>
               <service.icon className='h-10 w-10 text-primary mb-2' />
