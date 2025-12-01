@@ -1,3 +1,4 @@
+// components/product/ProductGrid.tsx
 'use client';
 
 import { ProductGridPagination } from '@/lib/hooks/usePagination';
@@ -8,7 +9,7 @@ import { ProductList } from './ProductList';
 import { FilterSidebar } from './filter-sidebar';
 import { useFilterMetadata } from '@/lib/hooks/useFilterMetadata';
 import { useProductFilters } from '@/lib/hooks/useProductFilters';
-import { ProductGridProps } from '@/lib/types';
+import { ProductGridProps, SortKey } from '@/lib/types'; // ✅ Import SortKey
 import { ActiveFiltersBanner } from '../ActiveFiltersBanner';
 import { LoadingOverlay } from '../shared/LoadingOverlay';
 import { MobileFilterSheet } from '../MobileFilterSheet';
@@ -24,7 +25,7 @@ export const ProductGrid = ({
   currentBrands,
   currentMinPrice,
   currentMaxPrice,
-  currentSort,
+  currentSort, // This should already be typed as SortKey in ProductGridProps
   pageSize = 8,
 }: ProductGridProps) => {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -135,7 +136,7 @@ export const ProductGrid = ({
         <ProductGridControls
           title={currentTitle}
           subtitle={currentSubtitle}
-          currentSort={currentSort}
+          currentSort={currentSort} // ✅ Should be typed as SortKey
           onSortChange={handleSortChange}
           onFilterToggle={() => setIsSheetOpen(true)}
         />

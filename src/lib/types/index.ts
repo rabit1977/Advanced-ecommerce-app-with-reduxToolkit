@@ -178,9 +178,17 @@ export interface ProductGridProps {
   currentBrands: string; // Comma-separated string
   currentMinPrice?: number;
   currentMaxPrice?: number;
-  currentSort: string;
+  currentSort: SortKey;
   pageSize?: number;
   allCategories: string[];
   allBrands: string[];
   searchQuery?: string;
+}
+
+export interface ProductGridControlsProps {
+  title: string;
+  subtitle: string;
+  currentSort: SortKey; // ✅ Typed as SortKey
+  onSortChange: (sort: SortKey) => void;
+  onFilterToggle: () => void;
 }
