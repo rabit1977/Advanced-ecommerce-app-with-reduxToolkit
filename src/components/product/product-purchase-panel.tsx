@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Stars } from '@/components/ui/stars';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { addToCart, toggleWishlist } from '@/lib/store/thunks/cartThunks';
-import { Product } from '@/lib/types';
+import { CartItem, Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/utils/formatters';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -31,9 +31,9 @@ export function ProductPurchasePanel({
 }: ProductPurchasePanelProps) {
   const dispatch = useAppDispatch();
   const { itemIds: wishlistItems } = useAppSelector(
-    (state: any) => state.wishlist
+    (state) => state.wishlist
   );
-  const cartItems = useAppSelector((state: any) => state.cart?.items);
+  const cartItems = useAppSelector((state) => state.cart?.items);
   const [isPending, startTransition] = useTransition();
   const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -46,7 +46,7 @@ export function ProductPurchasePanel({
   // Calculate how many items of this product are already in the cart
   const quantityInCart = useMemo(() => {
     if (!cartItems || !Array.isArray(cartItems)) return 0;
-    const cartItem = cartItems.find((item: any) => item.id === product.id);
+    const cartItem = cartItems.find((item: CartItem) => item.id === product.id);
     return cartItem?.quantity || 0;
   }, [cartItems, product.id]);
 

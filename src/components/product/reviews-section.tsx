@@ -31,18 +31,21 @@ const ReviewsSection = ({ productId }: ReviewsSectionProps) => {
   const dispatch = useAppDispatch();
   const { products } = useAppSelector((state) => state.products);
   const product = products.find((p) => p.id === productId);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
-  const [showConfirmDeleteDialog, setShowConfirmDeleteDialog] = useState(false);
-  const [reviewIdToDelete, setReviewIdToDelete] = useState<string | null>(null);
 
-  if (!product) return null; // Handle case where product is not found
+  // Memoize reviews to stabilize dependency
+  const reviews = useMemo(() => product?.reviews || [], [product?.reviews]);
 
-  const reviews = product.reviews || []; // Use reviews from the product in Redux store
-
+  // Find user's review - now call hooks before early return
   const userReview = useMemo(() => {
     if (!user) return null;
     return reviews.find((review) => review.author === user.name) || null;
   }, [reviews, user]);
+
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [showConfirmDeleteDialog, setShowConfirmDeleteDialog] = useState(false);
+  const [reviewIdToDelete, setReviewIdToDelete] = useState<string | null>(null);
+
+  if (!product) return null; // Early return is now after all hooks
 
   const handleEditClick = (review: Review) => {
     setEditingReview(review);

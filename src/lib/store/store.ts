@@ -17,7 +17,6 @@ import rootReducer, { type RootState } from './rootReducer';
  * Create no-op storage for SSR environments (Next.js, etc.)
  */
 const createNoopStorage = (): Storage => ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getItem: (_: string) => Promise.resolve(null),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setItem: (_: string, value: string) => Promise.resolve(value),

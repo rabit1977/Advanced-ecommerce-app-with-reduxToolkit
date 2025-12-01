@@ -31,20 +31,6 @@ export function ProductImageCarousel({ product }: ProductImageCarouselProps) {
   const currentImage = images[activeImageIndex];
   const hasMultipleImages = images.length > 1;
 
-  const handlePrevImage = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    setIsImageLoaded(false);
-  }, [images.length]);
-
-  const handleNextImage = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    setIsImageLoaded(false);
-  }, [images.length]);
-
   const handleDotClick = useCallback((e: React.MouseEvent, index: number) => {
     e.preventDefault();
     e.stopPropagation();
@@ -87,30 +73,6 @@ export function ProductImageCarousel({ product }: ProductImageCarouselProps) {
           {stockStatus.label}
         </Badge>
       )}
-
-      {/* Navigation Arrows - Only show if multiple images */}
-      {/* {hasMultipleImages && (
-        <div className="absolute inset-0 flex items-center justify-between p-2 px-3.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <Button
-            size="icon"
-            variant="secondary"
-            className="h-8 w-8 rounded-full shadow-lg backdrop-blur-sm"
-            onClick={handlePrevImage}
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="secondary"
-            className="h-8 w-8 rounded-full shadow-lg backdrop-blur-sm"
-            onClick={handleNextImage}
-            aria-label="Next image"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )} */}
 
       {/* Dot Indicators */}
       {hasMultipleImages && (
