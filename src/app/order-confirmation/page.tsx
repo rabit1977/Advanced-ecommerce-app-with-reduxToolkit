@@ -9,13 +9,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAppSelector } from '@/lib/store/hooks';
 import { formatOrderDate, formatPrice } from '@/lib/utils/formatters';
 import {
-  ArrowRight,
-  Check,
-  Clock,
-  Mail,
-  Package,
-  ShoppingBag,
-  Truck,
+    ArrowRight,
+    Check,
+    Clock,
+    Mail,
+    Package,
+    ShoppingBag,
+    Truck,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useMemo } from 'react';
@@ -51,7 +51,7 @@ function NoOrderFound() {
         <div className='space-y-2'>
           <h2 className='text-3xl font-bold dark:text-white'>No order found</h2>
           <p className='text-slate-600 dark:text-slate-400 max-w-md'>
-            We couldn't find your order. Please check your email for order
+            We couldn&apos;t find your order. Please check your email for order
             confirmation.
           </p>
         </div>

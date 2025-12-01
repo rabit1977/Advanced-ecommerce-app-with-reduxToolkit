@@ -1,31 +1,23 @@
 'use client';
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { useAppDispatch } from '@/lib/hooks/useAppDispatch';
 import { deleteUserFromAdmin } from '@/lib/store/thunks/authThunks';
 import { User } from '@/lib/types';
@@ -54,65 +46,67 @@ export const UsersDataTable = ({ users }: UsersDataTableProps) => {
   const handleConfirmDelete = () => {
     if (!userToDelete) return;
 
-    startTransition(() => {
-      dispatch(deleteUserFromAdmin(userToDelete.id));
-      toast.success(`User "${userToDelete.name}" deleted.`);
-      setShowDeleteDialog(false);
-      setUserToDelete(null);
+    startTransition(async () => {
+      try {
+        await dispatch(deleteUserFromAdmin(userToDelete.id));
+        toast.success(`User "${userToDelete.name}" deleted.`);
+        setShowDeleteDialog(false);
+        setUserToDelete(null);
+      } catch (error) {
+        toast.error((error as Error).message || 'Failed to delete user');
+      }
     });
   };
 
+  const columns = [
+    {
+      header: 'Name',
+      cell: (user: User) => <span className='font-medium'>{user.name}</span>,
+    },
+    {
+      header: 'Email',
+      cell: (user: User) => user.email,
+    },
+    {
+      header: 'Role',
+      cell: (user: User) => user.role || 'customer',
+    },
+    {
+      header: <span className='sr-only'>Actions</span>,
+      cell: (user: User) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button aria-haspopup='true' size='icon' variant='ghost'>
+              <MoreHorizontal className='h-4 w-4' />
+              <span className='sr-only'>Toggle menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/users/${user.id}`}>View Details</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/users/${user.id}/edit`}>Edit</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className='text-red-500'
+              onSelect={() => handleDeleteClick(user)}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
   return (
     <>
-      <div className='rounded-lg divide-y border bg-white dark:bg-slate-900 dark:border-slate-800 overflow-hidden shadow-sm '>
-        <Table>
-          <TableHeader className='bg-slate-50 dark:bg-slate-800'>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>
-                <span className='sr-only'>Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className='font-medium'>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role || 'customer'}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup='true' size='icon' variant='ghost'>
-                        <MoreHorizontal className='h-4 w-4' />
-                        <span className='sr-only'>Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end'>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/admin/users/${user.id}`}>
-                          View Details
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/admin/users/${user.id}/edit`}>Edit</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className='text-red-500'
-                        onSelect={() => handleDeleteClick(user)}
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        data={users}
+        columns={columns}
+        keyExtractor={(user) => user.id}
+      />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -121,7 +115,11 @@ export const UsersDataTable = ({ users }: UsersDataTableProps) => {
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
               user
-              <span className='font-semibold text-red-300'> {userToDelete?.name.toUpperCase()}</span>.
+              <span className='font-semibold text-red-300'>
+                {' '}
+                {userToDelete?.name.toUpperCase()}
+              </span>
+              .
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -138,3 +136,4 @@ export const UsersDataTable = ({ users }: UsersDataTableProps) => {
     </>
   );
 };
+

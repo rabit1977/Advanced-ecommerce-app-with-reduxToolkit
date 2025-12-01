@@ -4,9 +4,9 @@ import AuthGuard from '@/components/auth/auth-guard';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import {
-  addToCart,
-  clearWishlist,
-  toggleWishlist,
+    addToCart,
+    clearWishlist,
+    toggleWishlist,
 } from '@/lib/store/thunks/cartThunks';
 import { Product } from '@/lib/types';
 import { formatPrice } from '@/lib/utils/formatters';
@@ -20,8 +20,8 @@ import { useMemo } from 'react';
 const WishlistPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { itemIds: wishlist } = useAppSelector((state: any) => state.wishlist);
-  const { products } = useAppSelector((state: any) => state.products);
+  const { itemIds: wishlist } = useAppSelector((state) => state.wishlist);
+  const { products } = useAppSelector((state) => state.products);
 
   const wishlistedProducts = useMemo(
     () => products.filter((p: Product) => (wishlist || []).includes(p.id)),

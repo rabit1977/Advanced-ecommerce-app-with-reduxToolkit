@@ -11,8 +11,8 @@ import { useParams, useRouter } from 'next/navigation';
 const OrderDetailPage = () => {
   const params = useParams();
   const router = useRouter();
-  const { orders } = useAppSelector((state: any) => state.orders);
-  const order = orders.find((o: any) => o.id === params.id);
+  const { orders } = useAppSelector((state) => state.orders);
+  const order = orders.find((o) => o.id === params.id);
 
   if (!order) {
     return (
@@ -179,25 +179,25 @@ const OrderDetailPage = () => {
                 <div className='flex justify-between text-sm'>
                   <p className='text-slate-600 dark:text-slate-300'>Subtotal</p>
                   <p className='font-medium dark:text-white'>
-                    {formatPrice(order.subtotal)}
+                    {formatPrice(order.subtotal ?? 0)}
                   </p>
                 </div>
-                {order.discountAmount > 0 && (
+                {(order.discountAmount ?? 0) > 0 && (
                   <div className='flex justify-between text-sm text-green-600 dark:text-green-400'>
                     <p>Discount</p>
-                    <p>-{formatPrice(order.discountAmount)}</p>
+                    <p>-{formatPrice(order.discountAmount ?? 0)}</p>
                   </div>
                 )}
                 <div className='flex justify-between text-sm'>
                   <p className='text-slate-600 dark:text-slate-300'>Shipping</p>
                   <p className='font-medium dark:text-white'>
-                    {formatPrice(order.shippingCost)}
+                    {formatPrice(order.shippingCost ?? 0)}
                   </p>
                 </div>
                 <div className='flex justify-between text-sm'>
                   <p className='text-slate-600 dark:text-slate-300'>Taxes</p>
                   <p className='font-medium dark:text-white'>
-                    {formatPrice(order.taxes)}
+                    {formatPrice(order.taxes ?? 0)}
                   </p>
                 </div>
                 <div className='border-t border-slate-200 pt-2 flex justify-between text-base font-medium dark:border-slate-700 dark:text-white'>

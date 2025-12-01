@@ -1,6 +1,6 @@
 // src/lib/hooks/useLocalStorageReducer.ts
 
-import { useReducer, useEffect, Reducer } from 'react';
+import { Reducer, useEffect, useReducer } from 'react';
 
 // Helper function to create a new state object without the excluded keys
 function omit<T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
@@ -12,7 +12,7 @@ function omit<T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K
 }
 
 // A replacer for JSON.stringify to handle complex types
-const replacer = (key: string, value: any): any => {
+const replacer = (key: string, value: unknown): unknown => {
   if (value instanceof Set) {
     return Array.from(value);
   }

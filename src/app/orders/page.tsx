@@ -1,13 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { Package, ArrowLeft, Filter } from 'lucide-react';
+import AuthGuard from '@/components/auth/auth-guard';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/lib/store/hooks';
-import { formatPrice, formatOrderDate } from '@/lib/utils/formatters';
-import AuthGuard from '@/components/auth/auth-guard';
 import { Order } from '@/lib/types';
+import { formatOrderDate, formatPrice } from '@/lib/utils/formatters';
+import { ArrowLeft, Filter, Package } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 
 const OrdersPage = () => {
   const router = useRouter();
@@ -65,7 +65,7 @@ const OrdersPage = () => {
                 No orders yet
               </h3>
               <p className="mt-2 text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                When you place orders, they'll appear here. Start shopping to see your order history.
+                When you place orders, they&apos;ll appear here. Start shopping to see your order history.
               </p>
               <Button 
                 onClick={() => router.push('/products')} 

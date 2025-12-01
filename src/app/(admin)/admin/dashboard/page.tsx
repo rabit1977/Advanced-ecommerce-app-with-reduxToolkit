@@ -4,9 +4,11 @@ import { DashboardCard } from '@/components/admin/dashboard-card';
 import { OrdersCountCard } from '@/components/admin/orders-count-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { staggerContainer, staggerItem } from '@/lib/constants/animations';
 import { initialProducts } from '@/lib/constants/products';
 import { initialUsers } from '@/lib/constants/users';
 import { useAppSelector } from '@/lib/store/hooks';
+import { motion } from 'framer-motion';
 import {
   Activity,
   DollarSign,
@@ -82,19 +84,27 @@ function DashboardContent() {
   );
 
   return (
-    <div className='space-y-8'>
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
+      className='space-y-8'
+    >
       {/* Header */}
-      <div>
+      <motion.div variants={staggerItem}>
         <h1 className='text-3xl font-bold tracking-tight dark:text-white'>
           Dashboard
         </h1>
         <p className='text-slate-600 dark:text-slate-400 mt-2'>
-          Overview of your store's performance
+          Overview of your store&apos;s performance
         </p>
-      </div>
+      </motion.div>
 
       {/* Stats Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6'>
+      <motion.div 
+        variants={staggerItem}
+        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6'
+      >
         <DashboardCard
           title='Total Products'
           value={stats.products}
@@ -120,10 +130,13 @@ function DashboardContent() {
           description='All time revenue'
           trend={trends.revenue}
         />
-      </div>
+      </motion.div>
 
       {/* Secondary Stats */}
-      <div className='grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6'>
+      <motion.div 
+        variants={staggerItem}
+        className='grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6'
+      >
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-sm font-medium text-slate-600 dark:text-slate-400'>
@@ -176,10 +189,13 @@ function DashboardContent() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Recent Activity Section - Placeholder */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+      <motion.div 
+        variants={staggerItem}
+        className='grid grid-cols-1 lg:grid-cols-2 gap-6'
+      >
         <Card>
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>
@@ -263,8 +279,8 @@ function DashboardContent() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
+    </motion.div>
+      </motion.div>
   );
 }
 

@@ -4,15 +4,15 @@ import { CartItem } from '@/components/cart/cart-item';
 import { CartSummary } from '@/components/cart/cart-summary';
 import { SavedItem } from '@/components/cart/saved-item';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,7 +62,7 @@ function EmptyCart() {
             Your cart is empty
           </h2>
           <p className='text-slate-600 dark:text-slate-400 max-w-md'>
-            Looks like you haven't added anything to your cart yet. Start
+            Looks like you haven&apos;t added anything to your cart yet. Start
             exploring our products!
           </p>
         </div>
@@ -178,7 +178,7 @@ function CartContent() {
         {subtotal >= 50 && (
           <div className='bg-green-50 border border-green-200 rounded-lg p-4 mb-8 dark:bg-green-950 dark:border-green-900'>
             <p className='text-sm text-green-800 dark:text-green-200 font-medium'>
-              🎉 You've qualified for free shipping!
+              🎉 You&apos;ve qualified for free shipping!
             </p>
           </div>
         )}

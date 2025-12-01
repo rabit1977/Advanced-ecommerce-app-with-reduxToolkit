@@ -1,29 +1,29 @@
 'use client';
 
-import { use, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/lib/store/hooks';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  ArrowLeft, 
-  Mail, 
-  Calendar, 
-  ShoppingBag, 
-  Heart,
-  Edit,
-  User as UserIcon
-} from 'lucide-react';
+import { useAppSelector } from '@/lib/store/hooks';
 import { formatDateTime } from '@/lib/utils/formatters';
+import {
+    ArrowLeft,
+    Calendar,
+    Edit,
+    Heart,
+    Mail,
+    ShoppingBag,
+    User as UserIcon
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Suspense, use } from 'react';
 
 interface UserDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -76,7 +76,7 @@ function UserNotFound() {
       <UserIcon className="h-16 w-16 text-slate-300 dark:text-slate-600" />
       <h2 className="text-2xl font-bold dark:text-white">User Not Found</h2>
       <p className="text-slate-600 dark:text-slate-400 text-center max-w-md">
-        The user you're looking for doesn't exist or has been removed.
+        The user you&apos;re looking for doesn&apos;t exist or has been removed.
       </p>
       <Button onClick={() => router.push('/admin/users')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
