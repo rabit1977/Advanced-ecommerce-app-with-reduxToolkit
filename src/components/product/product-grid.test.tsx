@@ -1,7 +1,7 @@
 '''
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { ProductGrid, SortKey } from './product-grid';
-import { Product } from '@/lib/types';
+import { ProductGrid } from './product-grid';
+import { Product, SortKey } from '@/lib/types';
 import '@testing-library/jest-dom';
 
 // --- MOCKS ---
@@ -92,6 +92,7 @@ const defaultProps = {
   currentMaxPrice: 1000,
   currentSort: 'featured' as SortKey,
   pageSize: 8,
+  searchQuery: '',
 };
 
 // --- TEST SUITE ---

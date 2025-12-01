@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Electro e-commerce Store
+
+This is a modern e-commerce web application built with Next.js, Redux, and Tailwind CSS. It provides a feature-rich and interactive shopping experience, including product filtering, sorting, and a fully functional shopping cart.
+
+## Features
+
+- **Product Filtering & Sorting**: Filter products by category, brand, and price range. Sort products by price, rating, and popularity.
+- **Shopping Cart**: Add products to the cart, update quantities, and remove items.
+- **Wishlist**: Save products for later.
+- **Product Reviews**: Add and view product reviews.
+- **User Authentication**: Login and signup functionality with client-side session management.
+- **Admin Dashboard**: Manage products, users, and orders (future development).
+- **Responsive Design**: Fully responsive layout for a seamless experience on all devices.
 
 ## Getting Started
 
@@ -10,8 +22,6 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

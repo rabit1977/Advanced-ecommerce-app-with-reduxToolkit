@@ -137,7 +137,7 @@ const Header = () => {
         </nav>
 
         {/* Nav Actions (Cart, Theme, etc.) */}
-        <div className='flex items-center gap-2 '>
+        <div className='flex items-center'>
           <NavActions />
 
           {/* Mobile Menu Button */}

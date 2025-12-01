@@ -71,7 +71,7 @@ export const signup = (name: string, email: string, password: string) => (
     name,
     email,
     password,
-    role: email === 'admin@example.com' ? 'admin' : 'customer',
+    role: email === 'rabit@gmail.com' ? 'admin' : 'customer',
     cart: [],
     savedForLater: [],
     wishlist: [],

@@ -69,7 +69,7 @@ export const HeroHeader = () => {
           <Button
             size='lg'
             onClick={navigateToProducts}
-            className='gap-2 text-base px-8'
+            className='gap-2 text-base px-8 bg-slate-900 hover:bg-slate-700'
           >
             <ShoppingBag className='h-5 w-5' />
             Shop Now
@@ -78,7 +78,7 @@ export const HeroHeader = () => {
             size='lg'
             variant='outline'
             onClick={navigateToAbout}
-            className='text-base px-8'
+            className='text-base px-8 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white'
           >
             Learn More
           </Button>

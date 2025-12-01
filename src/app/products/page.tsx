@@ -1,42 +1,80 @@
-import { ProductGrid } from '@/components/product/product-grid';
-import { getProducts, SortKey } from '@/lib/data/get-products';
+'use client';
 
-// Explicitly mark this page as dynamic
-export const dynamic = 'force-dynamic';
+import { ProductGrid } from '@/components/product/product-grid';
+import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
+import { getBrands, getCategories, getProducts } from '@/lib/data/get-products';
+import { Product, SortKey } from '@/lib/types';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 interface ProductsPageProps {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
-  const params = await searchParams;
-  
-  // Parse and validate search params
-  const query = (params?.search as string) || '';
-  const categories = (params?.categories as string) || ''; // Now comma-separated
-  const brands = (params?.brands as string) || '';
-  const minPrice = Number(params?.minPrice) || undefined;
-  const maxPrice = Number(params?.maxPrice) || undefined;
-  const sort = (params?.sort as SortKey) || 'featured';
-  const page = Number(params?.page) || 1;
+const ProductsPage = () => {
+  const searchParams = useSearchParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [allBrands, setAllBrands] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch data from the server with all options
-  const { products, totalCount } = await getProducts({
-    query,
-    categories, // Pass categories instead of category
-    brands,
-    minPrice,
-    maxPrice,
-    sort,
-    page,
-    limit: 8, // The number of products per page
-  });
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      const params = searchParams || {};
 
-  // Pass the pre-filtered, pre-sorted, and pre-paginated data to the client component
+      // Parse and validate search params
+      const query = (params?.get('search') as string) || '';
+      const categories = (params?.get('categories') as string) || '';
+      const brands = (params?.get('brands') as string) || '';
+      const minPrice = Number(params?.get('minPrice')) || undefined;
+      const maxPrice = Number(params?.get('maxPrice')) || undefined;
+      const sort = (params?.get('sort') as SortKey) || 'featured';
+      const page = Number(params?.get('page')) || 1;
+
+      // Fetch all data in parallel
+      const [{ products, totalCount }, allCategories, allBrands] =
+        await Promise.all([
+          getProducts({
+            query,
+            categories,
+            brands,
+            minPrice,
+            maxPrice,
+            sort,
+            page,
+            limit: 8,
+          }),
+          getCategories(),
+          getBrands(),
+        ]);
+
+      setProducts(products);
+      setTotalCount(totalCount);
+      setAllCategories(allCategories);
+      setAllBrands(allBrands);
+      setIsLoading(false);
+    };
+
+    fetchProducts();
+  }, [searchParams]);
+
+  const params = searchParams || {};
+  const query = (params?.get('search') as string) || '';
+  const categories = (params?.get('categories') as string) || '';
+  const brands = (params?.get('brands') as string) || '';
+  const minPrice = Number(params?.get('minPrice')) || undefined;
+  const maxPrice = Number(params?.get('maxPrice')) || undefined;
+  const sort = (params?.get('sort') as SortKey) || 'featured';
+  const page = Number(params?.get('page')) || 1;
+
+  if (isLoading) {
+    return <LoadingOverlay isLoading={true} />;
+  }
+
   return (
     <ProductGrid
-      title='All Products'
-      subtitle='Browse our complete collection'
       products={products}
       totalCount={totalCount}
       currentPage={page}
@@ -45,6 +83,9 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
       currentMinPrice={minPrice}
       currentMaxPrice={maxPrice}
       currentSort={sort}
+      allCategories={allCategories}
+      allBrands={allBrands}
+      searchQuery={query}
     />
   );
 };

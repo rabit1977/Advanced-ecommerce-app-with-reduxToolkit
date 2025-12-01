@@ -1,3 +1,23 @@
+
+
+export interface AppState {
+  user: User | null;
+  users: User[];
+  cart: CartItem[];
+  wishlist: Set<string>;
+  orders: Order[];
+  products: Product[];
+  savedForLater: CartItem[];
+  theme: 'light' | 'dark';
+  searchQuery: string;
+  isMenuOpen: boolean;
+  selectedProductId: string | null;
+  quickViewProductId: string | null;
+  selectedOrder: Order | null;
+  toast: string | null;
+  isLoading: boolean;
+}
+
 export interface AppContextType extends AppState {
   setPage: (page: string) => void;
   viewProduct: (productId: string) => void;
@@ -27,24 +47,6 @@ export interface AppContextType extends AppState {
   setTheme: (theme: 'light' | 'dark') => void;
   setIsMenuOpen: (isOpen: boolean) => void;
   setQuickViewProductId: (id: string | null) => void;
-}
-
-export interface AppState {
-  user: User | null;
-  users: User[];
-  cart: CartItem[];
-  wishlist: Set<string>;
-  orders: Order[];
-  products: Product[];
-  savedForLater: CartItem[];
-  theme: 'light' | 'dark';
-  searchQuery: string;
-  isMenuOpen: boolean;
-  selectedProductId: string | null;
-  quickViewProductId: string | null;
-  selectedOrder: Order | null;
-  toast: string | null;
-  isLoading: boolean;
 }
 
 export interface User {
@@ -81,6 +83,8 @@ export interface Product {
   sku?: string;
   tags?: string[];
   releaseDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductOption {
@@ -176,4 +180,7 @@ export interface ProductGridProps {
   currentMaxPrice?: number;
   currentSort: string;
   pageSize?: number;
+  allCategories: string[];
+  allBrands: string[];
+  searchQuery?: string;
 }

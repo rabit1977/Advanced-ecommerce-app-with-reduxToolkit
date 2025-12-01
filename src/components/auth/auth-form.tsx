@@ -342,7 +342,7 @@ export const AuthForm: React.FC = () => {
                   {/* Submit Button */}
                   <Button
                     type='submit'
-                    className='w-full'
+                    className='w-full bg-slate-900 hover:bg-slate-700'
                     size='lg'
                     disabled={isLoading}
                   >
@@ -371,6 +371,7 @@ export const AuthForm: React.FC = () => {
                         size='sm'
                         onClick={() => handleModeChange('forgot')}
                         disabled={isLoading}
+                        className='text-slate-900 hover:text-slate-700'
                       >
                         Forgot Password?
                       </Button>
