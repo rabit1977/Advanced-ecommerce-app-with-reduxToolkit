@@ -14,7 +14,7 @@ import {
   placeOrder, 
   toggleHelpfulReview 
 } from '@/lib/store/thunks/managementThunks';
-import { Order, ReviewPayload, Product } from '@/lib/types';
+import { Order, ReviewPayload, Product, ProductOption } from '@/lib/types';
 
 /**
  * Custom hook for product and order management
@@ -48,7 +48,7 @@ export const useProducts = () => {
       imageUrl?: string;
       discount?: number;
       tags?: string[];
-      options?: any[];
+      options?: ProductOption[];
     }) => {
       return dispatch(createProductThunk(productData));
     },

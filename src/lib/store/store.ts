@@ -17,9 +17,9 @@ import rootReducer, { type RootState } from './rootReducer';
  * Create no-op storage for SSR environments (Next.js, etc.)
  */
 const createNoopStorage = (): Storage => ({
-  getItem: (_key: string) => Promise.resolve(null),
-  setItem: (_key: string, value: string) => Promise.resolve(value),
-  removeItem: (_key: string) => Promise.resolve(),
+  getItem: (_: string) => Promise.resolve(null),
+  setItem: (_: string, value: string) => Promise.resolve(value),
+  removeItem: (_: string) => Promise.resolve(),
 });
 
 /**

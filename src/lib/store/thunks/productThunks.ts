@@ -11,7 +11,7 @@ import {
   clearError,
 } from '../slices/productSlice';
 import { showToast } from './uiThunks';
-import { Product } from '@/lib/types';
+import { Product, ProductOption } from '@/lib/types';
 
 interface ThunkResult {
   success: boolean;
@@ -40,10 +40,10 @@ export const createProduct = (productData: {
   imageUrl?: string;
   discount?: number;
   tags?: string[];
-  options?: any[];
+  options?: ProductOption[];
 }) => (
   dispatch: AppDispatch,
-  getState: () => RootState
+  _getState: () => RootState
 ): ThunkResult => {
   try {
     dispatch(setLoading(true));

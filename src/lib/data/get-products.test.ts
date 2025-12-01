@@ -25,7 +25,7 @@ describe('getProducts', () => {
     });
 
     it('should filter by multiple brands (case-insensitive)', async () => {
-      const { products, totalCount } = await getProducts({ brands: 'apple,samsung' }, mockProducts);
+      const { totalCount } = await getProducts({ brands: 'apple,samsung' }, mockProducts);
       expect(totalCount).toBe(4);
     });
 
