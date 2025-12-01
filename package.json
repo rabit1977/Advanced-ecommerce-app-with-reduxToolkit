@@ -63,7 +63,7 @@
     "typescript": "^5.9.2"
   },
   "pnpm": {
-    "only-allow-builds": [
+    "onlyBuiltDependencies": [
       "@tailwindcss/oxide",
       "msw",
       "sharp",

@@ -9,7 +9,7 @@ import { ProductList } from './ProductList';
 import { FilterSidebar } from './filter-sidebar';
 import { useFilterMetadata } from '@/lib/hooks/useFilterMetadata';
 import { useProductFilters } from '@/lib/hooks/useProductFilters';
-import { ProductGridProps, SortKey } from '@/lib/types'; // ✅ Import SortKey
+import { ProductGridProps } from '@/lib/types';
 import { ActiveFiltersBanner } from '../ActiveFiltersBanner';
 import { LoadingOverlay } from '../shared/LoadingOverlay';
 import { MobileFilterSheet } from '../MobileFilterSheet';
@@ -57,7 +57,8 @@ export const ProductGrid = ({
         clearTimeout(priceTimeoutRef.current);
       }
     };
-  }, [priceTimeoutRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const allCategories = useMemo(
     () => [
