@@ -43,6 +43,7 @@ export const createProduct = (productData: {
   options?: ProductOption[];
 }) => (
   dispatch: AppDispatch,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _getState: () => RootState
 ): ThunkResult => {
   try {

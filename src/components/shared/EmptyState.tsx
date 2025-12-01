@@ -14,7 +14,7 @@ export const EmptyState = ({ hasFilters, onClearFilters }: EmptyStateProps) => {
       </div>
       <h3 className='text-lg font-semibold mb-2'>No products found</h3>
       <p className='text-sm text-muted-foreground mb-4 max-w-md'>
-        Try adjusting your filters or search criteria to find what you're
+        Try adjusting your filters or search criteria to find what you&apos;re
         looking for.
       </p>
       {hasFilters && (
