@@ -1,16 +1,9 @@
-import { Product } from '@/lib/types';
 import { initialProducts } from '@/lib/constants/products';
+import { Product, SortKey } from '@/lib/types';
 
 /**
  * Available sort options for products
  */
-export type SortKey =
-  | 'featured'
-  | 'price-asc'
-  | 'price-desc'
-  | 'rating'
-  | 'newest'
-  | 'popularity';
 
 /**
  * Extract numeric ID from SKU for sorting
@@ -89,6 +82,81 @@ export async function getProducts(
 
   let products = [...productSource]; // Create copy to avoid mutations
 
+  /**
+   * Apply filters to product array
+   */
+  function applyFilters(
+    products: Product[],
+    filters: Omit<GetProductsOptions, 'sort' | 'page' | 'limit'>
+  ): Product[] {
+    let filtered = products;
+
+    // Search query filter
+    if (filters.query) {
+      const lowerQuery = filters.query.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.title.toLowerCase().includes(lowerQuery) ||
+          p.description.toLowerCase().includes(lowerQuery) ||
+          p.category.toLowerCase().includes(lowerQuery) ||
+          p.brand.toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    // Categories filter (multiple categories support)
+    if (filters.categories) {
+      const selectedCategories = new Set(
+        filters.categories
+          .split(',')
+          .map((c) => c.trim().toLowerCase())
+          .filter(Boolean) // Remove empty strings
+      );
+
+      // Only filter if there are selected categories
+      if (selectedCategories.size > 0) {
+        filtered = filtered.filter((p) =>
+          selectedCategories.has(p.category.toLowerCase())
+        );
+      }
+    }
+
+    // Brands filter
+    if (filters.brands) {
+      const selectedBrands = new Set(
+        filters.brands
+          .split(',')
+          .map((b) => b.trim().toLowerCase())
+          .filter(Boolean)
+      );
+
+      if (selectedBrands.size > 0) {
+        filtered = filtered.filter((p) =>
+          selectedBrands.has(p.brand.toLowerCase())
+        );
+      }
+    }
+
+    // Price range filters
+    if (filters.minPrice !== undefined) {
+      filtered = filtered.filter((p) => p.price >= filters.minPrice!);
+    }
+    if (filters.maxPrice !== undefined) {
+      filtered = filtered.filter((p) => p.price <= filters.maxPrice!);
+    }
+
+    // Rating filter
+    if (filters.minRating !== undefined) {
+      filtered = filtered.filter((p) => (p.rating || 0) >= filters.minRating!);
+    }
+
+    // Stock filter
+    if (filters.inStock) {
+      filtered = filtered.filter((p) => p.stock > 0);
+    }
+
+    return filtered;
+  }
+
   // Apply filters
   products = applyFilters(products, {
     query,
@@ -121,81 +189,6 @@ export async function getProducts(
     totalPages,
     hasMore: page < totalPages,
   };
-}
-
-/**
- * Apply filters to product array
- */
-function applyFilters(
-  products: Product[],
-  filters: Omit<GetProductsOptions, 'sort' | 'page' | 'limit'>
-): Product[] {
-  let filtered = products;
-
-  // Search query filter
-  if (filters.query) {
-    const lowerQuery = filters.query.toLowerCase();
-    filtered = filtered.filter(
-      (p) =>
-        p.title.toLowerCase().includes(lowerQuery) ||
-        p.description.toLowerCase().includes(lowerQuery) ||
-        p.category.toLowerCase().includes(lowerQuery) ||
-        p.brand.toLowerCase().includes(lowerQuery)
-    );
-  }
-
-  // Categories filter (multiple categories support)
-  if (filters.categories) {
-    const selectedCategories = new Set(
-      filters.categories
-        .split(',')
-        .map((c) => c.trim().toLowerCase())
-        .filter(Boolean) // Remove empty strings
-    );
-    
-    // Only filter if there are selected categories
-    if (selectedCategories.size > 0) {
-      filtered = filtered.filter((p) =>
-        selectedCategories.has(p.category.toLowerCase())
-      );
-    }
-  }
-
-  // Brands filter
-  if (filters.brands) {
-    const selectedBrands = new Set(
-      filters.brands
-        .split(',')
-        .map((b) => b.trim().toLowerCase())
-        .filter(Boolean)
-    );
-    
-    if (selectedBrands.size > 0) {
-      filtered = filtered.filter((p) =>
-        selectedBrands.has(p.brand.toLowerCase())
-      );
-    }
-  }
-
-  // Price range filters
-  if (filters.minPrice !== undefined) {
-    filtered = filtered.filter((p) => p.price >= filters.minPrice!);
-  }
-  if (filters.maxPrice !== undefined) {
-    filtered = filtered.filter((p) => p.price <= filters.maxPrice!);
-  }
-
-  // Rating filter
-  if (filters.minRating !== undefined) {
-    filtered = filtered.filter((p) => (p.rating || 0) >= filters.minRating!);
-  }
-
-  // Stock filter
-  if (filters.inStock) {
-    filtered = filtered.filter((p) => p.stock > 0);
-  }
-
-  return filtered;
 }
 
 /**
@@ -239,21 +232,24 @@ export async function getRelatedProducts(
   limit: number = 4
 ): Promise<Product[]> {
   const product = await getProductById(productId);
-  
+
   if (!product) return [];
 
   // Find products in same category or brand, excluding current product
   const related = initialProducts
-    .filter((p) => 
-      p.id !== productId && 
-      (p.category === product.category || p.brand === product.brand)
+    .filter(
+      (p) =>
+        p.id !== productId &&
+        (p.category === product.category || p.brand === product.brand)
     )
     .sort((a, b) => {
       // Prioritize same category over same brand
-      const aScore = (a.category === product.category ? 2 : 0) + 
-                     (a.brand === product.brand ? 1 : 0);
-      const bScore = (b.category === product.category ? 2 : 0) + 
-                     (b.brand === product.brand ? 1 : 0);
+      const aScore =
+        (a.category === product.category ? 2 : 0) +
+        (a.brand === product.brand ? 1 : 0);
+      const bScore =
+        (b.category === product.category ? 2 : 0) +
+        (b.brand === product.brand ? 1 : 0);
       return bScore - aScore;
     })
     .slice(0, limit);

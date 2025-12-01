@@ -89,7 +89,7 @@ export const NavActions = () => {
         aria-label={`View wishlist (${wishlistCount} items)`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
-          'relative'
+          'relative bg-slate-900 hover:bg-slate-700 text-white'
         )}
       >
         <Heart className='h-5 w-5' />
@@ -109,7 +109,7 @@ export const NavActions = () => {
         aria-label={`View shopping cart (${cartItemCount} items)`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
-          'relative'
+          'relative bg-slate-900 hover:bg-slate-700 text-white'
         )}
       >
         <ShoppingCart className='h-5 w-5' />
@@ -175,7 +175,7 @@ export const NavActions = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button asChild size='sm' className='gap-2'>
+        <Button asChild size='sm' className='gap-2 bg-slate-900 hover:bg-slate-700'>
           <Link href='/auth'>
             <User className='h-4 w-4' />
             <span className='hidden sm:inline'>Login</span>

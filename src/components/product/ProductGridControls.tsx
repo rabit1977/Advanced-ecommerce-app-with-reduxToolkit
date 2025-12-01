@@ -1,9 +1,9 @@
 'use client';
 
-import { ChevronDown, SlidersHorizontal } from 'lucide-react';
-import React, { useMemo } from 'react';
-import { SortKey } from './product-grid';
 import { Button } from '@/components/ui/button';
+import { SortKey } from '@/lib/types';
+import { ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface ProductGridControlsProps {
   title: string;
@@ -44,11 +44,11 @@ const ProductGridControls = ({
       <div className='flex items-center gap-4'>
         {/* Mobile Filter Button */}
         <Button
-          variant="outline"
-          className="lg:hidden flex items-center gap-2"
+          variant='outline'
+          className='lg:hidden flex items-center gap-2'
           onClick={onFilterToggle}
         >
-          <SlidersHorizontal className="h-4 w-4" />
+          <SlidersHorizontal className='h-4 w-4' />
           <span>Filters</span>
         </Button>
 
