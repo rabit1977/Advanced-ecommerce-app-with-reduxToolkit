@@ -8,7 +8,6 @@ import { useSearchNavigation } from '@/lib/hooks/useSearchNavigation';
 import { useSearchState } from '@/lib/hooks/useSearchState';
 import { SearchDropdown } from './SearchDropdown';
 import { SearchInput } from './SearchInput';
-import { clear } from 'console';
 
 export const SearchBar = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);

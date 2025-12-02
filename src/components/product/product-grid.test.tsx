@@ -1,4 +1,3 @@
-'''
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ProductGrid } from './product-grid';
 import { Product, SortKey } from '@/lib/types';
@@ -201,4 +200,3 @@ describe('ProductGrid', () => {
     expect(sheet).toHaveAttribute('data-open', 'false');
   });
 });
-'''

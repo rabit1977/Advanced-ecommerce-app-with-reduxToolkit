@@ -17,6 +17,7 @@ export const SearchResultItem = ({
   onKeyDown,
 }: SearchResultItemProps) => {
   return (
+    // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
     <li role='option'>
       <Link
         href={`/products/${product.id}`}

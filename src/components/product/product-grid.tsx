@@ -52,9 +52,10 @@ export const ProductGrid = ({
 
   // Cleanup timeout on unmount
   useEffect(() => {
+    const timeoutId = priceTimeoutRef.current;
     return () => {
-      if (priceTimeoutRef.current) {
-        clearTimeout(priceTimeoutRef.current);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
