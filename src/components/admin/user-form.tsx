@@ -22,34 +22,59 @@ import {
 } from '@/components/ui/select';
 import { User } from '@/lib/types';
 
-// Define the form schema using Zod
-const formSchema = z.object({
+// Schema for creating new user (password required)
+const createUserSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }).optional().or(z.literal('')), // Optional for edit, but min length if provided
+  email: z.string().email({ message: 'Invalid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
   role: z.enum(['admin', 'customer'], { message: 'Please select a role.' }),
 });
 
-interface UserFormProps {
-  user?: User | null; // Optional for adding new user
-  onSubmit: (values: z.infer<typeof formSchema>) => void;
+// Schema for editing user (password optional)
+const editUserSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  email: z.string().email({ message: 'Invalid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }).optional().or(z.literal('')),
+  role: z.enum(['admin', 'customer'], { message: 'Please select a role.' }),
+});
+
+// Export types
+export type CreateUserFormValues = z.infer<typeof createUserSchema>;
+export type EditUserFormValues = z.infer<typeof editUserSchema>;
+
+// ✅ Two separate prop interfaces
+interface CreateUserFormProps {
+  user?: null;
+  onSubmit: (values: CreateUserFormValues) => void | Promise<void>;
   isSubmitting: boolean;
 }
 
+interface EditUserFormProps {
+  user: User;
+  onSubmit: (values: EditUserFormValues) => void | Promise<void>;
+  isSubmitting: boolean;
+}
+
+// Union type for props
+type UserFormProps = CreateUserFormProps | EditUserFormProps;
+
 export const UserForm = ({ user, onSubmit, isSubmitting }: UserFormProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const isEditing = !!user;
+  const schema = isEditing ? editUserSchema : createUserSchema;
+
+  const form = useForm<CreateUserFormValues | EditUserFormValues>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
-      password: '', // Never pre-fill password
+      password: '',
       role: user?.role || 'customer',
     },
   });
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-8">
         <FormField
           control={form.control}
           name="name"
@@ -57,12 +82,13 @@ export const UserForm = ({ user, onSubmit, isSubmitting }: UserFormProps) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="email"
@@ -70,32 +96,54 @@ export const UserForm = ({ user, onSubmit, isSubmitting }: UserFormProps) => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john.doe@example.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="john.doe@example.com"
+                  {...field}
+                  disabled={isSubmitting}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>
+                Password {isEditing && '(leave blank to keep unchanged)'}
+              </FormLabel>
               <FormControl>
-                <Input type="password" placeholder="********" {...field} />
+                <Input
+                  type="password"
+                  placeholder={
+                    isEditing
+                      ? 'Leave blank to keep current password'
+                      : 'Enter password (min 6 characters)'
+                  }
+                  {...field}
+                  disabled={isSubmitting}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="role"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={isSubmitting}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
@@ -110,9 +158,9 @@ export const UserForm = ({ user, onSubmit, isSubmitting }: UserFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : (user ? 'Save Changes' : 'Create User')}
+          {isSubmitting ? 'Saving...' : user ? 'Save Changes' : 'Create User'}
         </Button>
       </form>
     </Form>
