@@ -1,10 +1,10 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { initialProducts } from '@/lib/constants/products';
 import { productFormSchema } from '@/lib/schemas/product-schema';
 import { Product } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 /**
  * Server action result type
@@ -43,11 +43,12 @@ export async function addProduct(formData: FormData) {
     if (!validatedFields.success) {
       return {
         success: false,
-        error: validatedFields.error.errors[0]?.message || 'Invalid fields!',
+        error: validatedFields.error.issues[0]?.message || 'Invalid fields!',
       };
     }
 
-    const { title, description, price, stock, brand, category } = validatedFields.data;
+    const { title, description, price, stock, brand, category } =
+      validatedFields.data;
 
     // Create new product
     const newProduct: Product = {
@@ -62,6 +63,10 @@ export async function addProduct(formData: FormData) {
       reviewCount: 0,
       images: ['/images/placeholder.jpg'],
       reviews: [],
+      // Optional fields can be omitted or included
+      thumbnail: '/images/placeholder.jpg',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // TODO: Replace with database call
@@ -101,9 +106,14 @@ export async function updateProduct(productId: string, formData: FormData) {
     const validatedFields = productFormSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
+      // Get all error messages
+      const errorMessages = validatedFields.error.issues
+        .map((issue) => issue.message)
+        .join(', ');
+
       return {
         success: false,
-        error: validatedFields.error.errors[0]?.message || 'Invalid fields!',
+        error: errorMessages || 'Invalid fields!',
       };
     }
 

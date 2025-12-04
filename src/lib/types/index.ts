@@ -74,7 +74,7 @@ export interface Product {
   category: string;
   images: string[];
   rating: number;
-  thumbnail: string;
+  thumbnail?: string;
   reviewCount: number;
   reviews?: Review[];
   options?: ProductOption[];
@@ -83,8 +83,8 @@ export interface Product {
   sku?: string;
   tags?: string[];
   releaseDate?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductOption {
