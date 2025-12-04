@@ -18,6 +18,12 @@ export const productFormSchema = z.object({
     .min(0, { message: 'Stock must be a positive integer.' }),
   brand: z.string().min(2, { message: 'Brand is required.' }),
   category: z.string().min(2, { message: 'Category is required.' }),
+  // --- NEW FIELDS ADDED BELOW ---
+  images: z.array(z.string()).optional(),
+  imageUrl: z.string().optional(),
+  discount: z.coerce.number().min(0).max(100).optional(),
+  tags: z.array(z.string()).optional(),
+  options: z.any().optional(), // Using 'any' for flexibility with custom JSON options
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
