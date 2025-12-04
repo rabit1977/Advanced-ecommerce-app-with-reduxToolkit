@@ -1,6 +1,4 @@
 // File: lib/hooks/useProducts.ts
-// Updated to include CRUD operations while keeping your existing functions
-
 import { useCallback } from 'react';
 import { useAppDispatch } from './useAppDispatch';
 import { useAppSelector } from './useAppSelector';
@@ -137,7 +135,7 @@ export const useProducts = () => {
    */
   const handleAddReview = useCallback(
     (productId: string, reviewData: ReviewPayload) => {
-      dispatch(addReview(productId, reviewData));
+      return dispatch(addReview({ productId, reviewData }));
     },
     [dispatch]
   );
@@ -147,7 +145,7 @@ export const useProducts = () => {
    */
   const handleUpdateReviewHelpfulCount = useCallback(
     (productId: string, reviewId: string) => {
-      dispatch(toggleHelpfulReview(productId, reviewId));
+      return dispatch(toggleHelpfulReview({ productId, reviewId }));
     },
     [dispatch]
   );

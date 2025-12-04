@@ -16,7 +16,13 @@ import {
   RotateCcw,
   ShoppingCart,
 } from 'lucide-react';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react'; // ✅ Added useEffect
 
 interface ProductPurchasePanelProps {
   product: Product;
@@ -30,10 +36,9 @@ export function ProductPurchasePanel({
   onOptionChange,
 }: ProductPurchasePanelProps) {
   const dispatch = useAppDispatch();
-  const { itemIds: wishlistItems } = useAppSelector(
-    (state) => state.wishlist
-  );
-  const cartItems = useAppSelector((state) => state.cart?.items);
+  const { itemIds: wishlistItems } = useAppSelector((state) => state.wishlist);
+  const cart = useAppSelector((state) => state.cart);
+  const cartItems = cart?.cart || [];
   const [isPending, startTransition] = useTransition();
   const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -57,21 +62,24 @@ export function ProductPurchasePanel({
 
   const isOutOfStock = useMemo(() => availableStock === 0, [availableStock]);
 
-  // Reset quantity when available stock changes
-  useMemo(() => {
+  // ✅ FIXED: Reset quantity when available stock changes (use useEffect instead of useMemo)
+  useEffect(() => {
     if (quantity > availableStock && availableStock > 0) {
       setQuantity(availableStock);
     } else if (availableStock === 0) {
       setQuantity(0);
+    } else if (quantity === 0 && availableStock > 0) {
+      // Reset to 1 when stock becomes available again
+      setQuantity(1);
     }
   }, [availableStock, quantity]);
 
   const handleAddToCart = useCallback(() => {
     // Prevent adding if no stock available
-    if (availableStock === 0) {
+    if (availableStock === 0 || quantity === 0) {
       return;
     }
-    
+
     startTransition(() => {
       dispatch(
         addToCart({
@@ -83,8 +91,13 @@ export function ProductPurchasePanel({
         })
       );
       setAddedToCart(true);
-      // Reset quantity to available stock or 1 after adding to cart
-      setQuantity(Math.min(1, availableStock - quantity));
+
+      // Calculate remaining stock after this addition
+      const remainingStock = availableStock - quantity;
+
+      // Reset quantity to 1 or available stock
+      setQuantity(remainingStock > 0 ? Math.min(1, remainingStock) : 0);
+
       setTimeout(() => setAddedToCart(false), 2000);
     });
   }, [product, quantity, selectedOptions, dispatch, availableStock]);
@@ -184,7 +197,7 @@ export function ProductPurchasePanel({
             variant='ghost'
             size='icon'
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            disabled={isOutOfStock}
+            disabled={isOutOfStock || quantity <= 1}
             aria-label='Decrease quantity'
           >
             <Minus className='h-4 w-4' />
@@ -204,7 +217,7 @@ export function ProductPurchasePanel({
         <Button
           className='w-full sm:w-auto sm:flex-1'
           onClick={handleAddToCart}
-          disabled={isOutOfStock || isPending}
+          disabled={isOutOfStock || isPending || quantity === 0}
         >
           <AnimatePresence mode='wait' initial={false}>
             <motion.span

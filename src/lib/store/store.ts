@@ -41,14 +41,7 @@ const persistConfig = {
   whitelist: ['cart', 'wishlist', 'user', 'orders'], // Remove 'as const' to fix type issue
   version: 1,
   timeout: 10000,
-  // Optional: Add migration for version updates
-  // migrate: (state: any) => {
-  //   if (state?._persist?.version === 0) {
-  //     // Handle migration from version 0 to 1
-  //     return Promise.resolve(state);
-  //   }
-  //   return Promise.resolve(state);
-  // },
+ 
 };
 
 /**
