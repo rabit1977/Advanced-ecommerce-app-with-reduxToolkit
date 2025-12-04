@@ -1,6 +1,4 @@
-// File: components/admin/product-form.tsx
-// Enhanced ProductForm with image upload support
-
+// components/admin/product-form.tsx
 'use client';
 
 import { useState } from 'react';
@@ -30,9 +28,6 @@ interface ProductFormProps {
   isSubmitting?: boolean;
 }
 
-/**
- * Product form component with image upload and proper validation
- */
 export const ProductForm = ({
   product,
   onSubmit,
@@ -52,6 +47,7 @@ export const ProductForm = ({
       stock: product?.stock || 0,
       brand: product?.brand || '',
       category: product?.category || '',
+      discount: product?.discount || undefined, // ✅ Added discount
     },
   });
 
@@ -60,7 +56,6 @@ export const ProductForm = ({
     
     if (files.length === 0) return;
 
-    // Validate file size (5MB max)
     const validFiles = files.filter(file => {
       if (file.size > 5 * 1024 * 1024) {
         alert(`${file.name} is too large. Max size is 5MB.`);
@@ -69,26 +64,21 @@ export const ProductForm = ({
       return true;
     });
 
-    // Create preview URLs
     const previews = validFiles.map(file => URL.createObjectURL(file));
     setImagePreviews(prev => [...prev, ...previews]);
     setImageFiles(prev => [...prev, ...validFiles]);
   };
 
   const removeImage = (index: number) => {
-    // Revoke object URL to free memory
     URL.revokeObjectURL(imagePreviews[index]);
-    
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
     setImageFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleFormSubmit = async (values: ProductFormValues) => {
-    // Convert uploaded files to base64 if any
     let images: string[] = [];
 
     if (!useUrlInput && imageFiles.length > 0) {
-      // Convert files to base64
       const imagePromises = imageFiles.map((file: File) => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -100,14 +90,11 @@ export const ProductForm = ({
 
       images = await Promise.all(imagePromises);
     } else if (useUrlInput && imageUrl) {
-      // Use URL input
       images = [imageUrl];
     } else {
-      // Fallback placeholder
       images = ['https://via.placeholder.com/400x400?text=No+Image'];
     }
 
-    // Add images to form values
     const finalValues = {
       ...values,
       images,
@@ -177,8 +164,7 @@ export const ProductForm = ({
                     {...field}
                     value={field.value === 0 ? '' : field.value}
                     onChange={(e) => {
-                      const value =
-                        e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       field.onChange(isNaN(value) ? 0 : value);
                     }}
                   />
@@ -203,10 +189,7 @@ export const ProductForm = ({
                     {...field}
                     value={field.value === 0 ? '' : field.value}
                     onChange={(e) => {
-                      const value =
-                        e.target.value === ''
-                          ? 0
-                          : parseInt(e.target.value, 10);
+                      const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
                       field.onChange(isNaN(value) ? 0 : value);
                     }}
                   />
@@ -260,7 +243,6 @@ export const ProductForm = ({
         <div className="border dark:border-slate-800 rounded-lg p-6 space-y-4">
           <FormLabel>Product Images</FormLabel>
           
-          {/* Toggle between URL and Upload */}
           <div className="flex gap-2">
             <Button
               type="button"
@@ -283,7 +265,6 @@ export const ProductForm = ({
           </div>
 
           {useUrlInput ? (
-            /* URL Input Mode */
             <div className="space-y-2">
               <Input
                 type="url"
@@ -306,7 +287,6 @@ export const ProductForm = ({
               )}
             </div>
           ) : (
-            /* File Upload Mode */
             <div className="space-y-4">
               <div className="border-2 border-dashed dark:border-slate-700 rounded-lg p-6 text-center hover:border-slate-400 dark:hover:border-slate-600 transition-colors">
                 <Input

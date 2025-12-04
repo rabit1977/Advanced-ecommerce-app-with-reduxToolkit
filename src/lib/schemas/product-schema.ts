@@ -21,7 +21,7 @@ export const productFormSchema = z.object({
   // --- NEW FIELDS ADDED BELOW ---
   images: z.array(z.string()).optional(),
   imageUrl: z.string().optional(),
-  discount: z.coerce.number().min(0).max(100).optional(),
+  discount: z.number().min(0).max(100).optional(),
   tags: z.array(z.string()).optional(),
   options: z.any().optional(), // Using 'any' for flexibility with custom JSON options
 });
