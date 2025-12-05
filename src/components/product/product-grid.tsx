@@ -4,16 +4,16 @@
 import { ProductGridPagination } from '@/lib/hooks/usePagination';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { ProductGridControls } from './ProductGridControls';
-import { ProductList } from './ProductList';
-import { FilterSidebar } from './filter-sidebar';
 import { useFilterMetadata } from '@/lib/hooks/useFilterMetadata';
 import { useProductFilters } from '@/lib/hooks/useProductFilters';
 import { ProductGridProps } from '@/lib/types';
 import { ActiveFiltersBanner } from '../ActiveFiltersBanner';
-import { LoadingOverlay } from '../shared/LoadingOverlay';
 import { MobileFilterSheet } from '../MobileFilterSheet';
 import { EmptyState } from '../shared/EmptyState';
+import { LoadingOverlay } from '../shared/LoadingOverlay';
+import { ProductGridControls } from './ProductGridControls';
+import { ProductList } from './ProductList';
+import { FilterSidebar } from './filter-sidebar';
 
 export const ProductGrid = ({
   title = 'All Products',
@@ -61,22 +61,15 @@ export const ProductGrid = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const allCategories = useMemo(
-    () => [
-      'all',
-      'smartphones',
-      'laptops',
-      'audio',
-      'accessories',
-      'wearables',
-    ],
-    []
-  );
+  const allCategories = useMemo(() => {
+    const categories = new Set(products.map((p) => p.category));
+    return ['all', ...Array.from(categories)];
+  }, [products]);
 
-  const allBrands = useMemo(
-    () => ['Apple', 'Samsung', 'Sony', 'Bose', 'Google', 'Anker'],
-    []
-  );
+  const allBrands = useMemo(() => {
+    const brands = new Set(products.map((p) => p.brand));
+    return Array.from(brands);
+  }, [products]);
 
   const currentTitle = useMemo(
     () => (searchQuery ? `Results for "${searchQuery}"` : title),

@@ -1071,7 +1071,7 @@ export const initialProducts: Product[] = [
   // MORE ТЕЛЕФОНИ И ЧАСОВНИЦИ (Phones & Watches)
   // ============================================
   {
-    id: 'sku-phone-003',
+    id: 'sku-phone-004',
     title: 'iPhone 15 Pro Max',
     brand: 'Apple',
     price: 84999,
