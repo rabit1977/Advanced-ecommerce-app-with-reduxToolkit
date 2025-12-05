@@ -175,7 +175,7 @@ export const NavActions = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button asChild size='sm' className='gap-2 bg-slate-900 hover:bg-slate-700'>
+        <Button asChild size='sm' className='px-3 sm:px-4 ml-2  *:'>
           <Link href='/auth'>
             <User className='h-4 w-4' />
             <span className='hidden sm:inline'>Login</span>

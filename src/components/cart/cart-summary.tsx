@@ -118,7 +118,7 @@ const CartSummary = memo(
         {!isCollapsible && showCheckoutButton && (
           <Button
             size='lg'
-            className='w-full mt-6 bg-slate-900 hover:bg-slate-700'
+           className=' w-full mt-6 '
             onClick={handleCheckout}
             disabled={subtotal === 0}
           >

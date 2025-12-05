@@ -178,7 +178,7 @@ export const AuthForm: React.FC = () => {
   return (
     <div className='flex min-h-[70vh] items-center justify-center bg-slate-50 p-4 dark:bg-slate-900'>
       <div className='w-full max-w-md'>
-        <div className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-900 dark:border-slate-800'>
+        <div className='rounded-xl border bg-white p-6 shadow-lg dark:bg-slate-900 dark:border-slate-600'>
           {/* Tab Navigation (Login/Signup) */}
           {mode !== 'forgot' && (
             <div className='flex border-b dark:border-slate-800'>
@@ -342,7 +342,7 @@ export const AuthForm: React.FC = () => {
                   {/* Submit Button */}
                   <Button
                     type='submit'
-                    className='w-full bg-slate-900 hover:bg-slate-700'
+                    className='w-full mt-4 '
                     size='lg'
                     disabled={isLoading}
                   >
@@ -371,7 +371,6 @@ export const AuthForm: React.FC = () => {
                         size='sm'
                         onClick={() => handleModeChange('forgot')}
                         disabled={isLoading}
-                        className='text-slate-900 hover:text-slate-700'
                       >
                         Forgot Password?
                       </Button>
