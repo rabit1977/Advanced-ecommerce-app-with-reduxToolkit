@@ -670,7 +670,7 @@ export const initialProducts: Product[] = [
   // MORE ТЕЛЕВИЗОРИ (TVs)
   // ============================================
   {
-    id: 'sku-tv-004',
+    id: 'sku-tv-007',
     title: 'LG OLED evo C3 55" Smart TV',
     brand: 'LG',
     price: 79999,
@@ -987,7 +987,7 @@ export const initialProducts: Product[] = [
   // MORE КОМПЈУТЕРИ (Computers)
   // ============================================
   {
-    id: 'sku-laptop-003',
+    id: 'sku-laptop-005',
     title: 'ASUS ROG Zephyrus G14 Gaming Laptop',
     brand: 'ASUS',
     price: 94999,
@@ -1091,7 +1091,7 @@ export const initialProducts: Product[] = [
     updatedAt: '2025-12-01T12:00:00.000Z',
   },
   {
-    id: 'sku-phone-004',
+    id: 'sku-phone-005',
     title: 'Google Pixel 8 Pro',
     brand: 'Google',
     price: 59999,
