@@ -126,7 +126,7 @@ const OrderDetailPage = () => {
                     <div className='h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border dark:border-slate-700'>
                       <Image
                         src={item.image}
-                        alt={item.title}
+                        alt={item.title || 'Product Image'}
                         width={80}
                         height={80}
                         className='h-full w-full object-cover'

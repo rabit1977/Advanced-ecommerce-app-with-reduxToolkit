@@ -25,8 +25,11 @@ export const ProductGrid = ({
   currentBrands,
   currentMinPrice,
   currentMaxPrice,
-  currentSort, // This should already be typed as SortKey in ProductGridProps
+  currentSort,
   pageSize = 8,
+  // ADD THESE TWO LINES BELOW to accept the full lists from the parent
+  allCategories,
+  allBrands,
 }: ProductGridProps) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -61,7 +64,9 @@ export const ProductGrid = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const allCategories = useMemo(() => {
+  // --- DELETE OR COMMENT OUT THESE BLOCKS ---
+  // These blocks were causing the issue by recalculating filters based on filtered results.
+  /* const allCategories = useMemo(() => {
     const categories = new Set(products.map((p) => p.category));
     return ['all', ...Array.from(categories)];
   }, [products]);
@@ -69,7 +74,9 @@ export const ProductGrid = ({
   const allBrands = useMemo(() => {
     const brands = new Set(products.map((p) => p.brand));
     return Array.from(brands);
-  }, [products]);
+  }, [products]); 
+  */
+  // ------------------------------------------
 
   const currentTitle = useMemo(
     () => (searchQuery ? `Results for "${searchQuery}"` : title),
@@ -89,7 +96,10 @@ export const ProductGrid = ({
   const filterSidebar = useMemo(
     () => (
       <FilterSidebar
-        categories={allCategories}
+        // We now use the allCategories/allBrands passed from props
+        // Note: Ensure your parent component passes 'all' for categories if needed, 
+        // or prepend it here like: ['all', ...allCategories]
+        categories={['all', ...allCategories.filter(c => c !== 'all')]} 
         brands={allBrands}
         currentCategories={currentCategories}
         currentBrands={currentBrands}
@@ -131,7 +141,7 @@ export const ProductGrid = ({
         <ProductGridControls
           title={currentTitle}
           subtitle={currentSubtitle}
-          currentSort={currentSort} // ✅ Should be typed as SortKey
+          currentSort={currentSort}
           onSortChange={handleSortChange}
           onFilterToggle={() => setIsSheetOpen(true)}
         />

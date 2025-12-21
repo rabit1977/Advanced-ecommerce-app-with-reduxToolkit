@@ -538,7 +538,7 @@ const CheckoutPage = () => {
                             <div className='w-16 h-16 flex-shrink-0 relative rounded-md overflow-hidden border dark:border-slate-700'>
                               <Image
                                 src={item.image}
-                                alt={item.title}
+                                alt={item.title || 'Product Image'}
                                 fill
                                 className='object-cover'
                               />

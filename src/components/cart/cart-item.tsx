@@ -83,7 +83,7 @@ const CartItem = React.memo(({ item }: CartItemProps) => {
       <div className='h-48 w-full flex-shrink-0 overflow-hidden rounded-md border dark:border-slate-800 sm:h-24 sm:w-24'>
         <Image
           src={item.image || '/images/placeholder.jpg'}
-          alt={item.title}
+          alt={item.title || 'Product Image'}
           width={96}
           height={96}
           className='h-full w-full object-cover'
