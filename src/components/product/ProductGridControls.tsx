@@ -34,10 +34,10 @@ const ProductGridControls = ({
   return (
     <div className='flex flex-col lg:flex-row justify-between mb-8'>
       <div className='flex lg:block gap-3 items-center mb-4'>
-        <h2 className='text-3xl font-bold tracking-tight text-slate-900 dark:text-white'>
+        <h2 className='text-lg md:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white'>
           {title}
         </h2>
-        <p className='mt-2 text-base md:text-lg text-slate-600 dark:text-slate-300'>
+        <p className='mt-2 text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300'>
           {subtitle}
         </p>
       </div>
@@ -45,7 +45,7 @@ const ProductGridControls = ({
         {/* Mobile Filter Button */}
         <Button
           variant='outline'
-          className='lg:hidden flex items-center gap-2'
+          className='lg:hidden text-xs lg:text-base flex items-center gap-2'
           onClick={onFilterToggle}
         >
           <SlidersHorizontal className='h-4 w-4' />
@@ -53,11 +53,11 @@ const ProductGridControls = ({
         </Button>
 
         {/* Sort Dropdown */}
-        <div className='relative'>
+        <div className='relative text-xs lg:text-base flex items-center gap-2'>
           <select
             value={currentSort}
             onChange={(e) => onSortChange(e.target.value)}
-            className='h-10 cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm focus:border-slate-500 focus:outline-none focus:ring-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400'
+            className='h-10 cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 focus:border-slate-500 focus:outline-none focus:ring-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400'
           >
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
