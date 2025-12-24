@@ -64,19 +64,7 @@ export const ProductGrid = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- DELETE OR COMMENT OUT THESE BLOCKS ---
-  // These blocks were causing the issue by recalculating filters based on filtered results.
-  /* const allCategories = useMemo(() => {
-    const categories = new Set(products.map((p) => p.category));
-    return ['all', ...Array.from(categories)];
-  }, [products]);
 
-  const allBrands = useMemo(() => {
-    const brands = new Set(products.map((p) => p.brand));
-    return Array.from(brands);
-  }, [products]); 
-  */
-  // ------------------------------------------
 
   const currentTitle = useMemo(
     () => (searchQuery ? `Results for "${searchQuery}"` : title),

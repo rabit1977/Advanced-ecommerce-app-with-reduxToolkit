@@ -32,16 +32,16 @@ const ProductGridControls = ({
   );
 
   return (
-    <div className='flex items-center justify-between mb-8'>
-      <div>
+    <div className='flex flex-col lg:flex-row justify-between mb-8'>
+      <div className='flex lg:block gap-3 items-center mb-4'>
         <h2 className='text-3xl font-bold tracking-tight text-slate-900 dark:text-white'>
           {title}
         </h2>
-        <p className='mt-2 text-lg text-slate-600 dark:text-slate-300'>
+        <p className='mt-2 text-base md:text-lg text-slate-600 dark:text-slate-300'>
           {subtitle}
         </p>
       </div>
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-4 justify-between'>
         {/* Mobile Filter Button */}
         <Button
           variant='outline'

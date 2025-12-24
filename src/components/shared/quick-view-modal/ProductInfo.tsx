@@ -9,31 +9,33 @@ export const ProductInfo = ({ product }: ProductInfoProps) => {
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-1'>
       {/* Title and Brand */}
-      <div>
-        <h2 className='text-2xl font-bold text-foreground'>{product.title}</h2>
+      <div className='flex justify-between'>
+        <h2 className='text-xl md:text-2xl font-bold text-foreground'>
+          {product.title}
+        </h2>
         {product.brand && (
-          <p className='text-sm text-muted-foreground mt-1'>{product.brand}</p>
+          <p className='text-sm text-muted-foreground mt-1 bg-accent rounded-full px-2 py-1'>{product.brand}</p>
         )}
       </div>
 
       {/* Rating */}
       <div className='flex items-center gap-2'>
         <Stars value={product.rating} />
-        <span className='text-sm text-muted-foreground'>
+        <span className='text-xs md:text-sm text-muted-foreground'>
           {product.rating} ({product.reviewCount} reviews)
         </span>
       </div>
 
       {/* Price */}
       <div className='flex items-center gap-3'>
-        <p className='text-3xl font-bold text-foreground'>
+        <p className='text-xl md:text-3xl font-bold text-foreground'>
           {formatPrice(product.price)}
         </p>
         {product.discount && product.discount > 0 && (
           <div className='flex items-center gap-2'>
-            <p className='text-lg text-muted-foreground line-through'>
+            <p className='text-sm md:text-base text-muted-foreground line-through'>
               {formatPrice(product.price / (1 - product.discount / 100))}
             </p>
             <Badge variant='destructive'>{product.discount}% OFF</Badge>
@@ -44,22 +46,22 @@ export const ProductInfo = ({ product }: ProductInfoProps) => {
       {/* Stock Status */}
       <div>
         {isOutOfStock ? (
-          <Badge variant='destructive' className='text-sm'>
+          <Badge variant='destructive' className=' text-xs md:text-sm'>
             Out of Stock
           </Badge>
         ) : isLowStock ? (
-          <Badge variant='secondary' className='text-sm'>
+          <Badge variant='secondary' className='text-xs md:text-sm'>
             Only {product.stock} left in stock
           </Badge>
         ) : (
-          <Badge variant='outline' className='text-sm'>
+          <Badge variant='outline' className='text-xs md:text-sm'>
             In Stock ({product.stock} available)
           </Badge>
         )}
       </div>
 
       {/* Description */}
-      <p className='text-sm text-muted-foreground leading-relaxed'>
+      <p className='text-sm md:text-base text-muted-foreground leading-relaxed'>
         {product.description}
       </p>
 

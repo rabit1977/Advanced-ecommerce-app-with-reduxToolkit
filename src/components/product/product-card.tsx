@@ -108,7 +108,16 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
         )}
 
         {/* Quick Actions */}
-        <div className='absolute right-3 top-12 z-20 flex flex-col gap-1'>
+        <div className='absolute right-3 top-3 z-20 flex gap-1'>
+          <Button
+            size='icon'
+            variant='secondary'
+            className='h-7 w-7 rounded-full shadow-lg backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100'
+            onClick={handleQuickView}
+            aria-label='Quick view'
+          >
+            <Eye className='size-3.5' />
+          </Button>
           <Button
             size='icon'
             variant={isWished ? 'default' : 'secondary'}
@@ -126,15 +135,6 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
                 isWished && 'fill-white text-white'
               )}
             />
-          </Button>
-          <Button
-            size='icon'
-            variant='secondary'
-            className='h-7 w-7 rounded-full shadow-lg backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100'
-            onClick={handleQuickView}
-            aria-label='Quick view'
-          >
-            <Eye className='size-3.5' />
           </Button>
         </div>
 
