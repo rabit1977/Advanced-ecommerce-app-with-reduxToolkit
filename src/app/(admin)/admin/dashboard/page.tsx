@@ -217,7 +217,7 @@ function DashboardContent() {
                   </div>
                   <div className='text-right'>
                     <p className='font-semibold text-sm dark:text-white'>
-                      ${order.total.toFixed(2)}
+                      ${order?.total?.toFixed(2)}
                     </p>
                     <p className='text-xs text-slate-500 dark:text-slate-400'>
                       {order.status}

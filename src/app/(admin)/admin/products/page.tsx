@@ -150,7 +150,7 @@ export default function AdminProductsPage() {
                       {product.title}
                     </h3>
                     <div className="flex items-center gap-4 mt-1 text-sm text-slate-600 dark:text-slate-400">
-                      <span>${product.price.toFixed(2)}</span>
+                      <span>${product?.price?.toFixed(2)}</span>
                       <span>•</span>
                       <span>Stock: {product.stock}</span>
                       <span>•</span>

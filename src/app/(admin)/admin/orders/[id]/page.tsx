@@ -282,7 +282,7 @@ function OrderDetailsContent({ orderId }: { orderId: string }) {
                       <div className="w-16 h-16 relative rounded-md overflow-hidden border dark:border-slate-700">
                         <Image
                           src={item.image || '/images/placeholder.jpg'}
-                          alt={item.title}
+                          alt={item.title || 'Product Image'}
                           fill
                           className="object-cover"
                         />
@@ -290,12 +290,12 @@ function OrderDetailsContent({ orderId }: { orderId: string }) {
                       <div className="flex-1">
                         <p className="font-medium dark:text-white">{item.title}</p>
                         <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mt-1">
-                          <span>Qty: {item.quantity}</span>
+                          <span>Qty: {item?.quantity}</span>
                           <span>{formatPrice(item.price)} each</span>
                         </div>
                       </div>
                       <p className="font-semibold dark:text-white">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item?.price * item?.quantity)}
                       </p>
                     </div>
                   </div>
